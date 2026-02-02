@@ -1,0 +1,160 @@
+<?php
+include '../includes/db.php';
+
+// Parâmetros de pesquisa
+//$termo = $_GET['termo'] ?? '';
+//$campo = $_GET['campo'] ?? 'todos';
+
+// Construir a query
+$where = [];
+$params = [];
+$bindTypes = [];
+
+// Grupo (independente ou como filtro primário)
+if (!empty($_GET['grupo'])) {
+    $where[] = "grupo LIKE ?";
+    $params[] = "%{$_GET['grupo']}%";
+    $bindTypes[] = PDO::PARAM_STR;
+}
+
+// Subgrupo (se grupo estiver definido, filtra dentro do grupo)
+if (!empty($_GET['subgrupo'])) {
+    $where[] = "subgrupo LIKE ?";
+    $params[] = "%{$_GET['subgrupo']}%";
+    $bindTypes[] = PDO::PARAM_STR;
+}
+
+// Nome (filtro mais específico)
+if (!empty($_GET['nome'])) {
+    $where[] = "nome LIKE ?";
+    $params[] = "%{$_GET['nome']}%";
+    $bindTypes[] = PDO::PARAM_STR;
+}
+
+
+
+
+
+
+$sql = "SELECT * FROM produtos";
+if (!empty($where)) {
+    $sql .= " WHERE " . implode(" AND ", $where);
+}
+$sql .= " ORDER BY 
+          CASE WHEN grupo IS NOT NULL THEN 0 ELSE 1 END,
+          CASE WHEN subgrupo IS NOT NULL THEN 0 ELSE 1 END,
+          nome
+          LIMIT 50";
+
+$stmt = $pdo->prepare($sql);
+foreach ($params as $key => $value) {
+    $stmt->bindValue($key + 1, $value, $bindTypes[$key]);
+}   
+
+
+// EXECUTAR A QUERY E OBTER RESULTADOS
+$stmt->execute();
+$produtos = $stmt->fetchAll(PDO::FETCH_ASSOC); // Adicionado
+
+include '../includes/header.php';
+?>
+
+<div class="container mt-4">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+            <h4><i class="fas fa-boxes me-2"></i>Lista de Produtos</h4>
+            <a href="cadastrar.php" class="btn btn-success btn-sm">
+                <i class="fas fa-plus me-1"></i> Novo
+            </a>
+        </div>
+
+        <div class="card-body">
+            <!-- Formulário de Pesquisa -->
+            <form method="get" class="mb-4">
+                <div class="row g-3">
+                    <div class="col-md-3">
+                        <input type="text" name="grupo" class="form-control" placeholder="Grupo"
+                            value="<?= htmlspecialchars($_GET['grupo'] ?? '') ?>" id="grupoInput" list="gruposList">
+                        <datalist id="gruposList">
+                            <?php
+                            $grupos = $pdo->query("SELECT DISTINCT grupo FROM produtos WHERE grupo IS NOT NULL");
+                            foreach ($grupos as $g) {
+                                echo "<option value='{$g['grupo']}'>";
+                            }
+                            ?>
+                        </datalist>
+                    </div>
+
+                    <div class="col-md-3">
+                        <input type="text" name="subgrupo" class="form-control" placeholder="Subgrupo"
+                            value="<?= htmlspecialchars($_GET['subgrupo'] ?? '') ?>" id="subgrupoInput"
+                            list="subgruposList" <?= empty($_GET['grupo']) ? 'disabled' : '' ?>>
+                        <datalist id="subgruposList">
+                            <!-- Conteúdo será preenchido dinamicamente via JavaScript -->
+                        </datalist>
+                    </div>
+
+                    <div class="col-md-6">
+                        <input type="text" name="nome" class="form-control" placeholder="Nome do produto"
+                            value="<?= htmlspecialchars($_GET['nome'] ?? '') ?>">
+                    </div>
+
+                    <div class="col-md-12 text-end mt-3">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-search me-1"></i> Pesquisar
+                        </button>
+                        <a href="listar.php" class="btn btn-secondary">Limpar Filtros</a>
+                    </div>
+                </div>
+            </form>
+            <!-- Tabela de Resultados -->
+            <div class="table-responsive">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Nome</th>
+                            <th>Preço Varejo</th>
+                            <th>Preço Atacado</th>
+                            <th>Grupo/Subgrupo</th>
+                            <th>Marca</th>
+                            <th>Estoque</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php foreach ($produtos as $produto): ?>
+                            <tr>
+                                <td><?= htmlspecialchars($produto['nome']) ?></td>
+                                <td>R$ <?= number_format($produto['preco1'], 2, ',', '.') ?></td>
+                                <td>
+                                    <?= $produto['preco2'] ? 'R$ ' . number_format($produto['preco2'], 2, ',', '.') : '-' ?>
+                                </td>
+                                <td>
+                                    <?= htmlspecialchars($produto['grupo']) ?>
+                                    <?= $produto['subgrupo'] ? '/ ' . htmlspecialchars($produto['subgrupo']) : '' ?>
+                                </td>
+                                <td><?= htmlspecialchars($produto['marca']) ?? '-' ?></td>
+                                <td><?= $produto['qtdEstoque'] ?></td>
+                                <td>
+                                    <a href="editar.php?id=<?= $produto['id'] ?>" class="btn btn-sm btn-primary">
+                                        <i class="fas fa-edit"></i>
+                                    </a>
+                                    <button class="btn btn-sm btn-danger"
+                                        onclick="confirmarExclusao(<?= $produto['id'] ?>)">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript" src="../assets/js/filtrar_produtos.js">
+
+</script>
+
+<?php include '../includes/footer.php'; ?>

@@ -1,0 +1,70 @@
+<?php include 'includes/header.php'; ?>
+
+<div class="row">
+    <div class="col-md-8 mx-auto">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h3 class="card-title"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</h3>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-md-4 mb-3">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h5><i class="fas fa-boxes text-primary"></i> Total Produtos</h5>
+                                <h3>125</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h5><i class="fas fa-tags text-success"></i> Em Estoque</h5>
+                                <h3>89</h3>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 mb-3">
+                        <div class="card bg-light">
+                            <div class="card-body">
+                                <h5><i class="fas fa-exclamation-triangle text-warning"></i> Baixo Estoque</h5>
+                                <h3>12</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mt-4">
+                    <a href="produtos/listar.php" class="btn btn-primary me-2">
+                        <i class="fas fa-box-open me-1"></i> Ver Produtos
+                    </a>
+                    <a href="produtos/cadastrar.php" class="btn btn-success">
+                        <i class="fas fa-plus-circle me-1"></i> Novo Produto
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div>
+            <h2>Leitor de Código</h2>
+
+            <div class="row">
+                <button class="buttonBar primary" id="btnStart">Iniciar</button>
+                <button class="buttonBar secondary" id="btnStop">Parar</button>
+                <button class="buttonBar secondary" id="btnRestart">Reiniciar câmera</button>
+            </div>
+
+            <div class="hint">
+                Dica corporativa: luz boa, mão firme e câmera traseira. O resto é “alinhamento estratégico”.
+            </div>
+
+            <div id="reader"></div>
+
+            <div id="last">Último lido: <strong id="lastCode">---</strong></div>
+
+            <ul class="ulBar" id="list"></ul>
+        </div>
+    </div>
+
+</div>
+
+<?php include 'includes/footer.php'; ?>
