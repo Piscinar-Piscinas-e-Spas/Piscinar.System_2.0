@@ -40,11 +40,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nome'])) {
                     :grupo, :subgrupo, :marca, :observacoes, NOW()
                 )";
 
-        // DEBUG: Mostra a query e os dados (remova depois de testar)
-        //echo '<div class="container mt-3"><div class="alert alert-info">';
-        //echo '<h5>Debug:</h5><pre>SQL: ' . htmlspecialchars($sql) . "\n";
-        //echo 'Dados: ' . print_r($produto, true) . '</pre></div></div>';
-
         try {   
             $stmt = $pdo->prepare($sql);
             $result = $stmt->execute($produto);
@@ -56,7 +51,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nome'])) {
                 $mensagem = '<div class="alert alert-danger">Não foi possível cadastrar o produto no banco de dados.</div>';
             }
         } catch (PDOException $e) {
-            $mensagem = '<div class="alert alert-danger">Erro ao cadastrar: ' . $e->getMessage() . '</div>';
+            error_log('Erro técnico ao cadastrar produto: ' . $e->getMessage());
+            $mensagem = '<div class="alert alert-danger">Erro ao cadastrar produto. Tente novamente.</div>';
         }
     }
 }
