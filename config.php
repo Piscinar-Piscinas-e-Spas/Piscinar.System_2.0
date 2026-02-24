@@ -1,6 +1,20 @@
 <?php
-// Define a URL base do projeto (pode ser usado em links e redirecionamentos)
-// Altere para o nome da sua pasta, ou deixe vazio se estiver na raiz
-// Se o projeto estiver na raiz do domínio, basta definir define('BASE_URL', ''); e o link será href="/index.php"
-define('BASE_URL', '/piscinar.system_2.0'); 
-?>
+// URL base opcional do projeto (ex.: /piscinar.system_2.0).
+// Defina via variável de ambiente BASE_URL.
+// Fallback seguro: string vazia ('') para instalação na raiz do domínio.
+define('BASE_URL', getenv('BASE_URL') ?: '');
+
+/**
+ * Monta URLs absolutas da aplicação com BASE_URL, evitando barras duplicadas.
+ */
+function app_url(string $path = ''): string
+{
+    $base = rtrim(BASE_URL, '/');
+    $path = ltrim($path, '/');
+
+    if ($path == '') {
+        return $base === '' ? '/' : $base . '/';
+    }
+
+    return ($base === '' ? '' : $base) . '/' . $path;
+}

@@ -78,21 +78,30 @@
                         $currentRoute = rtrim($currentRoute, '/');
                         $currentRoute = $currentRoute === '' ? '/' : $currentRoute;
 
-                        $inicioActive = ($currentRoute === '/' || $currentRoute === '/index.php') ? ' active' : '';
-                        $produtosActive = strpos($currentRoute, '/produtos/') !== false ? ' active' : '';
                     ?>
                     <ul class="navbar-nav">
                         <li class="nav-item">
                             <?php
                                 // Caminho relativo para sair da pasta includes e ir à raiz
                                 require_once dirname(__DIR__) . '/config.php';
+
+                                $basePath = parse_url(app_url(), PHP_URL_PATH) ?? '';
+                                $basePath = rtrim($basePath, '/');
+
+                                if ($basePath !== '' && strpos($currentRoute, $basePath) === 0) {
+                                    $currentRoute = substr($currentRoute, strlen($basePath));
+                                    $currentRoute = $currentRoute === '' ? '/' : $currentRoute;
+                                }
+
+                                $inicioActive = ($currentRoute === '/' || $currentRoute === '/index.php') ? ' active' : '';
+                                $produtosActive = strpos($currentRoute, '/produtos/') !== false ? ' active' : '';
                             ?>
-                            <a class="nav-link<?php echo $inicioActive; ?>" href="<?php echo BASE_URL; ?>/index.php">
+                            <a class="nav-link<?php echo $inicioActive; ?>" href="<?php echo app_url('index.php'); ?>">
                                 <i class="fas fa-home"></i> Início
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link<?php echo $produtosActive; ?>" href="produtos/listar.php"><i class="fas fa-box-open"></i> Produtos</a>
+                            <a class="nav-link<?php echo $produtosActive; ?>" href="<?php echo app_url('produtos/listar.php'); ?>"><i class="fas fa-box-open"></i> Produtos</a>
                         </li>
                     </ul>
                 </div>
