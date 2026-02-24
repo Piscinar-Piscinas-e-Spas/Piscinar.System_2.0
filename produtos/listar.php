@@ -56,6 +56,15 @@ foreach ($params as $key => $value) {
 $stmt->execute();
 $produtos = $stmt->fetchAll(PDO::FETCH_ASSOC); // Adicionado
 
+$status = $_GET['status'] ?? '';
+$feedback = [
+    'editado' => ['class' => 'success', 'texto' => 'Produto atualizado com sucesso.'],
+    'excluido' => ['class' => 'success', 'texto' => 'Produto excluído com sucesso.'],
+    'erro_id' => ['class' => 'warning', 'texto' => 'ID inválido informado.'],
+    'nao_encontrado' => ['class' => 'warning', 'texto' => 'Produto não encontrado.'],
+    'erro_exclusao' => ['class' => 'danger', 'texto' => 'Erro ao excluir o produto.'],
+];
+
 include '../includes/header.php';
 ?>
 
@@ -69,6 +78,11 @@ include '../includes/header.php';
         </div>
 
         <div class="card-body">
+            <?php if (isset($feedback[$status])): ?>
+                <div class="alert alert-<?= $feedback[$status]['class'] ?>">
+                    <?= htmlspecialchars($feedback[$status]['texto']) ?>
+                </div>
+            <?php endif; ?>
             <!-- Formulário de Pesquisa -->
             <form method="get" class="mb-4">
                 <div class="row g-3">
