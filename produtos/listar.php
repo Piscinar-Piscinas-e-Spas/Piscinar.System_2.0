@@ -36,7 +36,9 @@ if (!empty($_GET['nome'])) {
 
 
 
-$sql = "SELECT * FROM produtos";
+$sql = "SELECT id, nome, preco1, preco2, grupo, subgrupo, marca, qtdLoja, qtdEstoque,
+               (COALESCE(qtdLoja, 0) + COALESCE(qtdEstoque, 0)) AS estoque_total
+        FROM produtos";
 if (!empty($where)) {
     $sql .= " WHERE " . implode(" AND ", $where);
 }
@@ -148,7 +150,7 @@ include '../includes/header.php';
                                     <?= $produto['subgrupo'] ? '/ ' . htmlspecialchars($produto['subgrupo']) : '' ?>
                                 </td>
                                 <td><?= htmlspecialchars($produto['marca']) ?? '-' ?></td>
-                                <td><?= $produto['qtdEstoque'] ?></td>
+                                <td><?= $produto['estoque_total'] ?></td>
                                 <td>
                                     <a href="<?= app_url('produtos/editar.php'); ?>?id=<?= $produto['id'] ?>" class="btn btn-sm btn-primary">
                                         <i class="fas fa-edit"></i>
