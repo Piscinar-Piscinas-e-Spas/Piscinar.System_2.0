@@ -139,6 +139,25 @@ include '../includes/header.php';
                     </thead>
                     <tbody>
                         <?php foreach ($produtos as $produto): ?>
+                            <?php
+                            $qtdLoja = (int) ($produto['qtdLoja'] ?? 0);
+                            $qtdEstoque = (int) ($produto['qtdEstoque'] ?? 0);
+                            $detalhesEstoque = [];
+
+                            if ($qtdLoja > 0) {
+                                $detalhesEstoque[] = 'qtLoja ' . str_pad((string) $qtdLoja, 2, '0', STR_PAD_LEFT);
+                            }
+
+                            if ($qtdEstoque > 0) {
+                                $detalhesEstoque[] = 'qtEstoque ' . str_pad((string) $qtdEstoque, 2, '0', STR_PAD_LEFT);
+                            }
+
+                            if (empty($detalhesEstoque)) {
+                                $detalhesEstoque[] = 'Sem estoque';
+                            }
+
+                            $tooltipEstoque = implode(' | ', $detalhesEstoque);
+                            ?>
                             <tr>
                                 <td><?= htmlspecialchars($produto['nome']) ?></td>
                                 <td>R$ <?= number_format($produto['preco1'], 2, ',', '.') ?></td>
@@ -150,7 +169,12 @@ include '../includes/header.php';
                                     <?= $produto['subgrupo'] ? '/ ' . htmlspecialchars($produto['subgrupo']) : '' ?>
                                 </td>
                                 <td><?= htmlspecialchars($produto['marca']) ?? '-' ?></td>
-                                <td><?= $produto['estoque_total'] ?></td>
+                                <td>
+                                    <span data-bs-toggle="tooltip" data-bs-placement="top"
+                                        title="<?= htmlspecialchars($tooltipEstoque) ?>" style="cursor: help;">
+                                        <?= $produto['estoque_total'] ?>
+                                    </span>
+                                </td>
                                 <td>
                                     <a href="<?= app_url('produtos/editar.php'); ?>?id=<?= $produto['id'] ?>" class="btn btn-sm btn-primary">
                                         <i class="fas fa-edit"></i>
@@ -171,6 +195,14 @@ include '../includes/header.php';
 
 <script>
     window.APP_BASE_URL = "<?php echo rtrim(BASE_URL, '/'); ?>";
+</script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+        tooltipTriggerList.forEach(function(tooltipTriggerEl) {
+            new bootstrap.Tooltip(tooltipTriggerEl);
+        });
+    });
 </script>
 <script type="text/javascript" src="<?php echo app_url('assets/js/filtrar_produtos.js'); ?>">
 
