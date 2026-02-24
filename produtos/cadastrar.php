@@ -2,9 +2,6 @@
 include '../includes/db.php';
 include '../includes/header.php';
 
-// DEBUG: Verifica se o script está sendo executado
-echo "<!-- Script está sendo executado -->";
-
 $mensagem = '';
 
 //verificação de envio do formulario
@@ -36,35 +33,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nome'])) {
     } else {
         // Define a query SQL antes do try para garantir que a variável exista
         $sql = "INSERT INTO produtos (
-        nome, custo, preco1, preco2, qtdLoja, qtdEstoque, 
-        grupo, subgrupo, marca, observacoes, created_at
-    ) VALUES (
-        :nome, :custo, :preco1, :preco2, :qtdLoja, :qtdEstoque, 
-        :grupo, :subgrupo, :marca, :observacoes, NOW()
-    )";
+                    nome, custo, preco1, preco2, qtdLoja, qtdEstoque, 
+                    grupo, subgrupo, marca, observacoes, created_at
+                ) VALUES (
+                    :nome, :custo, :preco1, :preco2, :qtdLoja, :qtdEstoque, 
+                    :grupo, :subgrupo, :marca, :observacoes, NOW()
+                )";
 
         // DEBUG: Mostra a query e os dados (remova depois de testar)
         //echo '<div class="container mt-3"><div class="alert alert-info">';
         //echo '<h5>Debug:</h5><pre>SQL: ' . htmlspecialchars($sql) . "\n";
         //echo 'Dados: ' . print_r($produto, true) . '</pre></div></div>';
 
-        try {
-                        
+        try {   
             $stmt = $pdo->prepare($sql);
             $result = $stmt->execute($produto);
             
-           // DEBUG 4: Verifica o resultado da execução
-            echo "<!-- Resultado da execução: " . ($result ? 'true' : 'false') . " -->";
-            echo "<!-- Linhas afetadas: " . $stmt->rowCount() . " -->";
-        
             if ($result && $stmt->rowCount() > 0) {
                 $mensagem = '<div class="alert alert-success">Produto cadastrado com sucesso!</div>';
                 $produto = array_fill_keys(array_keys($produto), '');
-                
-                // DEBUG 5: Confirmação visual
-                echo "<!-- Inserção bem-sucedida -->";
             } else {
-                echo "<!-- Nenhuma linha afetada -->";
+                $mensagem = '<div class="alert alert-danger">Não foi possível cadastrar o produto no banco de dados.</div>';
             }
         } catch (PDOException $e) {
             $mensagem = '<div class="alert alert-danger">Erro ao cadastrar: ' . $e->getMessage() . '</div>';
@@ -80,6 +69,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nome'])) {
         <h4><i class="fas fa-plus-circle me-2"></i>Cadastrar Novo Produto</h4>
     </div>
     <div class="card-body">
+        <?= $mensagem ?>
+
         <form method="POST">
             <div class="row">
                 <div class="col-md-6">
