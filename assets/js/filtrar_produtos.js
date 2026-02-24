@@ -1,11 +1,22 @@
 
+function appUrl(path = '') {
+    const base = (window.APP_BASE_URL || '').replace(/\/$/, '');
+    const cleanPath = String(path).replace(/^\//, '');
+
+    if (!cleanPath) {
+        return base ? `${base}/` : '/';
+    }
+
+    return `${base}/${cleanPath}`;
+}
+
 
 document.getElementById('grupoInput').addEventListener('input', function() {
     const grupo = this.value;
     const subgrupoInput = document.getElementById('subgrupoInput');
-    
+
     if(grupo) {
-        fetch(`../produtos/ajax_subgrupos.php?grupo=${encodeURIComponent(grupo)}`)
+        fetch(`${appUrl('produtos/ajax_subgrupos.php')}?grupo=${encodeURIComponent(grupo)}`)
             .then(response => response.text())
             .then(data => {
                 document.getElementById('subgruposList').innerHTML = data;
@@ -22,9 +33,9 @@ document.getElementById('grupoInput').addEventListener('input', function() {
 function atualizarSubgrupos() {
     const grupo = document.getElementById('grupo').value;
     const subgrupoSelect = document.getElementById('subgrupo');
-    
+
     if(grupo) {
-        fetch(`ajax_subgrupos.php?grupo=${encodeURIComponent(grupo)}`)
+        fetch(`${appUrl('produtos/ajax_subgrupos.php')}?grupo=${encodeURIComponent(grupo)}`)
             .then(response => response.text())
             .then(data => {
                 subgrupoSelect.innerHTML = data;
@@ -45,6 +56,6 @@ function atualizarNomes() {
 
 function confirmarExclusao(id) {
     if (confirm('Tem certeza que deseja excluir este produto?')) {
-        window.location.href = 'excluir.php?id=' + id;
+        window.location.href = `${appUrl('produtos/excluir.php')}?id=${id}`;
     }
 }

@@ -63,7 +63,7 @@ include '../includes/header.php';
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
             <h4><i class="fas fa-boxes me-2"></i>Lista de Produtos</h4>
-            <a href="cadastrar.php" class="btn btn-success btn-sm">
+            <a href="<?php echo app_url('produtos/cadastrar.php'); ?>" class="btn btn-success btn-sm">
                 <i class="fas fa-plus me-1"></i> Novo
             </a>
         </div>
@@ -103,7 +103,7 @@ include '../includes/header.php';
                         <button type="submit" class="btn btn-primary">
                             <i class="fas fa-search me-1"></i> Pesquisar
                         </button>
-                        <a href="listar.php" class="btn btn-secondary">Limpar Filtros</a>
+                        <a href="<?php echo app_url('produtos/listar.php'); ?>" class="btn btn-secondary">Limpar Filtros</a>
                     </div>
                 </div>
             </form>
@@ -136,7 +136,7 @@ include '../includes/header.php';
                                 <td><?= htmlspecialchars($produto['marca']) ?? '-' ?></td>
                                 <td><?= $produto['qtdEstoque'] ?></td>
                                 <td>
-                                    <a href="editar.php?id=<?= $produto['id'] ?>" class="btn btn-sm btn-primary">
+                                    <a href="<?= app_url('produtos/editar.php'); ?>?id=<?= $produto['id'] ?>" class="btn btn-sm btn-primary">
                                         <i class="fas fa-edit"></i>
                                     </a>
                                     <button class="btn btn-sm btn-danger"
@@ -153,7 +153,10 @@ include '../includes/header.php';
     </div>
 </div>
 
-<script type="text/javascript" src="../assets/js/filtrar_produtos.js">
+<script>
+    window.APP_BASE_URL = "<?php echo rtrim(BASE_URL, '/'); ?>";
+</script>
+<script type="text/javascript" src="<?php echo app_url('assets/js/filtrar_produtos.js'); ?>">
 
 </script>
 

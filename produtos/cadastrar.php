@@ -148,7 +148,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nome'])) {
             </div>
             
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                <a href="listar.php" class="btn btn-secondary me-md-2">
+                <a href="<?php echo app_url('produtos/listar.php'); ?>" class="btn btn-secondary me-md-2">
                     <i class="fas fa-arrow-left me-1"></i> Voltar
                 </a>
                 <button type="submit" class="btn btn-primary">

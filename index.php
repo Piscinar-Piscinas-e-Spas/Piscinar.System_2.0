@@ -35,10 +35,10 @@
                 </div>
                 
                 <div class="mt-4">
-                    <a href="produtos/listar.php" class="btn btn-primary me-2">
+                    <a href="<?php echo app_url('produtos/listar.php'); ?>" class="btn btn-primary me-2">
                         <i class="fas fa-box-open me-1"></i> Ver Produtos
                     </a>
-                    <a href="produtos/cadastrar.php" class="btn btn-success">
+                    <a href="<?php echo app_url('produtos/cadastrar.php'); ?>" class="btn btn-success">
                         <i class="fas fa-plus-circle me-1"></i> Novo Produto
                     </a>
                 </div>
