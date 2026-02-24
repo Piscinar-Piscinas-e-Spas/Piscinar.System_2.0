@@ -11,8 +11,9 @@
             </div>
         </footer>
         
-        <script>
+        <!--<script>
             
+    /*
     const API_LIST = "list.php";
     const API_SAVE = "save.php";
     const DEBOUNCE_MS = 900;
@@ -241,8 +242,8 @@
 
     document.getElementById("btnStart").addEventListener("click", start);
     document.getElementById("btnStop").addEventListener("click", stop);
-    document.getElementById("btnRestart").addEventListener("click", restart);
-        </script>
+    document.getElementById("btnRestart").addEventListener("click", restart);*/
+        </script> -->
 
         <!-- Bootstrap JS e dependências -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

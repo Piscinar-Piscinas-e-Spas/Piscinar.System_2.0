@@ -44,6 +44,7 @@
                 </div>
             </div>
         </div>
+        <!-- Leitor de codigoos dde barras
         <div>
             <h2>Leitor de Código</h2>
 
@@ -62,7 +63,8 @@
             <div id="last">Último lido: <strong id="lastCode">---</strong></div>
 
             <ul class="ulBar" id="list"></ul>
-        </div>
+        </div> 
+        -->
     </div>
 
 </div>
