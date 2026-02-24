@@ -73,18 +73,26 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
+                    <?php
+                        $currentRoute = parse_url($_SERVER['REQUEST_URI'] ?? ($_SERVER['PHP_SELF'] ?? ''), PHP_URL_PATH) ?? '';
+                        $currentRoute = rtrim($currentRoute, '/');
+                        $currentRoute = $currentRoute === '' ? '/' : $currentRoute;
+
+                        $inicioActive = ($currentRoute === '/' || $currentRoute === '/index.php') ? ' active' : '';
+                        $produtosActive = strpos($currentRoute, '/produtos/') !== false ? ' active' : '';
+                    ?>
                     <ul class="navbar-nav">
                         <li class="nav-item">
                             <?php
                                 // Caminho relativo para sair da pasta includes e ir à raiz
                                 require_once dirname(__DIR__) . '/config.php';
                             ?>
-                            <a class="nav-link" href="<?php echo BASE_URL; ?>/index.php">
+                            <a class="nav-link<?php echo $inicioActive; ?>" href="<?php echo BASE_URL; ?>/index.php">
                                 <i class="fas fa-home"></i> Início
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link active" href="produtos/listar.php"><i class="fas fa-box-open"></i> Produtos</a>
+                            <a class="nav-link<?php echo $produtosActive; ?>" href="produtos/listar.php"><i class="fas fa-box-open"></i> Produtos</a>
                         </li>
                     </ul>
                 </div>
