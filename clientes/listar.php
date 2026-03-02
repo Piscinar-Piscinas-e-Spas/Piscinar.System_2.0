@@ -93,10 +93,10 @@ $feedback = [
                                 <td><?= htmlspecialchars($cliente['endereco'] ?? '-') ?></td>
                                 <td><?= htmlspecialchars($cliente['email_contato'] ?? '-') ?></td>
                                 <td>
-                                    <a href="<?= app_url('clientes/editar.php'); ?>?id=<?= str_pad((string) ((int) $cliente['id_cliente']), 6, '0', STR_PAD_LEFT) ?>" class="btn btn-sm btn-primary">
+                                    <a href="<?= app_url('clientes/editar.php'); ?>?id=<?= (int) $cliente['id_cliente'] ?>" class="btn btn-sm btn-primary">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <button class="btn btn-sm btn-danger" onclick="confirmarExclusaoCliente(<?= str_pad((string) ((int) $cliente['id_cliente']), 6, '0', STR_PAD_LEFT) ?>)">
+                                    <button class="btn btn-sm btn-danger" onclick="confirmarExclusaoCliente(<?= (int) $cliente['id_cliente'] ?>)">
                                         <i class="fas fa-trash"></i>
                                     </button>
                                 </td>
