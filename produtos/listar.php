@@ -37,6 +37,8 @@ if (!empty($_GET['nome'])) {
 
 
 $sql = "SELECT id, nome, preco1, preco2, grupo, subgrupo, marca, qtdLoja, qtdEstoque,
+               COALESCE(controle_estoque, 0) AS controle_estoque,
+               estoque_minimo,
                (COALESCE(qtdLoja, 0) + COALESCE(qtdEstoque, 0)) AS estoque_total
         FROM produtos";
 if (!empty($where)) {
@@ -69,6 +71,27 @@ $feedback = [
 
 include '../includes/header.php';
 ?>
+
+<style>
+    .table tbody tr.estoque-baixo > * {
+        background-color: #fff3cd !important;
+        color: #212529 !important;
+    }
+
+    .table tbody tr.estoque-critico > * {
+        background-color: #f8d7da !important;
+        color: #fff !important;
+    }
+
+    .table tbody tr.estoque-critico a,
+    .table tbody tr.estoque-critico span {
+        color: #fff !important;
+    }
+
+    .table tbody tr.estoque-critico td {
+        text-decoration: line-through;
+    }
+</style>
 
 <div class="container mt-4">
     <div class="card">
@@ -142,7 +165,11 @@ include '../includes/header.php';
                             <?php
                             $qtdLoja = (int) ($produto['qtdLoja'] ?? 0);
                             $qtdEstoque = (int) ($produto['qtdEstoque'] ?? 0);
+                            $estoqueTotal = (int) ($produto['estoque_total'] ?? 0);
+                            $controleEstoque = (int) ($produto['controle_estoque'] ?? 0) === 1;
+                            $estoqueMinimo = isset($produto['estoque_minimo']) ? (int) $produto['estoque_minimo'] : null;
                             $detalhesEstoque = [];
+                            $rowClass = '';
 
                             if ($qtdLoja > 0) {
                                 $detalhesEstoque[] = 'qtLoja ' . str_pad((string) $qtdLoja, 2, '0', STR_PAD_LEFT);
@@ -157,8 +184,16 @@ include '../includes/header.php';
                             }
 
                             $tooltipEstoque = implode(' | ', $detalhesEstoque);
+
+                            if ($controleEstoque) {
+                                if ($estoqueTotal <= 0) {
+                                    $rowClass = 'estoque-critico';
+                                } elseif ($estoqueMinimo !== null && $estoqueTotal <= $estoqueMinimo) {
+                                    $rowClass = 'estoque-baixo';
+                                }
+                            }
                             ?>
-                            <tr>
+                            <tr class="<?= $rowClass ?>">
                                 <td><?= htmlspecialchars($produto['nome']) ?></td>
                                 <td>R$ <?= number_format($produto['preco1'], 2, ',', '.') ?></td>
                                 <td>
@@ -172,8 +207,11 @@ include '../includes/header.php';
                                 <td>
                                     <span data-bs-toggle="tooltip" data-bs-placement="top"
                                         title="<?= htmlspecialchars($tooltipEstoque) ?>" style="cursor: help;">
-                                        <?= $produto['estoque_total'] ?>
+                                        <?= $estoqueTotal ?>
                                     </span>
+                                    <?php if ($controleEstoque && $estoqueMinimo !== null): ?>
+                                        <small class="d-block">mín: <?= $estoqueMinimo ?></small>
+                                    <?php endif; ?>
                                 </td>
                                 <td>
                                     <a href="<?= app_url('produtos/editar.php'); ?>?id=<?= $produto['id'] ?>" class="btn btn-sm btn-primary">

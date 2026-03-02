@@ -19,6 +19,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nome'])) {
         'preco2' => !empty($_POST['preco2']) ? (float)$_POST['preco2'] : null,
         'qtdLoja' => !empty($_POST['qtdLoja']) ? (int)$_POST['qtdLoja'] : 0,
         'qtdEstoque' => !empty($_POST['qtdEstoque']) ? (int)$_POST['qtdEstoque'] : 0,
+        'controle_estoque' => isset($_POST['controle_estoque']) ? 1 : 0,
+        'estoque_minimo' => isset($_POST['estoque_minimo']) && $_POST['estoque_minimo'] !== '' ? (int) $_POST['estoque_minimo'] : null,
+        'ponto_compra' => isset($_POST['ponto_compra']) && $_POST['ponto_compra'] !== '' ? (int) $_POST['ponto_compra'] : null,
         'grupo' => $_POST['grupo'] ?? null,
         'subgrupo' => $_POST['subgrupo'] ?? null,
         'marca' => $_POST['marca'] ?? null,
@@ -30,13 +33,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nome'])) {
         $mensagem = '<div class="alert alert-danger">O nome do produto é obrigatório!</div>';
     } elseif ($produto['preco1'] <= 0) {
         $mensagem = '<div class="alert alert-danger">O preço 1 deve ser maior que zero!</div>';
+    } elseif ($produto['controle_estoque'] === 1 && ($produto['estoque_minimo'] === null || $produto['estoque_minimo'] < 0)) {
+        $mensagem = '<div class="alert alert-danger">Com controle de estoque ativo, o estoque mínimo é obrigatório e deve ser maior ou igual a zero.</div>';
     } else {
+        if ($produto['controle_estoque'] === 0) {
+            $produto['estoque_minimo'] = null;
+            $produto['ponto_compra'] = null;
+        }
+
         // Define a query SQL antes do try para garantir que a variável exista
         $sql = "INSERT INTO produtos (
-                    nome, custo, preco1, preco2, qtdLoja, qtdEstoque, 
+                    nome, custo, preco1, preco2, qtdLoja, qtdEstoque,
+                    controle_estoque, estoque_minimo, ponto_compra,
                     grupo, subgrupo, marca, observacoes, created_at
                 ) VALUES (
-                    :nome, :custo, :preco1, :preco2, :qtdLoja, :qtdEstoque, 
+                    :nome, :custo, :preco1, :preco2, :qtdLoja, :qtdEstoque,
+                    :controle_estoque, :estoque_minimo, :ponto_compra,
                     :grupo, :subgrupo, :marca, :observacoes, NOW()
                 )";
 
@@ -121,6 +133,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nome'])) {
                         <label class="form-label">Subgrupo</label>
                         <input type="text" class="form-control" name="subgrupo" value="<?= htmlspecialchars($produto['subgrupo'] ?? '') ?>">
                     </div>
+
+                    <div class="form-check form-switch mb-3 mt-4">
+                        <input class="form-check-input" type="checkbox" role="switch" id="controle_estoque" name="controle_estoque" value="1"
+                            <?= !empty($produto['controle_estoque']) ? 'checked' : '' ?>>
+                        <label class="form-check-label" for="controle_estoque">Controle de estoque</label>
+                    </div>
+
+                    <div id="campos-controle-estoque" class="border rounded p-3 <?= !empty($produto['controle_estoque']) ? '' : 'd-none' ?>">
+                        <div class="mb-3">
+                            <label class="form-label">Estoque mínimo</label>
+                            <input type="number" min="0" class="form-control" id="estoque_minimo" name="estoque_minimo"
+                                value="<?= htmlspecialchars((string) ($produto['estoque_minimo'] ?? '')) ?>"
+                                <?= !empty($produto['controle_estoque']) ? 'required' : '' ?>>
+                            <small class="text-muted">Obrigatório quando o controle de estoque estiver ativo.</small>
+                        </div>
+
+                        <div class="mb-0">
+                            <label class="form-label">Ponto de compra</label>
+                            <input type="number" min="0" class="form-control" name="ponto_compra"
+                                value="<?= htmlspecialchars((string) ($produto['ponto_compra'] ?? '')) ?>">
+                            <small class="text-muted">Opcional.</small>
+                        </div>
+                    </div>
                 </div>
             </div>
             
@@ -145,5 +180,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nome'])) {
         </form>
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const controleEstoque = document.getElementById('controle_estoque');
+        const camposControleEstoque = document.getElementById('campos-controle-estoque');
+        const estoqueMinimo = document.getElementById('estoque_minimo');
+
+        function alternarCamposControle() {
+            const ativo = controleEstoque.checked;
+            camposControleEstoque.classList.toggle('d-none', !ativo);
+            estoqueMinimo.required = ativo;
+
+            if (!ativo) {
+                estoqueMinimo.value = '';
+            }
+        }
+
+        controleEstoque.addEventListener('change', alternarCamposControle);
+        alternarCamposControle();
+    });
+</script>
 
 <?php include '../includes/footer.php'; ?>
