@@ -80,6 +80,18 @@ Use o arquivo `database/clientes.sql` para criar a tabela inicial.
 
 Esse padrão facilita consultas, manutenção e leitura do banco ao longo do crescimento do sistema.
 
+## Produtos: controle de estoque, estoque mínimo e ponto de compra
+
+Para habilitar os novos campos no CRUD de produtos, execute o script:
+
+- `database/produtos_estoque.sql`
+
+Ele adiciona na tabela `produtos`:
+
+- `controle_estoque` (obrigatório, padrão `0`)
+- `estoque_minimo` (obrigatório apenas quando `controle_estoque = 1`, validado no formulário)
+- `ponto_compra` (opcional)
+
 ## ID com auto incremento e exibição com 6 dígitos (MySQL/phpMyAdmin)
 
 No MySQL, o recomendado é manter `id_cliente` como **INT AUTO_INCREMENT** (valor numérico real) e apenas formatar a exibição com zeros à esquerda.

@@ -1,4 +1,20 @@
-<?php include 'includes/header.php'; ?>
+<?php
+include 'includes/db.php';
+include 'includes/header.php';
+
+$resumoStmt = $pdo->query("SELECT
+    COUNT(*) AS total_produtos,
+    SUM(CASE WHEN (COALESCE(qtdLoja, 0) + COALESCE(qtdEstoque, 0)) > 0 THEN 1 ELSE 0 END) AS em_estoque,
+    SUM(CASE
+        WHEN COALESCE(controle_estoque, 0) = 1
+             AND estoque_minimo IS NOT NULL
+             AND (COALESCE(qtdLoja, 0) + COALESCE(qtdEstoque, 0)) > 0
+             AND (COALESCE(qtdLoja, 0) + COALESCE(qtdEstoque, 0)) <= estoque_minimo
+        THEN 1 ELSE 0 END) AS baixo_estoque
+FROM produtos");
+
+$resumo = $resumoStmt->fetch(PDO::FETCH_ASSOC) ?: [];
+?>
 
 <div class="row">
     <div class="col-md-8 mx-auto">
@@ -12,7 +28,7 @@
                         <div class="card bg-light">
                             <div class="card-body">
                                 <h5><i class="fas fa-boxes text-primary"></i> Total Produtos</h5>
-                                <h3>125</h3>
+                                <h3><?= (int) ($resumo['total_produtos'] ?? 0) ?></h3>
                             </div>
                         </div>
                     </div>
@@ -20,7 +36,7 @@
                         <div class="card bg-light">
                             <div class="card-body">
                                 <h5><i class="fas fa-tags text-success"></i> Em Estoque</h5>
-                                <h3>89</h3>
+                                <h3><?= (int) ($resumo['em_estoque'] ?? 0) ?></h3>
                             </div>
                         </div>
                     </div>
@@ -28,7 +44,7 @@
                         <div class="card bg-light">
                             <div class="card-body">
                                 <h5><i class="fas fa-exclamation-triangle text-warning"></i> Baixo Estoque</h5>
-                                <h3>12</h3>
+                                <h3><?= (int) ($resumo['baixo_estoque'] ?? 0) ?></h3>
                             </div>
                         </div>
                     </div>
