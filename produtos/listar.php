@@ -73,22 +73,22 @@ include '../includes/header.php';
 ?>
 
 <style>
-    .estoque-baixo {
+    .table tbody tr.estoque-baixo > * {
         background-color: #fff3cd !important;
         color: #212529 !important;
     }
 
-    .estoque-critico {
+    .table tbody tr.estoque-critico > * {
         background-color: #f8d7da !important;
         color: #fff !important;
     }
 
-    .estoque-critico a,
-    .estoque-critico span {
+    .table tbody tr.estoque-critico a,
+    .table tbody tr.estoque-critico span {
         color: #fff !important;
     }
 
-    .estoque-critico td {
+    .table tbody tr.estoque-critico td {
         text-decoration: line-through;
     }
 </style>
@@ -209,6 +209,9 @@ include '../includes/header.php';
                                         title="<?= htmlspecialchars($tooltipEstoque) ?>" style="cursor: help;">
                                         <?= $estoqueTotal ?>
                                     </span>
+                                    <?php if ($controleEstoque && $estoqueMinimo !== null): ?>
+                                        <small class="d-block">mín: <?= $estoqueMinimo ?></small>
+                                    <?php endif; ?>
                                 </td>
                                 <td>
                                     <a href="<?= app_url('produtos/editar.php'); ?>?id=<?= $produto['id'] ?>" class="btn btn-sm btn-primary">
