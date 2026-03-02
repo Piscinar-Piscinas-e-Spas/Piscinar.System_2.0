@@ -39,3 +39,74 @@ Exemplos:
 - `app_url('assets/js/filtrar_produtos.js')`
 
 Use `app_url(...)` em páginas dentro da raiz, pastas e subpastas para manter a navegação consistente em qualquer ambiente.
+
+## Cadastro de clientes
+
+Foi adicionada estrutura de CRUD para clientes em:
+
+- `clientes/cadastrar.php`
+- `clientes/listar.php`
+- `clientes/editar.php`
+- `clientes/excluir.php`
+
+### Regras de obrigatoriedade
+
+Para o fluxo atual do negócio, apenas estes campos são obrigatórios:
+
+- `nome_cliente`
+- `telefone_contato`
+
+Campos opcionais:
+
+- `cpf_cnpj`
+- `email_contato`
+- `endereco`
+
+### Script SQL da tabela
+
+Use o arquivo `database/clientes.sql` para criar a tabela inicial.
+
+### Padrão de nomenclatura recomendado (evitar confusão futura)
+
+- **Tabela no plural, em minúsculo:** `clientes`
+- **PK explícita por entidade:** `id_cliente`
+- **Campos descritivos e consistentes:**
+  - `nome_cliente`
+  - `telefone_contato`
+  - `cpf_cnpj`
+  - `endereco`
+  - `email_contato`
+- **Campos técnicos padrão:** `created_at` e `updated_at`
+
+Esse padrão facilita consultas, manutenção e leitura do banco ao longo do crescimento do sistema.
+
+## ID com auto incremento e exibição com 6 dígitos (MySQL/phpMyAdmin)
+
+No MySQL, o recomendado é manter `id_cliente` como **INT AUTO_INCREMENT** (valor numérico real) e apenas formatar a exibição com zeros à esquerda.
+
+### 1) Garantir coluna auto incremento
+
+No phpMyAdmin (aba **Estrutura**):
+- Tipo: `INT UNSIGNED`
+- Índice: `PRIMARY`
+- A_I (Auto Increment): marcado
+
+SQL equivalente:
+
+```sql
+ALTER TABLE clientes
+MODIFY id_cliente INT UNSIGNED NOT NULL AUTO_INCREMENT;
+```
+
+### 2) Exibir sempre com 6 dígitos
+
+Use `LPAD` em consultas ou `str_pad` no PHP.
+
+Exemplo SQL:
+
+```sql
+SELECT LPAD(id_cliente, 6, '0') AS codigo_cliente, nome_cliente
+FROM clientes;
+```
+
+No sistema, a listagem já exibe o ID nesse formato (`000001`, `000245`, etc.), sem perder a integridade do auto incremento.
