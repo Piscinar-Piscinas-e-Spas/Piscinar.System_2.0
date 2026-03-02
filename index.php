@@ -35,13 +35,13 @@
                 </div>
                 
                 <div class="mt-4">
-                    <a href="<?php echo app_url('produtos/listar.php'); ?>" class="btn btn-primary me-2">
+                    <a href="<?php echo app_url('produtos/listar.php'); ?>" class="btn btn-outline-primary me-2">
                         <i class="fas fa-box-open me-1"></i> Ver Produtos
                     </a>
-                    <a href="<?php echo app_url('produtos/cadastrar.php'); ?>" class="btn btn-success">
+                    <a href="<?php echo app_url('produtos/cadastrar.php'); ?>" class="btn btn-outline-success">
                         <i class="fas fa-plus-circle me-1"></i> Novo Produto
                     </a>
-                    <a href="<?php echo app_url('clientes/listar.php'); ?>" class="btn btn-info text-white ms-2">
+                    <a href="<?php echo app_url('clientes/listar.php'); ?>" class="btn btn-outline-info ms-2">
                         <i class="fas fa-users me-1"></i> Ver Clientes
                     </a>
                 </div>
