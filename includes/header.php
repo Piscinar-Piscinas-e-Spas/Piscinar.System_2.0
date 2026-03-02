@@ -95,6 +95,7 @@
 
                                 $inicioActive = ($currentRoute === '/' || $currentRoute === '/index.php') ? ' active' : '';
                                 $produtosActive = strpos($currentRoute, '/produtos/') !== false ? ' active' : '';
+                                $clientesActive = strpos($currentRoute, '/clientes/') !== false ? ' active' : '';
                             ?>
                             <a class="nav-link<?php echo $inicioActive; ?>" href="<?php echo app_url('index.php'); ?>">
                                 <i class="fas fa-home"></i> Início
@@ -102,6 +103,9 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link<?php echo $produtosActive; ?>" href="<?php echo app_url('produtos/listar.php'); ?>"><i class="fas fa-box-open"></i> Produtos</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link<?php echo $clientesActive; ?>" href="<?php echo app_url('clientes/listar.php'); ?>"><i class="fas fa-users"></i> Clientes</a>
                         </li>
                     </ul>
                 </div>

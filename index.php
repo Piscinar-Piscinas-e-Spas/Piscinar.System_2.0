@@ -41,6 +41,9 @@
                     <a href="<?php echo app_url('produtos/cadastrar.php'); ?>" class="btn btn-success">
                         <i class="fas fa-plus-circle me-1"></i> Novo Produto
                     </a>
+                    <a href="<?php echo app_url('clientes/listar.php'); ?>" class="btn btn-info text-white ms-2">
+                        <i class="fas fa-users me-1"></i> Ver Clientes
+                    </a>
                 </div>
             </div>
         </div>
