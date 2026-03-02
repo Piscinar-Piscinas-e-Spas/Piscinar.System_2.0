@@ -2,6 +2,21 @@
 include '../includes/db.php';
 require_once dirname(__DIR__) . '/config.php';
 
+function capitalizarNomeCliente(string $nome): string
+{
+    $nome = trim(preg_replace('/\s+/', ' ', $nome));
+
+    if ($nome === '') {
+        return '';
+    }
+
+    if (function_exists('mb_convert_case')) {
+        return mb_convert_case(mb_strtolower($nome, 'UTF-8'), MB_CASE_TITLE, 'UTF-8');
+    }
+
+    return ucwords(strtolower($nome));
+}
+
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 if (!$id) {
     header('Location: ' . app_url('clientes/listar.php?status=erro_id'));
@@ -21,7 +36,7 @@ $mensagem = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $dados = [
-        'nome_cliente' => trim($_POST['nome_cliente'] ?? ''),
+        'nome_cliente' => capitalizarNomeCliente($_POST['nome_cliente'] ?? ''),
         'telefone_contato' => trim($_POST['telefone_contato'] ?? ''),
         'cpf_cnpj' => preg_replace('/\D+/', '', $_POST['cpf_cnpj'] ?? ''),
         'endereco' => trim($_POST['endereco'] ?? ''),
@@ -128,5 +143,7 @@ include '../includes/header.php';
         </form>
     </div>
 </div>
+
+<script src="<?= app_url('assets/js/clientes_form.js'); ?>"></script>
 
 <?php include '../includes/footer.php'; ?>
