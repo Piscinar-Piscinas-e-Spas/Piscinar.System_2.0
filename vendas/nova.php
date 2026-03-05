@@ -422,60 +422,11 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
         document.getElementById('qtdParcelas').value = qtdTotal;
     }
 
-    const clienteSelect = document.getElementById('clienteSelect');
-    const clienteNome = document.getElementById('clienteNome');
-    const clienteTelefone = document.getElementById('clienteTelefone');
-    const clienteCpfCnpj = document.getElementById('clienteCpfCnpj');
-
-    function preencherClienteSelecionado(option) {
-        if (!option || !option.value) return;
-        clienteNome.value = option.dataset?.nome || '';
-        clienteTelefone.value = option.dataset?.telefone || '';
-        clienteCpfCnpj.value = option.dataset?.cpfcnpj || '';
-    }
-
-    function filtrarClientesPorNome(valorDigitado) {
-        const filtro = (valorDigitado || '').trim().toLowerCase();
-        let primeiroVisivel = null;
-
-        Array.from(clienteSelect.options).forEach((opt, index) => {
-            if (index === 0) {
-                opt.hidden = false;
-                return;
-            }
-
-            const nome = (opt.dataset?.nome || opt.textContent || '').toLowerCase();
-            const visivel = !filtro || nome.includes(filtro);
-            opt.hidden = !visivel;
-
-            if (visivel && !primeiroVisivel) {
-                primeiroVisivel = opt;
-            }
-        });
-
-        if (primeiroVisivel) {
-            clienteSelect.value = primeiroVisivel.value;
-        } else {
-            clienteSelect.value = '';
-        }
-    }
-
-    clienteSelect.addEventListener('change', (event) => {
-        preencherClienteSelecionado(event.target.selectedOptions[0]);
-    });
-
-    clienteNome.addEventListener('input', (event) => {
-        filtrarClientesPorNome(event.target.value);
-    });
-
-    clienteNome.addEventListener('keydown', (event) => {
-        if (event.key !== 'Enter') return;
-        event.preventDefault();
-        preencherClienteSelecionado(clienteSelect.selectedOptions[0]);
-    });
-
-    clienteSelect.addEventListener('click', (event) => {
-        preencherClienteSelecionado(event.target.selectedOptions[0]);
+    document.getElementById('clienteSelect').addEventListener('change', (event) => {
+        const selected = event.target.selectedOptions[0];
+        document.getElementById('clienteNome').value = selected?.dataset?.nome || '';
+        document.getElementById('clienteTelefone').value = selected?.dataset?.telefone || '';
+        document.getElementById('clienteCpfCnpj').value = selected?.dataset?.cpfcnpj || '';
     });
 
     document.getElementById('produtoSelect').addEventListener('change', (event) => {
