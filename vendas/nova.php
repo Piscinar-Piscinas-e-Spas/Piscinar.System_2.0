@@ -2,7 +2,7 @@
 include '../includes/db.php';
 include '../includes/header.php';
 
-$clientesStmt = $pdo->query('SELECT id_cliente, nome_cliente, telefone_contato, cpf_cnpj FROM clientes ORDER BY nome_cliente LIMIT 300');
+$clientesStmt = $pdo->query('SELECT id_cliente, nome_cliente, telefone_contato, cpf_cnpj, endereco, email_contato FROM clientes ORDER BY nome_cliente LIMIT 300');
 $clientes = $clientesStmt->fetchAll(PDO::FETCH_ASSOC);
 
 $produtosStmt = $pdo->query('SELECT id, nome, preco1 FROM produtos ORDER BY nome LIMIT 500');
@@ -24,24 +24,14 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
                     <div class="card-header bg-light sales-block-title">1) Cliente</div>
                     <div class="card-body">
                         <div class="row g-3 align-items-end">
-                            <div class="col-md-5">
-                                <label class="form-label">Selecionar cliente</label>
-                                <select class="form-select" id="clienteSelect">
-                                    <option value="">Selecionar / preencher manualmente...</option>
-                                    <?php foreach ($clientes as $cliente): ?>
-                                        <option
-                                            value="<?= (int) $cliente['id_cliente'] ?>"
-                                            data-nome="<?= htmlspecialchars($cliente['nome_cliente']) ?>"
-                                            data-telefone="<?= htmlspecialchars($cliente['telefone_contato'] ?? '') ?>"
-                                            data-cpfcnpj="<?= htmlspecialchars($cliente['cpf_cnpj'] ?? '') ?>">
-                                            <?= htmlspecialchars($cliente['nome_cliente']) ?>
-                                        </option>
-                                    <?php endforeach; ?>
-                                </select>
-                            </div>
-                            <div class="col-md-3">
+                            <div class="col-md-4">
                                 <label class="form-label">Nome cliente</label>
-                                <input type="text" class="form-control" id="clienteNome" placeholder="Nome do cliente">
+                                <input type="text" class="form-control" id="clienteNome" list="clientesSugestoes" placeholder="Digite para buscar ou preencher manualmente...">
+                                <datalist id="clientesSugestoes">
+                                    <?php foreach ($clientes as $cliente): ?>
+                                        <option value="<?= htmlspecialchars($cliente['nome_cliente']) ?>"></option>
+                                    <?php endforeach; ?>
+                                </datalist>
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label">Telefone</label>
@@ -50,6 +40,14 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
                             <div class="col-md-2">
                                 <label class="form-label">CPF/CNPJ</label>
                                 <input type="text" class="form-control" id="clienteCpfCnpj" placeholder="Somente números">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">E-mail</label>
+                                <input type="email" class="form-control" id="clienteEmail" placeholder="cliente@email.com">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label">Endereço</label>
+                                <input type="text" class="form-control" id="clienteEndereco" placeholder="Rua, número, bairro...">
                             </div>
                         </div>
                     </div>
@@ -222,6 +220,7 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
         'Débito PagSeguro', 'Crédito PagSeguro', 'Débito Stone',
         'Crédito Stone', 'Débito Infinite', 'Crédito Infinite'
     ];
+    const clientesData = <?= json_encode($clientes, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
 
     const itens = [];
     let parcelas = [];
@@ -422,60 +421,70 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
         document.getElementById('qtdParcelas').value = qtdTotal;
     }
 
-    const clienteSelect = document.getElementById('clienteSelect');
     const clienteNome = document.getElementById('clienteNome');
     const clienteTelefone = document.getElementById('clienteTelefone');
     const clienteCpfCnpj = document.getElementById('clienteCpfCnpj');
+    const clienteEmail = document.getElementById('clienteEmail');
+    const clienteEndereco = document.getElementById('clienteEndereco');
+    const clientesSugestoes = document.getElementById('clientesSugestoes');
 
-    function preencherClienteSelecionado(option) {
-        if (!option || !option.value) return;
-        clienteNome.value = option.dataset?.nome || '';
-        clienteTelefone.value = option.dataset?.telefone || '';
-        clienteCpfCnpj.value = option.dataset?.cpfcnpj || '';
+    function preencherDadosCliente(cliente) {
+        if (!cliente) return;
+        clienteNome.value = cliente.nome_cliente || '';
+        clienteTelefone.value = cliente.telefone_contato || '';
+        clienteCpfCnpj.value = cliente.cpf_cnpj || '';
+        clienteEmail.value = cliente.email_contato || '';
+        clienteEndereco.value = cliente.endereco || '';
     }
 
-    function filtrarClientesPorNome(valorDigitado) {
-        const filtro = (valorDigitado || '').trim().toLowerCase();
-        let primeiroVisivel = null;
+    function escapeHtmlAttr(value) {
+        return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
+    }
 
-        Array.from(clienteSelect.options).forEach((opt, index) => {
-            if (index === 0) {
-                opt.hidden = false;
-                return;
-            }
-
-            const nome = (opt.dataset?.nome || opt.textContent || '').toLowerCase();
-            const visivel = !filtro || nome.includes(filtro);
-            opt.hidden = !visivel;
-
-            if (visivel && !primeiroVisivel) {
-                primeiroVisivel = opt;
-            }
+    function filtrarSugestoesClientes(valorDigitado) {
+        const termo = (valorDigitado || '').trim().toLowerCase();
+        const filtrados = clientesData.filter((cliente) => {
+            if (!termo) return true;
+            return (cliente.nome_cliente || '').toLowerCase().includes(termo);
         });
 
-        if (primeiroVisivel) {
-            clienteSelect.value = primeiroVisivel.value;
-        } else {
-            clienteSelect.value = '';
-        }
+        clientesSugestoes.innerHTML = filtrados
+            .map((cliente) => `<option value="${escapeHtmlAttr(cliente.nome_cliente)}"></option>`)
+            .join('');
     }
 
-    clienteSelect.addEventListener('change', (event) => {
-        preencherClienteSelecionado(event.target.selectedOptions[0]);
-    });
+    function buscarClientePorNome(nome) {
+        const nomeNormalizado = (nome || '').trim().toLowerCase();
+        if (!nomeNormalizado) return null;
+
+        return clientesData.find(
+            (cliente) => (cliente.nome_cliente || '').trim().toLowerCase() === nomeNormalizado
+        ) || null;
+    }
+
+    filtrarSugestoesClientes('');
 
     clienteNome.addEventListener('input', (event) => {
-        filtrarClientesPorNome(event.target.value);
+        filtrarSugestoesClientes(event.target.value);
+    });
+
+    clienteNome.addEventListener('change', (event) => {
+        const cliente = buscarClientePorNome(event.target.value);
+        if (cliente) {
+            preencherDadosCliente(cliente);
+        }
     });
 
     clienteNome.addEventListener('keydown', (event) => {
         if (event.key !== 'Enter') return;
+        const cliente = buscarClientePorNome(clienteNome.value);
+        if (!cliente) return;
         event.preventDefault();
-        preencherClienteSelecionado(clienteSelect.selectedOptions[0]);
-    });
-
-    clienteSelect.addEventListener('click', (event) => {
-        preencherClienteSelecionado(event.target.selectedOptions[0]);
+        preencherDadosCliente(cliente);
     });
 
     document.getElementById('produtoSelect').addEventListener('change', (event) => {
