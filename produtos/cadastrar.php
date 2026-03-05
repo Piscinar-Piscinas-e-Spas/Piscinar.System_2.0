@@ -4,6 +4,24 @@ include '../includes/header.php';
 
 $mensagem = '';
 
+$produtoPadrao = [
+    'nome' => '',
+    'custo' => '',
+    'preco1' => '',
+    'preco2' => '',
+    'qtdLoja' => '',
+    'qtdEstoque' => '',
+    'controle_estoque' => 1,
+    'estoque_minimo' => '',
+    'ponto_compra' => '',
+    'grupo' => '',
+    'subgrupo' => '',
+    'marca' => '',
+    'observacoes' => ''
+];
+
+$produto = $produtoPadrao;
+
 //verificação de envio do formulario
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nome'])) {
     // Corrigindo a conversão numérica
@@ -58,7 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nome'])) {
             
             if ($result && $stmt->rowCount() > 0) {
                 $mensagem = '<div class="alert alert-success">Produto cadastrado com sucesso!</div>';
-                $produto = array_fill_keys(array_keys($produto), '');
+                $produto = $produtoPadrao;
             } else {
                 $mensagem = '<div class="alert alert-danger">Não foi possível cadastrar o produto no banco de dados.</div>';
             }
@@ -71,6 +89,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nome'])) {
 
 
 ?>
+
+<style>
+    .estoque-box {
+        border: 1px solid #dbe5ff;
+        background: linear-gradient(135deg, #f8faff 0%, #f3f6ff 100%);
+        border-radius: 12px;
+        padding: 1rem;
+    }
+
+    .estoque-box .form-check-label {
+        font-weight: 600;
+    }
+
+    .campos-estoque {
+        background-color: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 0.9rem;
+    }
+</style>
 
 <div class="card">
     <div class="card-header">
@@ -134,26 +172,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nome'])) {
                         <input type="text" class="form-control" name="subgrupo" value="<?= htmlspecialchars($produto['subgrupo'] ?? '') ?>">
                     </div>
 
-                    <div class="form-check form-switch mb-3 mt-4">
-                        <input class="form-check-input" type="checkbox" role="switch" id="controle_estoque" name="controle_estoque" value="1"
-                            <?= !empty($produto['controle_estoque']) ? 'checked' : '' ?>>
-                        <label class="form-check-label" for="controle_estoque">Controle de estoque</label>
-                    </div>
-
-                    <div id="campos-controle-estoque" class="border rounded p-3 <?= !empty($produto['controle_estoque']) ? '' : 'd-none' ?>">
-                        <div class="mb-3">
-                            <label class="form-label">Estoque mínimo</label>
-                            <input type="number" min="0" class="form-control" id="estoque_minimo" name="estoque_minimo"
-                                value="<?= htmlspecialchars((string) ($produto['estoque_minimo'] ?? '')) ?>"
-                                <?= !empty($produto['controle_estoque']) ? 'required' : '' ?>>
-                            <small class="text-muted">Obrigatório quando o controle de estoque estiver ativo.</small>
+                    <div class="estoque-box mt-4 mb-3">
+                        <div class="form-check form-switch mb-2">
+                            <input class="form-check-input" type="checkbox" role="switch" id="controle_estoque" name="controle_estoque" value="1"
+                                <?= !empty($produto['controle_estoque']) ? 'checked' : '' ?>>
+                            <label class="form-check-label" for="controle_estoque">Controle de estoque</label>
                         </div>
+                        <small class="text-muted d-block mb-3">Ativado por padrão para novos produtos.</small>
 
-                        <div class="mb-0">
-                            <label class="form-label">Ponto de compra</label>
-                            <input type="number" min="0" class="form-control" name="ponto_compra"
-                                value="<?= htmlspecialchars((string) ($produto['ponto_compra'] ?? '')) ?>">
-                            <small class="text-muted">Opcional.</small>
+                        <div id="campos-controle-estoque" class="campos-estoque <?= !empty($produto['controle_estoque']) ? '' : 'd-none' ?>">
+                            <div class="mb-3">
+                                <label class="form-label">Estoque mínimo</label>
+                                <input type="number" min="0" class="form-control" id="estoque_minimo" name="estoque_minimo"
+                                    value="<?= htmlspecialchars((string) ($produto['estoque_minimo'] ?? '')) ?>"
+                                    <?= !empty($produto['controle_estoque']) ? 'required' : '' ?>>
+                                <small class="text-muted">Obrigatório quando o controle de estoque estiver ativo.</small>
+                            </div>
+
+                            <div class="mb-0">
+                                <label class="form-label">Ponto de compra</label>
+                                <input type="number" min="0" class="form-control" name="ponto_compra"
+                                    value="<?= htmlspecialchars((string) ($produto['ponto_compra'] ?? '')) ?>">
+                                <small class="text-muted">Opcional.</small>
+                            </div>
                         </div>
                     </div>
                 </div>
