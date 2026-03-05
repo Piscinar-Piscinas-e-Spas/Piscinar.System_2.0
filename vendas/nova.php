@@ -80,7 +80,7 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label">Vlr. unitário</label>
-                                <input type="number" min="0" step="0.01" class="form-control" id="produtoValorUnitario" value="0.00">
+                                <input type="text" inputmode="decimal" class="form-control" id="produtoValorUnitario" value="0,00">
                             </div>
                             <div class="col-md-2 d-grid">
                                 <button type="button" class="btn btn-success" id="btnAdicionarProduto">
@@ -121,7 +121,7 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
                             <div class="row g-2 align-items-end">
                                 <div class="col-md-6">
                                     <label class="form-label">Frete total</label>
-                                    <input type="number" min="0" step="0.01" class="form-control" id="freteTotalInput" value="0.00">
+                                    <input type="text" inputmode="decimal" class="form-control" id="freteTotalInput" value="0,00">
                                 </div>
                                 <div class="col-md-6 form-check mt-4 ps-5">
                                     <input class="form-check-input" type="checkbox" id="freteManualCheck">
@@ -136,11 +136,11 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
                             <div class="row g-2 align-items-end">
                                 <div class="col-md-4">
                                     <label class="form-label">Desconto total (R$)</label>
-                                    <input type="number" min="0" step="0.01" class="form-control" id="descontoTotalInput" value="0.00">
+                                    <input type="text" inputmode="decimal" class="form-control" id="descontoTotalInput" value="0,00">
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label">ou Desconto (%)</label>
-                                    <input type="number" min="0" max="100" step="0.01" class="form-control" id="descontoPercentInput" value="0.00">
+                                    <input type="text" inputmode="decimal" class="form-control" id="descontoPercentInput" value="0,00">
                                 </div>
                                 <div class="col-md-4 d-grid">
                                     <button type="button" id="btnZerarDescontos" class="btn btn-outline-danger">
@@ -235,7 +235,12 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
     }
 
     function valorNum(v) {
-        const n = parseFloat(v);
+        if (typeof v === 'number') return Number.isFinite(v) ? v : 0;
+        const texto = String(v ?? '').trim();
+        const normalizado = texto.includes(',')
+            ? texto.replace(/\./g, '').replace(',', '.')
+            : texto;
+        const n = parseFloat(normalizado);
         return Number.isFinite(n) ? n : 0;
     }
 
@@ -254,12 +259,12 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
                 <td>${index + 1}</td>
                 <td>${item.nome}</td>
                 <td><input type="number" min="1" step="1" class="form-control form-control-sm item-qtd" data-index="${index}" value="${item.quantidade}"></td>
-                <td><input type="number" min="0" step="0.01" class="form-control form-control-sm item-unit" data-index="${index}" value="${item.valorUnitario.toFixed(2)}"></td>
+                <td><input type="text" inputmode="decimal" class="form-control form-control-sm item-unit" data-index="${index}" value="${item.valorUnitario.toFixed(2).replace('.', ",")}"></td>
                 <td>${moeda(total)}</td>
-                <td><input type="number" min="0" step="0.01" class="form-control form-control-sm item-desc" data-index="${index}" value="${item.desconto.toFixed(2)}"></td>
+                <td><input type="text" inputmode="decimal" class="form-control form-control-sm item-desc" data-index="${index}" value="${item.desconto.toFixed(2).replace('.', ",")}"></td>
                 <td>${moeda(unitComDesconto)}</td>
                 <td>${moeda(totalComDesconto)}</td>
-                <td><input type="number" min="0" step="0.01" class="form-control form-control-sm item-frete" data-index="${index}" value="${item.freteItem.toFixed(2)}"></td>
+                <td><input type="text" inputmode="decimal" class="form-control form-control-sm item-frete" data-index="${index}" value="${item.freteItem.toFixed(2).replace('.', ",")}"></td>
                 <td>${moeda(totalItem)}</td>
                 <td><button type="button" class="btn btn-sm btn-outline-danger item-remove" data-index="${index}"><i class="fas fa-trash"></i></button></td>
             `;
@@ -335,7 +340,7 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
         const freteFinal = freteManual ? valorNum(freteInput.value) : freteItens;
 
         if (!freteManual) {
-            freteInput.value = freteItens.toFixed(2);
+            freteInput.value = freteItens.toFixed(2).replace('.', ',');
         }
 
         const total = Math.max(0, subtotal - desconto + freteFinal);
@@ -345,10 +350,10 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
         document.getElementById('totalDescontos').textContent = moeda(desconto);
         document.getElementById('totalFrete').textContent = moeda(freteFinal);
         document.getElementById('totalGeralVenda').textContent = moeda(total);
-        document.getElementById('descontoTotalInput').value = desconto.toFixed(2);
+        document.getElementById('descontoTotalInput').value = desconto.toFixed(2).replace('.', ',');
 
         if (!descontoPercentControlando) {
-            document.getElementById('descontoPercentInput').value = descontoPercent.toFixed(2);
+            document.getElementById('descontoPercentInput').value = descontoPercent.toFixed(2).replace('.', ',');
         }
 
         recalcularParcelas();
@@ -406,7 +411,7 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
             tr.innerHTML = `
                 <td>${index + 1}</td>
                 <td><input type="date" class="form-control form-control-sm parcela-venc" data-index="${index}" value="${parcela.vencimento}" ${condicao === 'vista' ? 'readonly' : ''}></td>
-                <td><input type="number" min="0" step="0.01" class="form-control form-control-sm parcela-valor" data-index="${index}" value="${valorNum(parcela.valor).toFixed(2)}"></td>
+                <td><input type="text" inputmode="decimal" class="form-control form-control-sm parcela-valor" data-index="${index}" value="${valorNum(parcela.valor).toFixed(2).replace('.', ",")}"></td>
                 <td><select class="form-select form-select-sm parcela-tipo" data-index="${index}">${tipoOptions}</select></td>
                 <td>${index + 1}</td>
                 <td>${qtdTotal}</td>
@@ -475,7 +480,7 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
 
     document.getElementById('produtoSelect').addEventListener('change', (event) => {
         const opt = event.target.selectedOptions[0];
-        document.getElementById('produtoValorUnitario').value = (valorNum(opt?.dataset?.preco)).toFixed(2);
+        document.getElementById('produtoValorUnitario').value = (valorNum(opt?.dataset?.preco)).toFixed(2).replace('.', ',');
     });
 
     document.getElementById('btnAdicionarProduto').addEventListener('click', () => {
@@ -553,7 +558,7 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
 
     document.getElementById('btnZerarDescontos').addEventListener('click', () => {
         itens.forEach(item => { item.desconto = 0; });
-        document.getElementById('descontoPercentInput').value = '0.00';
+        document.getElementById('descontoPercentInput').value = '0,00';
         renderItens();
     });
 
