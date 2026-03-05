@@ -184,8 +184,8 @@ include '../includes/header.php';
                                 </td>
                                 <td><?= htmlspecialchars($produto['marca']) ?? '-' ?></td>
                                 <td>
-                                    <span data-bs-toggle="tooltip" data-bs-placement="top"
-                                        title="<?= htmlspecialchars($tooltipEstoque) ?>" style="cursor: help;">
+                                    <span data-bs-toggle="tooltip" data-bs-placement="top" class="cursor-help"
+                                        title="<?= htmlspecialchars($tooltipEstoque) ?>">
                                         <?= $estoqueTotal ?>
                                     </span>
                                     <?php if ($controleEstoque && $estoqueMinimo !== null): ?>

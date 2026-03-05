@@ -71,23 +71,7 @@ body {
   font-size: 0.85rem;
   color: #6c757d;
 }
+.cursor-help {
+  cursor: help;
+}
 
-/* Produtos / Estoque */
-.table tbody tr.estoque-baixo > * {
-        background-color: #fff3cd !important;
-        color: #212529 !important;
-    }
-
-    .table tbody tr.estoque-critico > * {
-        background-color: #f8d7da !important;
-        color: #fff !important;
-    }
-
-    .table tbody tr.estoque-critico a,
-    .table tbody tr.estoque-critico span {
-        color: #fff !important;
-    }
-
-    .table tbody tr.estoque-critico td {
-        text-decoration: line-through;
-    }
