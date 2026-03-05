@@ -60,6 +60,9 @@ $resumo = $resumoStmt->fetch(PDO::FETCH_ASSOC) ?: [];
                     <a href="<?php echo app_url('clientes/listar.php'); ?>" class="btn btn-outline-info ms-2">
                         <i class="fas fa-users me-1"></i> Ver Clientes
                     </a>
+                    <a href="<?php echo app_url('vendas/nova.php'); ?>" class="btn btn-outline-warning ms-2">
+                        <i class="fas fa-file-invoice-dollar me-1"></i> Nova Venda
+                    </a>
                 </div>
             </div>
         </div>
