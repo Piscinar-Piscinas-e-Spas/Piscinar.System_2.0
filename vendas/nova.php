@@ -24,7 +24,7 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
                     <div class="card-header bg-light sales-block-title">1) Cliente</div>
                     <div class="card-body">
                         <div class="row g-3 align-items-end">
-                            <div class="col-md-4">
+                            <div class="col-md-6">
                                 <label class="form-label">Nome cliente</label>
                                 <input type="text" class="form-control" id="clienteNome" list="clientesSugestoes" placeholder="Digite para buscar ou preencher manualmente...">
                                 <datalist id="clientesSugestoes">
@@ -41,11 +41,13 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
                                 <label class="form-label">CPF/CNPJ</label>
                                 <input type="text" class="form-control" id="clienteCpfCnpj" placeholder="Somente números">
                             </div>
-                            <div class="col-md-2">
+                        </div>
+                        <div class="row g-3 align-items-end" style="margin-top: 2px;">
+                            <div class="col-md-4">
                                 <label class="form-label">E-mail</label>
                                 <input type="email" class="form-control" id="clienteEmail" placeholder="cliente@email.com">
                             </div>
-                            <div class="col-md-2">
+                            <div class="col-md-8">
                                 <label class="form-label">Endereço</label>
                                 <input type="text" class="form-control" id="clienteEndereco" placeholder="Rua, número, bairro...">
                             </div>
