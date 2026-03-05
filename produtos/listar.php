@@ -72,27 +72,6 @@ $feedback = [
 include '../includes/header.php';
 ?>
 
-<style>
-    .table tbody tr.estoque-baixo > * {
-        background-color: #fff3cd !important;
-        color: #212529 !important;
-    }
-
-    .table tbody tr.estoque-critico > * {
-        background-color: #f8d7da !important;
-        color: #fff !important;
-    }
-
-    .table tbody tr.estoque-critico a,
-    .table tbody tr.estoque-critico span {
-        color: #fff !important;
-    }
-
-    .table tbody tr.estoque-critico td {
-        text-decoration: line-through;
-    }
-</style>
-
 <div class="container mt-4">
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
@@ -205,8 +184,8 @@ include '../includes/header.php';
                                 </td>
                                 <td><?= htmlspecialchars($produto['marca']) ?? '-' ?></td>
                                 <td>
-                                    <span data-bs-toggle="tooltip" data-bs-placement="top"
-                                        title="<?= htmlspecialchars($tooltipEstoque) ?>" style="cursor: help;">
+                                    <span data-bs-toggle="tooltip" data-bs-placement="top" class="cursor-help"
+                                        title="<?= htmlspecialchars($tooltipEstoque) ?>">
                                         <?= $estoqueTotal ?>
                                     </span>
                                     <?php if ($controleEstoque && $estoqueMinimo !== null): ?>
