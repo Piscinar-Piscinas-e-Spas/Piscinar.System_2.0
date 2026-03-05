@@ -11,46 +11,6 @@ $produtos = $produtosStmt->fetchAll(PDO::FETCH_ASSOC);
 $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->format('Y-m-d');
 ?>
 
-<style>
-    .sales-block-title {
-        font-weight: 600;
-        color: #0d6efd;
-    }
-
-    .resumo-card {
-        background: linear-gradient(135deg, #f8fbff 0%, #f2f7ff 100%);
-        border: 1px solid #dbe9ff;
-        border-radius: 12px;
-        padding: 12px;
-        margin-bottom: 12px;
-    }
-
-    .table th {
-        white-space: nowrap;
-        font-size: 0.85rem;
-    }
-
-    .table td input,
-    .table td select {
-        min-width: 110px;
-    }
-
-    .total-pill {
-        font-size: 1rem;
-        font-weight: 700;
-        color: #0f5132;
-        background-color: #d1e7dd;
-        border-radius: 8px;
-        padding: 8px 12px;
-        display: inline-block;
-    }
-
-    .context-tip {
-        font-size: 0.85rem;
-        color: #6c757d;
-    }
-</style>
-
 <div class="card">
     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
         <h4 class="mb-0"><i class="fas fa-file-invoice-dollar me-2"></i>Tela de Vendas</h4>
@@ -64,23 +24,26 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
                     <div class="card-header bg-light sales-block-title">1) Cliente</div>
                     <div class="card-body">
                         <div class="row g-3 align-items-end">
-                            <div class="col-md-7">
-                                <label class="form-label">Nome do cliente (selecionar ou digitar)</label>
-                                <input type="hidden" id="clienteId" value="">
-                                <input type="text" class="form-control" id="clienteNome" list="clientesNomesList" placeholder="Digite para filtrar clientes ou selecione na lista">
-                                <datalist id="clientesNomesList">
+                            <div class="col-md-5">
+                                <label class="form-label">Selecionar cliente</label>
+                                <select class="form-select" id="clienteSelect">
+                                    <option value="">Selecionar / preencher manualmente...</option>
                                     <?php foreach ($clientes as $cliente): ?>
                                         <option
-                                            value="<?= htmlspecialchars($cliente['nome_cliente']) ?>"
-                                            data-id="<?= (int) $cliente['id_cliente'] ?>"
+                                            value="<?= (int) $cliente['id_cliente'] ?>"
+                                            data-nome="<?= htmlspecialchars($cliente['nome_cliente']) ?>"
                                             data-telefone="<?= htmlspecialchars($cliente['telefone_contato'] ?? '') ?>"
                                             data-cpfcnpj="<?= htmlspecialchars($cliente['cpf_cnpj'] ?? '') ?>">
+                                            <?= htmlspecialchars($cliente['nome_cliente']) ?>
                                         </option>
                                     <?php endforeach; ?>
-                                </datalist>
-                                <small class="text-muted">Ao pressionar Enter ou selecionar da sugestão, os dados do cliente são preenchidos automaticamente.</small>
+                                </select>
                             </div>
                             <div class="col-md-3">
+                                <label class="form-label">Nome cliente</label>
+                                <input type="text" class="form-control" id="clienteNome" placeholder="Nome do cliente">
+                            </div>
+                            <div class="col-md-2">
                                 <label class="form-label">Telefone</label>
                                 <input type="text" class="form-control" id="clienteTelefone" placeholder="(00) 00000-0000">
                             </div>

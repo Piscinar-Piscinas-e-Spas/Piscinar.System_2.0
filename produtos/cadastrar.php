@@ -90,25 +90,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['nome'])) {
 
 ?>
 
-<style>
-    .estoque-box {
-        border: 1px solid #dbe5ff;
-        background: linear-gradient(135deg, #f8faff 0%, #f3f6ff 100%);
-        border-radius: 12px;
-        padding: 1rem;
-    }
-
-    .estoque-box .form-check-label {
-        font-weight: 600;
-    }
-
-    .campos-estoque {
-        background-color: #fff;
-        border: 1px solid #e2e8f0;
-        border-radius: 10px;
-        padding: 0.9rem;
-    }
-</style>
 
 <div class="card">
     <div class="card-header">
