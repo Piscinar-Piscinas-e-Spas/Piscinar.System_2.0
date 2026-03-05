@@ -67,6 +67,7 @@
                                 $inicioActive = ($currentRoute === '/' || $currentRoute === '/index.php') ? ' active' : '';
                                 $produtosActive = strpos($currentRoute, '/produtos/') !== false ? ' active' : '';
                                 $clientesActive = strpos($currentRoute, '/clientes/') !== false ? ' active' : '';
+                                $vendasActive = strpos($currentRoute, '/vendas/') !== false ? ' active' : '';
                             ?>
                             <a class="nav-link<?php echo $inicioActive; ?>" href="<?php echo app_url('index.php'); ?>">
                                 <i class="fas fa-home"></i> Início
@@ -77,6 +78,9 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link<?php echo $clientesActive; ?>" href="<?php echo app_url('clientes/listar.php'); ?>"><i class="fas fa-users"></i> Clientes</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link<?php echo $vendasActive; ?>" href="<?php echo app_url('vendas/nova.php'); ?>"><i class="fas fa-file-invoice-dollar"></i> Vendas</a>
                         </li>
                     </ul>
                 </div>
