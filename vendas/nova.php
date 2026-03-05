@@ -599,6 +599,19 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
 
         if (event.target.classList.contains('parcela-tipo')) {
             parcelas[idx].tipoPagamento = event.target.value;
+
+            const tipoNormalizado = (event.target.value || '')
+                .normalize('NFD')
+                .replace(/[\u0300-\u036f]/g, '')
+                .toLowerCase();
+
+            if (tipoNormalizado.includes('credito') || tipoNormalizado.includes('cheque')) {
+                for (let i = idx + 1; i < parcelas.length; i += 1) {
+                    parcelas[i].tipoPagamento = event.target.value;
+                }
+
+                renderParcelas();
+            }
         }
     });
 
