@@ -1,0 +1,73 @@
+body {
+  padding-top: 20px;
+  background-color: #f8f9fa;
+}
+.card {
+  margin-bottom: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+.navbar-brand {
+  font-weight: bold;
+  color: #0d6efd !important;
+}
+
+.link-desativado {
+  pointer-events: none; /* Impede o clique */
+  cursor: default; /* Mantém o cursor padrão */
+}
+
+    .estoque-box {
+        border: 1px solid #dbe5ff;
+        background: linear-gradient(135deg, #f8faff 0%, #f3f6ff 100%);
+        border-radius: 12px;
+        padding: 1rem;
+    }
+
+    .estoque-box .form-check-label {
+        font-weight: 600;
+    }
+
+    .campos-estoque {
+        background-color: #fff;
+        border: 1px solid #e2e8f0;
+        border-radius: 10px;
+        padding: 0.9rem;
+    }
+
+.sales-block-title {
+  font-weight: 600;
+  color: #0d6efd;
+}
+
+.resumo-card {
+  background: linear-gradient(135deg, #f8fbff 0%, #f2f7ff 100%);
+  border: 1px solid #dbe9ff;
+  border-radius: 12px;
+  padding: 12px;
+  margin-bottom: 12px;
+}
+
+.table th {
+  white-space: nowrap;
+  font-size: 0.85rem;
+}
+
+.table td input,
+.table td select {
+  min-width: 110px;
+}
+
+.total-pill {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #0f5132;
+  background-color: #d1e7dd;
+  border-radius: 8px;
+  padding: 8px 12px;
+  display: inline-block;
+}
+
+.context-tip {
+  font-size: 0.85rem;
+  color: #6c757d;
+}

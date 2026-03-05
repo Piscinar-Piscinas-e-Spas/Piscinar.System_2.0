@@ -11,46 +11,6 @@ $produtos = $produtosStmt->fetchAll(PDO::FETCH_ASSOC);
 $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->format('Y-m-d');
 ?>
 
-<style>
-    .sales-block-title {
-        font-weight: 600;
-        color: #0d6efd;
-    }
-
-    .resumo-card {
-        background: linear-gradient(135deg, #f8fbff 0%, #f2f7ff 100%);
-        border: 1px solid #dbe9ff;
-        border-radius: 12px;
-        padding: 12px;
-        margin-bottom: 12px;
-    }
-
-    .table th {
-        white-space: nowrap;
-        font-size: 0.85rem;
-    }
-
-    .table td input,
-    .table td select {
-        min-width: 110px;
-    }
-
-    .total-pill {
-        font-size: 1rem;
-        font-weight: 700;
-        color: #0f5132;
-        background-color: #d1e7dd;
-        border-radius: 8px;
-        padding: 8px 12px;
-        display: inline-block;
-    }
-
-    .context-tip {
-        font-size: 0.85rem;
-        color: #6c757d;
-    }
-</style>
-
 <div class="card">
     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
         <h4 class="mb-0"><i class="fas fa-file-invoice-dollar me-2"></i>Tela de Vendas</h4>
