@@ -72,27 +72,6 @@ $feedback = [
 include '../includes/header.php';
 ?>
 
-<style>
-    .table tbody tr.estoque-baixo > * {
-        background-color: #fff3cd !important;
-        color: #212529 !important;
-    }
-
-    .table tbody tr.estoque-critico > * {
-        background-color: #f8d7da !important;
-        color: #fff !important;
-    }
-
-    .table tbody tr.estoque-critico a,
-    .table tbody tr.estoque-critico span {
-        color: #fff !important;
-    }
-
-    .table tbody tr.estoque-critico td {
-        text-decoration: line-through;
-    }
-</style>
-
 <div class="container mt-4">
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
