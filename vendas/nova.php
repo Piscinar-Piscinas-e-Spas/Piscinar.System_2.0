@@ -227,6 +227,8 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
     const itens = [];
     let parcelas = [];
     let descontoPercentControlando = false;
+    let descontoTotalEditando = false;
+    let freteTotalEditando = false;
 
     const itensBody = document.querySelector('#itensTable tbody');
     const parcelasBody = document.querySelector('#parcelasTable tbody');
@@ -340,7 +342,7 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
         const freteInput = document.getElementById('freteTotalInput');
         const freteFinal = freteManual ? valorNum(freteInput.value) : freteItens;
 
-        if (!freteManual) {
+        if (!freteManual && !freteTotalEditando) {
             freteInput.value = freteItens.toFixed(2).replace('.', ',');
         }
 
@@ -351,7 +353,9 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
         document.getElementById('totalDescontos').textContent = moeda(desconto);
         document.getElementById('totalFrete').textContent = moeda(freteFinal);
         document.getElementById('totalGeralVenda').textContent = moeda(total);
-        document.getElementById('descontoTotalInput').value = desconto.toFixed(2).replace('.', ',');
+        if (!descontoTotalEditando) {
+            document.getElementById('descontoTotalInput').value = desconto.toFixed(2).replace('.', ',');
+        }
 
         if (!descontoPercentControlando) {
             document.getElementById('descontoPercentInput').value = descontoPercent.toFixed(2).replace('.', ',');
@@ -564,10 +568,32 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
         renderItens();
     });
 
-    document.getElementById('freteManualCheck').addEventListener('change', atualizarResumo);
-    document.getElementById('freteTotalInput').addEventListener('input', atualizarResumo);
+    const freteTotalInput = document.getElementById('freteTotalInput');
+    const descontoTotalInput = document.getElementById('descontoTotalInput');
 
-    document.getElementById('descontoTotalInput').addEventListener('input', (event) => {
+    document.getElementById('freteManualCheck').addEventListener('change', atualizarResumo);
+
+    freteTotalInput.addEventListener('focus', () => {
+        freteTotalEditando = true;
+    });
+
+    freteTotalInput.addEventListener('blur', () => {
+        freteTotalEditando = false;
+        atualizarResumo();
+    });
+
+    freteTotalInput.addEventListener('input', atualizarResumo);
+
+    descontoTotalInput.addEventListener('focus', () => {
+        descontoTotalEditando = true;
+    });
+
+    descontoTotalInput.addEventListener('blur', () => {
+        descontoTotalEditando = false;
+        atualizarResumo();
+    });
+
+    descontoTotalInput.addEventListener('input', (event) => {
         const valor = Math.max(0, valorNum(event.target.value));
         if (!itens.length) return;
         ratearDesconto(valor);
