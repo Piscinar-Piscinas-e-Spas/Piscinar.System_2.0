@@ -227,6 +227,8 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
     const itens = [];
     let parcelas = [];
     let descontoPercentControlando = false;
+    let descontoTotalEditando = false;
+    let freteTotalEditando = false;
 
     const itensBody = document.querySelector('#itensTable tbody');
     const parcelasBody = document.querySelector('#parcelasTable tbody');
@@ -340,7 +342,7 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
         const freteInput = document.getElementById('freteTotalInput');
         const freteFinal = freteManual ? valorNum(freteInput.value) : freteItens;
 
-        if (!freteManual) {
+        if (!freteManual && !freteTotalEditando) {
             freteInput.value = freteItens.toFixed(2).replace('.', ',');
         }
 
@@ -351,7 +353,9 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
         document.getElementById('totalDescontos').textContent = moeda(desconto);
         document.getElementById('totalFrete').textContent = moeda(freteFinal);
         document.getElementById('totalGeralVenda').textContent = moeda(total);
-        document.getElementById('descontoTotalInput').value = desconto.toFixed(2).replace('.', ',');
+        if (!descontoTotalEditando) {
+            document.getElementById('descontoTotalInput').value = desconto.toFixed(2).replace('.', ',');
+        }
 
         if (!descontoPercentControlando) {
             document.getElementById('descontoPercentInput').value = descontoPercent.toFixed(2).replace('.', ',');
@@ -515,26 +519,43 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
         renderItens();
     });
 
+    function atualizarItemPorCampo(target) {
+        const idx = Number(target.dataset.index);
+        if (!Number.isInteger(idx) || !itens[idx]) return false;
+
+        if (target.classList.contains('item-qtd')) {
+            itens[idx].quantidade = Math.max(1, parseInt(target.value, 10) || 1);
+            return true;
+        }
+
+        if (target.classList.contains('item-unit')) {
+            itens[idx].valorUnitario = Math.max(0, valorNum(target.value));
+            return true;
+        }
+
+        if (target.classList.contains('item-desc')) {
+            itens[idx].desconto = Math.max(0, valorNum(target.value));
+            return true;
+        }
+
+        if (target.classList.contains('item-frete')) {
+            itens[idx].freteItem = Math.max(0, valorNum(target.value));
+            return true;
+        }
+
+        return false;
+    }
+
     itensBody.addEventListener('input', (event) => {
         const idx = Number(event.target.dataset.index);
         if (!Number.isInteger(idx) || !itens[idx]) return;
 
-        if (event.target.classList.contains('item-qtd')) {
-            itens[idx].quantidade = Math.max(1, parseInt(event.target.value, 10) || 1);
-        }
+        if (!atualizarItemPorCampo(event.target)) return;
+        atualizarResumo();
+    });
 
-        if (event.target.classList.contains('item-unit')) {
-            itens[idx].valorUnitario = Math.max(0, valorNum(event.target.value));
-        }
-
-        if (event.target.classList.contains('item-desc')) {
-            itens[idx].desconto = Math.max(0, valorNum(event.target.value));
-        }
-
-        if (event.target.classList.contains('item-frete')) {
-            itens[idx].freteItem = Math.max(0, valorNum(event.target.value));
-        }
-
+    itensBody.addEventListener('change', (event) => {
+        if (!atualizarItemPorCampo(event.target)) return;
         renderItens();
     });
 
@@ -547,10 +568,32 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
         renderItens();
     });
 
-    document.getElementById('freteManualCheck').addEventListener('change', atualizarResumo);
-    document.getElementById('freteTotalInput').addEventListener('input', atualizarResumo);
+    const freteTotalInput = document.getElementById('freteTotalInput');
+    const descontoTotalInput = document.getElementById('descontoTotalInput');
 
-    document.getElementById('descontoTotalInput').addEventListener('input', (event) => {
+    document.getElementById('freteManualCheck').addEventListener('change', atualizarResumo);
+
+    freteTotalInput.addEventListener('focus', () => {
+        freteTotalEditando = true;
+    });
+
+    freteTotalInput.addEventListener('blur', () => {
+        freteTotalEditando = false;
+        atualizarResumo();
+    });
+
+    freteTotalInput.addEventListener('input', atualizarResumo);
+
+    descontoTotalInput.addEventListener('focus', () => {
+        descontoTotalEditando = true;
+    });
+
+    descontoTotalInput.addEventListener('blur', () => {
+        descontoTotalEditando = false;
+        atualizarResumo();
+    });
+
+    descontoTotalInput.addEventListener('input', (event) => {
         const valor = Math.max(0, valorNum(event.target.value));
         if (!itens.length) return;
         ratearDesconto(valor);
@@ -605,7 +648,27 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
         if (event.target.classList.contains('parcela-valor')) {
             parcelas[idx].valor = Math.max(0, valorNum(event.target.value));
             parcelas[idx].manual = true;
+        }
+
+        if (event.target.classList.contains('parcela-tipo')) {
+            parcelas[idx].tipoPagamento = event.target.value;
+        }
+    });
+
+    parcelasBody.addEventListener('change', (event) => {
+        const idx = Number(event.target.dataset.index);
+        if (!Number.isInteger(idx) || !parcelas[idx]) return;
+
+        if (event.target.classList.contains('parcela-venc')) {
+            parcelas[idx].vencimento = event.target.value || hojeSP;
+            return;
+        }
+
+        if (event.target.classList.contains('parcela-valor')) {
+            parcelas[idx].valor = Math.max(0, valorNum(event.target.value));
+            parcelas[idx].manual = true;
             recalcularParcelas();
+            return;
         }
 
         if (event.target.classList.contains('parcela-tipo')) {
