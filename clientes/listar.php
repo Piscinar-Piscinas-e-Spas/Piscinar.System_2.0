@@ -1,35 +1,11 @@
 <?php
 include '../includes/db.php';
 include '../includes/header.php';
-
-$termo = trim($_GET['termo'] ?? '');
-$params = [];
-
-$sql = 'SELECT id_cliente, nome_cliente, telefone_contato, cpf_cnpj, endereco, email_contato
-        FROM clientes';
-
-if ($termo !== '') {
-    $sql .= ' WHERE nome_cliente LIKE :termo
-              OR telefone_contato LIKE :termo
-              OR cpf_cnpj LIKE :termo
-              OR email_contato LIKE :termo';
-    $params[':termo'] = '%' . $termo . '%';
-}
-
-$sql .= ' ORDER BY nome_cliente ASC LIMIT 100';
-
-$stmt = $pdo->prepare($sql);
-$stmt->execute($params);
-$clientes = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-$status = $_GET['status'] ?? '';
-$feedback = [
-    'editado' => ['class' => 'success', 'texto' => 'Cliente atualizado com sucesso.'],
-    'excluido' => ['class' => 'success', 'texto' => 'Cliente excluído com sucesso.'],
-    'erro_id' => ['class' => 'warning', 'texto' => 'ID do cliente inválido.'],
-    'nao_encontrado' => ['class' => 'warning', 'texto' => 'Cliente não encontrado.'],
-    'erro_exclusao' => ['class' => 'danger', 'texto' => 'Erro ao excluir cliente.'],
-];
+$controller = new \App\Controllers\ClienteController($pdo);
+$viewData = $controller->list($_GET);
+$termo = trim((string) ($_GET['termo'] ?? ''));
+$clientes = $viewData['clientes'];
+$alert = $viewData['alert'];
 ?>
 
 <div class="container mt-4">
@@ -42,11 +18,7 @@ $feedback = [
         </div>
 
         <div class="card-body">
-            <?php if (isset($feedback[$status])): ?>
-                <div class="alert alert-<?= $feedback[$status]['class'] ?>">
-                    <?= htmlspecialchars($feedback[$status]['texto']) ?>
-                </div>
-            <?php endif; ?>
+            <?= \App\Views\AlertRenderer::render($alert) ?>
 
             <form method="GET" class="mb-3">
                 <div class="input-group">
@@ -72,9 +44,9 @@ $feedback = [
                             <th>Nome</th>
                             <th>Telefone</th>
                             <th>CPF/CNPJ</th>
-                            <th>Endereço</th>
+                            <th>EndereÃ§o</th>
                             <th>E-mail</th>
-                            <th>Ações</th>
+                            <th>AÃ§Ãµes</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -87,11 +59,11 @@ $feedback = [
                         <?php foreach ($clientes as $cliente): ?>
                             <tr>
                                 <td><?= str_pad((string) ((int) $cliente['id_cliente']), 6, '0', STR_PAD_LEFT) ?></td>
-                                <td><?= htmlspecialchars($cliente['nome_cliente']) ?></td>
-                                <td><?= htmlspecialchars($cliente['telefone_contato'] ?? '-') ?></td>
-                                <td><?= htmlspecialchars($cliente['cpf_cnpj']) ?></td>
-                                <td><?= htmlspecialchars($cliente['endereco'] ?? '-') ?></td>
-                                <td><?= htmlspecialchars($cliente['email_contato'] ?? '-') ?></td>
+                                <td><?= htmlspecialchars((string) $cliente['nome_cliente']) ?></td>
+                                <td><?= htmlspecialchars((string) ($cliente['telefone_contato'] ?? '-')) ?></td>
+                                <td><?= htmlspecialchars((string) ($cliente['cpf_cnpj'] ?? '')) ?></td>
+                                <td><?= htmlspecialchars((string) ($cliente['endereco'] ?? '-')) ?></td>
+                                <td><?= htmlspecialchars((string) ($cliente['email_contato'] ?? '-')) ?></td>
                                 <td>
                                     <a href="<?= app_url('clientes/editar.php'); ?>?id=<?= (int) $cliente['id_cliente'] ?>" class="btn btn-sm btn-primary">
                                         <i class="fas fa-edit"></i>

@@ -2,11 +2,10 @@
 include '../includes/db.php';
 include '../includes/header.php';
 
-$clientesStmt = $pdo->query('SELECT id_cliente, nome_cliente, telefone_contato, cpf_cnpj, endereco, email_contato FROM clientes ORDER BY nome_cliente LIMIT 300');
-$clientes = $clientesStmt->fetchAll(PDO::FETCH_ASSOC);
-
-$produtosStmt = $pdo->query('SELECT id, nome, preco1 FROM produtos ORDER BY nome LIMIT 500');
-$produtos = $produtosStmt->fetchAll(PDO::FETCH_ASSOC);
+$controller = new \App\Controllers\VendaController($pdo);
+$formData = $controller->formData();
+$clientes = $formData['clientes'];
+$produtos = $formData['produtos'];
 
 $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->format('Y-m-d');
 ?>

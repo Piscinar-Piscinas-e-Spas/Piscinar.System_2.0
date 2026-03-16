@@ -1,17 +1,11 @@
 <?php
 include '../includes/db.php';
 
-$grupo = $_GET['grupo'] ?? '';
+$grupo = (string) ($_GET['grupo'] ?? '');
+$controller = new \App\Controllers\ProdutoController($pdo);
+$subgrupos = $controller->subgroups($grupo);
 
-$options = '';
-if (!empty($grupo)) {
-    $stmt = $pdo->prepare("SELECT DISTINCT subgrupo FROM produtos 
-                          WHERE grupo = ? AND subgrupo IS NOT NULL");
-    $stmt->execute([$grupo]);
-    while ($row = $stmt->fetch()) {
-        $options .= "<option value='{$row['subgrupo']}'>";
-    }
+foreach ($subgrupos as $subgrupo) {
+    echo "<option value='" . htmlspecialchars((string) $subgrupo, ENT_QUOTES, 'UTF-8') . "'>";
 }
-
-echo $options;
 ?>
