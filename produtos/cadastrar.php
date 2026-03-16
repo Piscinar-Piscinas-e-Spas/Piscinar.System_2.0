@@ -1,5 +1,11 @@
 <?php
 include '../includes/db.php';
+require_login();
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_valid_csrf();
+}
+
 $controller = new \App\Controllers\ProdutoController($pdo);
 $result = $controller->create($_POST, $_SERVER['REQUEST_METHOD']);
 $produto = $result['data'];
@@ -15,6 +21,7 @@ include '../includes/header.php';
         <?= \App\Views\AlertRenderer::render($result['alert']) ?>
 
         <form method="POST">
+            <?= csrf_input() ?>
             <div class="row">
                 <div class="col-md-6">
                     <div class="mb-3">

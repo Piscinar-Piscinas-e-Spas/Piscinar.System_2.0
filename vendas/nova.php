@@ -1,5 +1,6 @@
 <?php
 include '../includes/db.php';
+require_login();
 include '../includes/header.php';
 
 $controller = new \App\Controllers\VendaController($pdo);
@@ -18,6 +19,7 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
 
     <div class="card-body">
         <form id="formVenda" class="row g-3" autocomplete="off">
+            <?= csrf_input() ?>
             <div class="col-12">
                 <div class="card border-primary-subtle">
                     <div class="card-header bg-light sales-block-title">1) Cliente</div>
@@ -225,6 +227,7 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
 
 <script>
     const hojeSP = '<?= $hojeSaoPaulo ?>';
+    const csrfToken = '<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8') ?>';
     const tiposPagamento = [
         'PIX', 'Dinheiro', 'Boleto', 'Cheque', 'Pix Pague Seguro',
         'Débito PagSeguro', 'Crédito PagSeguro', 'Débito Stone',
@@ -431,6 +434,7 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
         }
 
         return {
+            csrf_token: csrfToken,
             cliente_id: Number(cliente.id_cliente),
             cliente: {
                 nome: document.getElementById('clienteNome').value.trim(),

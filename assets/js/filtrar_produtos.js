@@ -54,8 +54,3 @@ function atualizarNomes() {
     document.querySelector('[name="nome"]').disabled = !subgrupo;
 }
 
-function confirmarExclusao(id) {
-    if (confirm('Tem certeza que deseja excluir este produto?')) {
-        window.location.href = `${appUrl('produtos/excluir.php')}?id=${id}`;
-    }
-}

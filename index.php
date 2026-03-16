@@ -1,5 +1,6 @@
 <?php
 include 'includes/db.php';
+require_login();
 include 'includes/header.php';
 
 $resumoStmt = $pdo->query("SELECT

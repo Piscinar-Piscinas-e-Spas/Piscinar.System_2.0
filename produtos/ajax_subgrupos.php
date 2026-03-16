@@ -1,5 +1,6 @@
 <?php
 include '../includes/db.php';
+require_login();
 
 $grupo = (string) ($_GET['grupo'] ?? '');
 $controller = new \App\Controllers\ProdutoController($pdo);

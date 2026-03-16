@@ -1,5 +1,6 @@
 <?php
 include '../includes/db.php';
+require_login();
 include '../includes/header.php';
 $controller = new \App\Controllers\ClienteController($pdo);
 $viewData = $controller->list($_GET);
@@ -68,9 +69,13 @@ $alert = $viewData['alert'];
                                     <a href="<?= app_url('clientes/editar.php'); ?>?id=<?= (int) $cliente['id_cliente'] ?>" class="btn btn-sm btn-primary">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <button class="btn btn-sm btn-danger" onclick="confirmarExclusaoCliente(<?= (int) $cliente['id_cliente'] ?>)">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+                                    <form method="POST" action="<?= app_url('clientes/excluir.php'); ?>" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir este cliente?');">
+                                        <?= csrf_input() ?>
+                                        <input type="hidden" name="id" value="<?= (int) $cliente['id_cliente'] ?>">
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
@@ -80,13 +85,5 @@ $alert = $viewData['alert'];
         </div>
     </div>
 </div>
-
-<script>
-function confirmarExclusaoCliente(id) {
-    if (confirm('Tem certeza que deseja excluir este cliente?')) {
-        window.location.href = '<?= app_url('clientes/excluir.php'); ?>?id=' + id;
-    }
-}
-</script>
 
 <?php include '../includes/footer.php'; ?>

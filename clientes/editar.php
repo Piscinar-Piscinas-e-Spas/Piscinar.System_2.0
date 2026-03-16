@@ -1,11 +1,16 @@
 <?php
 include '../includes/db.php';
 require_once dirname(__DIR__) . '/config.php';
+require_login();
 
 $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
 if (!$id) {
     header('Location: ' . app_url('clientes/listar.php?status=erro_id'));
     exit;
+}
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    require_valid_csrf();
 }
 
 $controller = new \App\Controllers\ClienteController($pdo);
@@ -29,6 +34,7 @@ include '../includes/header.php';
         <?= \App\Views\AlertRenderer::render($result['alert']) ?>
 
         <form method="POST">
+            <?= csrf_input() ?>
             <div class="row">
                 <div class="col-md-6">
                     <div class="mb-3">

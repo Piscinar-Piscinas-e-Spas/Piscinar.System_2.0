@@ -1,5 +1,6 @@
 <?php
 include '../includes/db.php';
+require_login();
 $controller = new \App\Controllers\ProdutoController($pdo);
 $viewData = $controller->list($_GET);
 $produtos = $viewData['produtos'];
@@ -123,10 +124,13 @@ include '../includes/header.php';
                                     <a href="<?= app_url('produtos/editar.php'); ?>?id=<?= $produto['id'] ?>" class="btn btn-sm btn-primary">
                                         <i class="fas fa-edit"></i>
                                     </a>
-                                    <button class="btn btn-sm btn-danger"
-                                        onclick="confirmarExclusao(<?= $produto['id'] ?>)">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
+                                    <form method="POST" action="<?= app_url('produtos/excluir.php'); ?>" class="d-inline" onsubmit="return confirm('Tem certeza que deseja excluir este produto?');">
+                                        <?= csrf_input() ?>
+                                        <input type="hidden" name="id" value="<?= (int) $produto['id'] ?>">
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
                                 </td>
                             </tr>
                         <?php endforeach; ?>
