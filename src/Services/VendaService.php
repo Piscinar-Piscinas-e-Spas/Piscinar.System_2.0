@@ -61,7 +61,7 @@ class VendaService
         $itensNormalizados = [];
         $subtotalCalculado = 0.0;
         $descontoCalculado = 0.0;
-        $freteCalculado = 0.0;
+        $freteItensCalculado = 0.0;
 
         foreach ($itens as $idx => $item) {
             $itemNormalizado = $this->normalizeItem($item, $idx);
@@ -75,32 +75,37 @@ class VendaService
 
             $subtotalCalculado += $itemNormalizado['subtotal_item'];
             $descontoCalculado += $itemNormalizado['desconto_valor'];
-            $freteCalculado += $itemNormalizado['frete_valor'];
+            $freteItensCalculado += $itemNormalizado['frete_valor'];
 
             unset($itemNormalizado['subtotal_item']);
             $itensNormalizados[] = $itemNormalizado;
         }
 
-        $totalCalculado = round($subtotalCalculado - $descontoCalculado + $freteCalculado, 2);
+        $freteInformado = round($this->toDecimal($dados['frete_total'] ?? 0), 2);
+        if ($freteInformado < 0) {
+            return $this->error(422, 'Frete total invalido.');
+        }
+
+        $totalCalculado = round($subtotalCalculado - $descontoCalculado + $freteInformado, 2);
 
         if (
             !$this->almostEquals($subtotalCalculado, $this->toDecimal($dados['subtotal'] ?? 0)) ||
             !$this->almostEquals($descontoCalculado, $this->toDecimal($dados['desconto_total'] ?? 0)) ||
-            !$this->almostEquals($freteCalculado, $this->toDecimal($dados['frete_total'] ?? 0)) ||
             !$this->almostEquals($totalCalculado, $this->toDecimal($dados['total_geral'] ?? 0))
         ) {
             return [
                 'status_code' => 422,
                 'payload' => [
-                    'status' => false,
-                    'mensagem' => 'Totais inconsistentes no payload.',
-                    'totais_calculados' => [
-                        'subtotal' => round($subtotalCalculado, 2),
-                        'desconto_total' => round($descontoCalculado, 2),
-                        'frete_total' => round($freteCalculado, 2),
-                        'total_geral' => round($totalCalculado, 2),
+                        'status' => false,
+                        'mensagem' => 'Totais inconsistentes no payload.',
+                        'totais_calculados' => [
+                            'subtotal' => round($subtotalCalculado, 2),
+                            'desconto_total' => round($descontoCalculado, 2),
+                            'frete_itens' => round($freteItensCalculado, 2),
+                            'frete_total' => $freteInformado,
+                            'total_geral' => round($totalCalculado, 2),
+                        ],
                     ],
-                ],
             ];
         }
 
@@ -126,7 +131,7 @@ class VendaService
                 'cliente_id' => $clienteId,
                 'subtotal' => round($subtotalCalculado, 2),
                 'desconto_total' => round($descontoCalculado, 2),
-                'frete_total' => round($freteCalculado, 2),
+                'frete_total' => $freteInformado,
                 'total_geral' => $totalCalculado,
                 'condicao_pagamento' => $condicaoPagamento,
             ], $itensNormalizados, $parcelasNormalizadas);

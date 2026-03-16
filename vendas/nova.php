@@ -340,11 +340,7 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
     }
 
     function totalVenda() {
-        return itens.reduce((acc, item) => {
-            const subtotal = item.quantidade * item.valorUnitario;
-            const subtotalDesc = Math.max(0, subtotal - item.desconto);
-            return acc + subtotalDesc + item.freteItem;
-        }, 0);
+        return obterResumo().total_geral;
     }
 
     function atualizarResumo() {
@@ -354,7 +350,7 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
 
         const freteManual = document.getElementById('freteManualCheck').checked;
         const freteInput = document.getElementById('freteTotalInput');
-        const freteFinal = freteManual ? valorNum(freteInput.value) : freteItens;
+        const freteFinal = Math.max(0, freteManual ? valorNum(freteInput.value) : freteItens);
 
         if (!freteManual && !freteTotalEditando) {
             freteInput.value = freteItens.toFixed(2).replace('.', ',');
@@ -398,7 +394,7 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
         const descontoTotal = itens.reduce((acc, item) => acc + item.desconto, 0);
         const freteItens = itens.reduce((acc, item) => acc + item.freteItem, 0);
         const freteManual = document.getElementById('freteManualCheck').checked;
-        const freteTotal = freteManual ? valorNum(document.getElementById('freteTotalInput').value) : freteItens;
+        const freteTotal = Math.max(0, freteManual ? valorNum(document.getElementById('freteTotalInput').value) : freteItens);
         const totalGeral = Math.max(0, subtotal - descontoTotal + freteTotal);
 
         return {
