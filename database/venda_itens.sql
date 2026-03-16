@@ -14,8 +14,5 @@ CREATE TABLE IF NOT EXISTS venda_itens (
         ON DELETE CASCADE,
     CONSTRAINT fk_venda_itens_produto FOREIGN KEY (id_produto) REFERENCES produtos(id)
         ON UPDATE CASCADE
-        ON DELETE RESTRICT,
-    CONSTRAINT chk_venda_itens_valores CHECK (
-        quantidade > 0 AND valor_unitario >= 0 AND desconto_valor >= 0 AND frete_valor >= 0 AND total_item >= 0
-    )
+        ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

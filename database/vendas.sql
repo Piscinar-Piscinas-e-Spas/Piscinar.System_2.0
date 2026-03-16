@@ -11,8 +11,5 @@ CREATE TABLE IF NOT EXISTS vendas (
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_vendas_cliente FOREIGN KEY (id_cliente) REFERENCES clientes(id_cliente)
         ON UPDATE CASCADE
-        ON DELETE RESTRICT,
-    CONSTRAINT chk_vendas_valores_nao_negativos CHECK (
-        subtotal >= 0 AND desconto_total >= 0 AND frete_total >= 0 AND total_geral >= 0
-    )
+        ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

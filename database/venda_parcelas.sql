@@ -11,8 +11,5 @@ CREATE TABLE IF NOT EXISTS venda_parcelas (
     updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_venda_parcelas_venda FOREIGN KEY (id_venda) REFERENCES vendas(id_venda)
         ON UPDATE CASCADE
-        ON DELETE CASCADE,
-    CONSTRAINT chk_venda_parcelas_valores CHECK (
-        numero_parcela > 0 AND valor_parcela >= 0 AND qtd_parcelas > 0 AND total_parcelas >= 0
-    )
+        ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
