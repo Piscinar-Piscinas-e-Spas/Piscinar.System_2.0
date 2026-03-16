@@ -211,6 +211,15 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
                     </div>
                 </div>
             </div>
+
+            <div class="col-12">
+                <div id="vendaFeedback" class="alert d-none" role="alert"></div>
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="submit" class="btn btn-primary" id="btnSalvarVenda">
+                        <i class="fas fa-save me-1"></i>Salvar venda
+                    </button>
+                </div>
+            </div>
         </form>
     </div>
 </div>
@@ -232,6 +241,9 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
 
     const itensBody = document.querySelector('#itensTable tbody');
     const parcelasBody = document.querySelector('#parcelasTable tbody');
+    const formVenda = document.getElementById('formVenda');
+    const feedbackBox = document.getElementById('vendaFeedback');
+    const btnSalvarVenda = document.getElementById('btnSalvarVenda');
 
     function moeda(valor) {
         return Number(valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -366,6 +378,120 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
 
     function criarParcela(vencimento = hojeSP, valor = 0, tipoPagamento = 'PIX', manual = false) {
         return { vencimento, valor, tipoPagamento, manual };
+    }
+
+    function mostrarFeedback(tipo, mensagem) {
+        feedbackBox.className = `alert alert-${tipo}`;
+        feedbackBox.textContent = mensagem;
+        feedbackBox.classList.remove('d-none');
+    }
+
+    function limparFeedback() {
+        feedbackBox.className = 'alert d-none';
+        feedbackBox.textContent = '';
+    }
+
+    function obterResumo() {
+        const subtotal = itens.reduce((acc, item) => acc + (item.quantidade * item.valorUnitario), 0);
+        const descontoTotal = itens.reduce((acc, item) => acc + item.desconto, 0);
+        const freteItens = itens.reduce((acc, item) => acc + item.freteItem, 0);
+        const freteManual = document.getElementById('freteManualCheck').checked;
+        const freteTotal = freteManual ? valorNum(document.getElementById('freteTotalInput').value) : freteItens;
+        const totalGeral = Math.max(0, subtotal - descontoTotal + freteTotal);
+
+        return {
+            subtotal,
+            desconto_total: descontoTotal,
+            frete_total: freteTotal,
+            total_geral: totalGeral
+        };
+    }
+
+    function montarPayloadVenda() {
+        const cliente = buscarClientePorNome(document.getElementById('clienteNome').value);
+        if (!cliente || !cliente.id_cliente) {
+            throw new Error('Selecione um cliente cadastrado na lista para salvar a venda.');
+        }
+
+        if (!itens.length) {
+            throw new Error('Adicione ao menos um item na venda.');
+        }
+
+        const resumo = obterResumo();
+        const payloadParcelas = parcelas.map((parcela, index) => ({
+            numero_parcela: index + 1,
+            vencimento: parcela.vencimento || hojeSP,
+            valor: Number(valorNum(parcela.valor).toFixed(2)),
+            tipo_pagamento: parcela.tipoPagamento || 'PIX',
+            qtd_parcelas: parcelas.length,
+            total_parcelas: Number(resumo.total_geral.toFixed(2))
+        }));
+
+        if (!payloadParcelas.length) {
+            throw new Error('Informe ao menos uma parcela para a venda.');
+        }
+
+        return {
+            cliente_id: Number(cliente.id_cliente),
+            cliente: {
+                nome: document.getElementById('clienteNome').value.trim(),
+                telefone: document.getElementById('clienteTelefone').value.trim(),
+                cpf_cnpj: document.getElementById('clienteCpfCnpj').value.trim(),
+                email: document.getElementById('clienteEmail').value.trim(),
+                endereco: document.getElementById('clienteEndereco').value.trim()
+            },
+            condicao_pagamento: document.getElementById('condicaoPagamento').value,
+            subtotal: Number(resumo.subtotal.toFixed(2)),
+            desconto_total: Number(resumo.desconto_total.toFixed(2)),
+            frete_total: Number(resumo.frete_total.toFixed(2)),
+            total_geral: Number(resumo.total_geral.toFixed(2)),
+            itens: itens.map((item) => ({
+                produto_id: Number(item.produtoId),
+                quantidade: Number(item.quantidade),
+                valor_unitario: Number(item.valorUnitario.toFixed(2)),
+                desconto_valor: Number(item.desconto.toFixed(2)),
+                frete_valor: Number(item.freteItem.toFixed(2))
+            })),
+            parcelas: payloadParcelas
+        };
+    }
+
+    async function enviarVenda() {
+        limparFeedback();
+
+        let payload;
+        try {
+            payload = montarPayloadVenda();
+        } catch (error) {
+            mostrarFeedback('warning', error.message || 'Verifique os dados da venda antes de salvar.');
+            return;
+        }
+
+        btnSalvarVenda.disabled = true;
+        btnSalvarVenda.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Salvando...';
+
+        try {
+            const resposta = await fetch('salvar.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok || !dados.status) {
+                throw new Error(dados.mensagem || 'Falha ao salvar venda.');
+            }
+
+            mostrarFeedback('success', `Venda #${dados.id_venda} salva com sucesso.`);
+        } catch (error) {
+            mostrarFeedback('danger', error.message || 'Erro inesperado ao salvar venda.');
+        } finally {
+            btnSalvarVenda.disabled = false;
+            btnSalvarVenda.innerHTML = '<i class="fas fa-save me-1"></i>Salvar venda';
+        }
     }
 
     function montarParcelas(qtd) {
@@ -703,6 +829,11 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
         const nova = criarParcela(hojeSP, 0, 'PIX', false);
         parcelas.push(nova);
         recalcularParcelas();
+    });
+
+    formVenda.addEventListener('submit', (event) => {
+        event.preventDefault();
+        enviarVenda();
     });
 
     montarParcelas(1);
