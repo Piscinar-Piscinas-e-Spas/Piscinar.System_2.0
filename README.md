@@ -31,8 +31,10 @@ SESSION_COOKIE_LIFETIME_OVERRIDE=2592000 php -S localhost:8000
 
 O sistema lê `BASE_URL` da variável de ambiente em `config.php`.
 
-- Fallback padrão: `''` (raiz do domínio).
-- Com fallback vazio, URLs ficam como `/index.php`, `/produtos/listar.php`, etc.
+- Se `BASE_URL` estiver definido, esse valor é usado como base dos links.
+- Se `BASE_URL` não estiver definido, o sistema detecta automaticamente a base da URL atual (raiz ou subpasta).
+
+> Dica: para cenários em que o mesmo código precisa funcionar em host raiz **e** host com subpasta (ex.: DNS interno + localhost), prefira deixar `BASE_URL` **não definido** para usar autodetecção por requisição.
 
 ### Desenvolvimento local
 
