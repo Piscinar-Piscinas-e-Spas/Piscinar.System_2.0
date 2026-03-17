@@ -3,6 +3,10 @@ require_once __DIR__ . '/includes/db.php';
 
 $erroLogin = '';
 $usuarioInformado = '';
+$next = trim((string) ($_POST['next'] ?? $_GET['next'] ?? ''));
+if ($next === '' || strpos($next, '/') !== 0 || strpos($next, '//') === 0) {
+    $next = app_url('index.php');
+}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $usuarioInformado = trim((string) ($_POST['usuario'] ?? ''));
@@ -39,12 +43,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 echo json_encode([
                     'status' => true,
                     'mensagem' => 'Login realizado com sucesso.',
-                    'redirect' => app_url('index.php'),
+                    'redirect' => $next,
                 ], JSON_UNESCAPED_UNICODE);
                 exit;
             }
 
-            header('Location: ' . app_url('index.php'));
+            header('Location: ' . $next);
             exit;
         }
 
@@ -85,6 +89,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         <?php endif; ?>
 
                         <form method="post" action="<?= htmlspecialchars(app_url('login.php'), ENT_QUOTES, 'UTF-8') ?>">
+                            <input type="hidden" name="next" value="<?= htmlspecialchars($next, ENT_QUOTES, 'UTF-8') ?>">
                             <div class="mb-3">
                                 <label for="usuario" class="form-label">Usuário</label>
                                 <input
