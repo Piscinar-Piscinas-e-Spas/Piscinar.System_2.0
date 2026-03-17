@@ -70,6 +70,14 @@
                             <a class="nav-link<?php echo $vendasActive; ?>" href="<?php echo app_url('vendas/nova.php'); ?>"><i class="fas fa-file-invoice-dollar"></i> Vendas</a>
                         </li>
                     </ul>
+
+                    <?php if (function_exists('is_authenticated') && is_authenticated()): ?>
+                        <div class="d-flex ms-auto">
+                            <a class="btn btn-outline-danger btn-sm" href="<?php echo app_url('logout.php'); ?>">
+                                <i class="fas fa-sign-out-alt me-1"></i> Sair
+                            </a>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </nav>
