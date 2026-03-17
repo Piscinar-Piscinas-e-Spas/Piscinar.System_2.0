@@ -1,0 +1,77 @@
+:root {
+  --brand-primary: #0d6efd;
+  --brand-primary-soft: rgba(13, 110, 253, 0.14);
+  --brand-bg: #f8f9fa;
+  --brand-card: #ffffff;
+  --brand-border: #dbe5ff;
+}
+
+body.login-page {
+  background: radial-gradient(circle at top, #eef4ff 0%, var(--brand-bg) 52%);
+  font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  color: #1f2937;
+}
+
+.login-wrapper {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+}
+
+.login-card {
+  border-radius: 14px;
+  background-color: var(--brand-card);
+  border: 1px solid var(--brand-border);
+}
+
+.login-card h1 {
+  color: var(--brand-primary);
+  font-weight: 700;
+}
+
+.login-input {
+  border-radius: 10px;
+  border: 1px solid #ced4da;
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.login-input:focus {
+  border-color: var(--brand-primary);
+  box-shadow: 0 0 0 0.2rem var(--brand-primary-soft);
+  transform: translateY(-1px);
+}
+
+.password-group .btn {
+  border-radius: 0 10px 10px 0;
+}
+
+.login-submit {
+  border-radius: 10px;
+  font-weight: 600;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+}
+
+.login-submit:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 0.35rem 0.75rem rgba(13, 110, 253, 0.3);
+}
+
+.login-feedback {
+  opacity: 0;
+  transform: translateY(-5px);
+  max-height: 0;
+  overflow: hidden;
+  transition: opacity 0.3s ease, transform 0.3s ease, max-height 0.3s ease, margin 0.3s ease, padding 0.3s ease;
+  margin-bottom: 0;
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.login-feedback.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+  max-height: 120px;
+  margin-bottom: 1rem;
+  padding-top: 0.75rem;
+  padding-bottom: 0.75rem;
+}
