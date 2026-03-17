@@ -1,8 +1,8 @@
 <?php
 // URL base opcional do projeto (ex.: /piscinar.system_2.0).
 // Defina via variável de ambiente BASE_URL.
-// Quando BASE_URL não for definido, detectamos automaticamente
-// o caminho-base da aplicação a partir do script em execução.
+// Detectamos automaticamente o caminho-base da aplicação
+// e só usamos BASE_URL fixo quando ele não conflita com a rota real.
 function normalize_base_path(string $path): string
 {
     $path = str_replace('\\', '/', trim($path));
@@ -55,6 +55,25 @@ function detected_base_path(): string
     return $scriptDirUrl;
 }
 
+function script_path_matches_base(string $basePath): bool
+{
+    if ($basePath === '') {
+        return true;
+    }
+
+    $scriptName = normalize_base_path((string) ($_SERVER['SCRIPT_NAME'] ?? ''));
+
+    if ($scriptName === '') {
+        return true;
+    }
+
+    if ($scriptName === $basePath) {
+        return true;
+    }
+
+    return strpos($scriptName, $basePath . '/') === 0;
+}
+
 function configured_base_path(): string
 {
     $configured = getenv('BASE_URL');
@@ -71,11 +90,19 @@ function resolved_base_path(): string
     $detected = detected_base_path();
     $configured = configured_base_path();
 
-    if ($configured !== '') {
-        return $configured;
+    if ($configured === '') {
+        return $detected;
     }
 
-    return $detected;
+    if ($detected !== '' && $configured !== $detected) {
+        return $detected;
+    }
+
+    if ($detected === '' && !script_path_matches_base($configured)) {
+        return '';
+    }
+
+    return $configured;
 }
 
 define('BASE_URL', resolved_base_path());

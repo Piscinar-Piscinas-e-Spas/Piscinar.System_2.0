@@ -31,10 +31,11 @@ SESSION_COOKIE_LIFETIME_OVERRIDE=2592000 php -S localhost:8000
 
 O sistema lê `BASE_URL` da variável de ambiente em `config.php`.
 
-- Se `BASE_URL` estiver definido, esse valor é usado como base dos links.
-- Se `BASE_URL` não estiver definido, o sistema detecta automaticamente a base da URL atual (raiz ou subpasta).
+- O sistema detecta automaticamente a base da URL atual (raiz ou subpasta).
+- Se `BASE_URL` estiver definido e **coincidir** com a rota detectada, ele é mantido.
+- Se `BASE_URL` estiver definido mas **conflitar** com a rota real da requisição, o sistema prioriza a rota detectada para evitar links quebrados (404).
 
-> Dica: para cenários em que o mesmo código precisa funcionar em host raiz **e** host com subpasta (ex.: DNS interno + localhost), prefira deixar `BASE_URL` **não definido** para usar autodetecção por requisição.
+> Dica: para cenários em que o mesmo código precisa funcionar em host raiz **e** host com subpasta (ex.: DNS interno + localhost), você pode deixar `BASE_URL` não definido **ou** mesmo que esteja definido incorretamente, a autodetecção passa a prevalecer em caso de conflito.
 
 ### Desenvolvimento local
 
