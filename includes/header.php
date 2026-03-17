@@ -70,6 +70,22 @@
                             <a class="nav-link<?php echo $vendasActive; ?>" href="<?php echo app_url('vendas/nova.php'); ?>"><i class="fas fa-file-invoice-dollar"></i> Vendas</a>
                         </li>
                     </ul>
+
+                    <ul class="navbar-nav ms-auto">
+                        <?php if (function_exists('is_authenticated') && is_authenticated()): ?>
+                        <li class="nav-item">
+                            <span class="nav-link text-muted">
+                                <i class="fas fa-user-circle"></i>
+                                <?= htmlspecialchars((string) ((auth_user()['nome'] ?? auth_user()['usuario'] ?? 'Usuário')), ENT_QUOTES, 'UTF-8') ?>
+                            </span>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-danger" href="<?= htmlspecialchars(app_url('logout.php'), ENT_QUOTES, 'UTF-8') ?>">
+                                <i class="fas fa-sign-out-alt"></i> Sair
+                            </a>
+                        </li>
+                        <?php endif; ?>
+                    </ul>
                 </div>
             </div>
         </nav>
