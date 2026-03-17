@@ -1,15 +1,38 @@
-<footer class="mt-5 py-3 bg-light">
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-6">
-                        <p class="mb-0">Sistema de Gestão para Loja de Piscinas</p>
-                    </div>
-                    <div class="col-md-6 text-md-end">
-                        <p class="mb-0">Versão 2.0 - <?= date('Y'); ?></p>
-                    </div>
+<?php
+$commitCount = 0;
+$commitOutput = @shell_exec('git rev-list --count HEAD 2>/dev/null');
+if ($commitOutput !== null) {
+    $commitCount = (int) trim($commitOutput);
+}
+$systemVersion = sprintf('2.0%06d', max(0, $commitCount));
+?>
+<footer class="site-footer mt-5">
+    <div class="container py-4 py-md-5">
+        <div class="row g-4">
+            <div class="col-lg-4">
+                <div class="footer-brand mb-3">
+                    <img src="<?= htmlspecialchars(app_url('assets/img/piscinar-logo.svg'), ENT_QUOTES, 'UTF-8') ?>" alt="Piscinar" class="footer-logo me-2">
+                    <span class="fw-semibold">Piscinar System 2.0</span>
                 </div>
+                <p class="mb-0 text-light-emphasis">Sistema de Gestão para Loja de Piscinas com foco em vendas, produtos e clientes.</p>
             </div>
-        </footer>
+            <div class="col-sm-6 col-lg-4">
+                <h6 class="footer-title">Mapa do sistema</h6>
+                <ul class="footer-map list-unstyled mb-0">
+                    <li><a href="<?= htmlspecialchars(app_url('index.php'), ENT_QUOTES, 'UTF-8') ?>">Início</a></li>
+                    <li><a href="<?= htmlspecialchars(app_url('produtos/listar.php'), ENT_QUOTES, 'UTF-8') ?>">Produtos</a></li>
+                    <li><a href="<?= htmlspecialchars(app_url('clientes/listar.php'), ENT_QUOTES, 'UTF-8') ?>">Clientes</a></li>
+                    <li><a href="<?= htmlspecialchars(app_url('vendas/nova.php'), ENT_QUOTES, 'UTF-8') ?>">Vendas</a></li>
+                </ul>
+            </div>
+            <div class="col-sm-6 col-lg-4">
+                <h6 class="footer-title">Informações de versão</h6>
+                <div class="version-badge"><?= htmlspecialchars($systemVersion, ENT_QUOTES, 'UTF-8') ?></div>
+                <p class="small mb-0 text-light-emphasis">Versão calculada automaticamente com base no total de commits do repositório.</p>
+            </div>
+        </div>
+    </div>
+</footer>
         
         <!--<script>
             
