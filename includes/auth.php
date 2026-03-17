@@ -152,9 +152,42 @@ function render_security_error($statusCode, $errorCode, $message)
 
 function require_login()
 {
+    $requireAuth = defined('REQUIRE_AUTH')
+        ? filter_var(REQUIRE_AUTH, FILTER_VALIDATE_BOOLEAN)
+        : filter_var(getenv('REQUIRE_AUTH') ?: '1', FILTER_VALIDATE_BOOLEAN);
+
+    if (!$requireAuth) {
+        return;
+    }
+
     if (!is_authenticated()) {
+        redirect_to_login('authorization_required');
+    }
+}
+
+function redirect_to_login($reason = null)
+{
+    if (request_expects_json()) {
         render_security_error(401, 'authorization_required', 'Login obrigatorio para acessar este modulo.');
     }
+
+    $query = [];
+    $next = (string) ($_SERVER['REQUEST_URI'] ?? '');
+    if ($next !== '') {
+        $query['next'] = $next;
+    }
+
+    if ($reason !== null && $reason !== '') {
+        $query['reason'] = (string) $reason;
+    }
+
+    $target = app_url('login.php');
+    if (!empty($query)) {
+        $target .= '?' . http_build_query($query);
+    }
+
+    header('Location: ' . $target);
+    exit;
 }
 
 function read_json_input()
@@ -200,4 +233,3 @@ function require_valid_csrf($token = null)
         render_security_error(403, 'invalid_request', 'Token CSRF invalido ou ausente.');
     }
 }
-
