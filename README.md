@@ -149,3 +149,62 @@ FROM clientes;
 ```
 
 No sistema, a listagem já exibe o ID nesse formato (`000001`, `000245`, etc.), sem perder a integridade do auto incremento.
+
+## Autenticação por sessão (`REQUIRE_AUTH`)
+
+A proteção adicionada no projeto é **por sessão PHP**, não por token externo automático.
+
+### Quando o login é exigido
+
+- `REQUIRE_AUTH=true`: páginas protegidas exigem usuário na sessão.
+- `REQUIRE_AUTH` ausente/`false`: sistema não bloqueia acesso por login.
+
+### O login é no próprio projeto ou em outra instância?
+
+Pode ser dos dois jeitos:
+
+1. **No próprio projeto**: sua tela de login deve gravar os dados na `$_SESSION`.
+2. **Em outra instância**: funciona se ela compartilhar a mesma sessão PHP (mesmo domínio/cookie/sessão) e preencher as chaves esperadas.
+
+### Chaves de sessão aceitas
+
+Por padrão, o middleware reconhece:
+
+- ID do usuário: `auth_user_id`, `usuario_id`, `user_id`
+- Objeto de usuário: `auth_user`, `usuario`, `user`
+
+Se sua outra instância usa nomes diferentes, configure:
+
+- `AUTH_SESSION_ID_KEYS` (lista separada por vírgula)
+- `AUTH_SESSION_USER_KEYS` (lista separada por vírgula)
+
+Exemplo:
+
+```bash
+REQUIRE_AUTH=true
+AUTH_SESSION_ID_KEYS=cliente_id,usuario_logado_id
+AUTH_SESSION_USER_KEYS=cliente_auth,usuario_logado
+```
+
+## Login por sessão (usuário e senha)
+
+### Arquivos adicionados
+
+- `login.php`: autenticação com `password_verify`, sessão e resposta JSON para UX dinâmica.
+- `logout.php`: encerra sessão e redireciona para login.
+- `session-expired.php`: modal visual de sessão expirada com redirecionamento automático.
+- `database/usuarios.sql`: criação da tabela `usuarios` + usuário inicial.
+
+### Requisitos de ambiente
+
+- Para obrigar login em todos os módulos protegidos:
+
+```bash
+REQUIRE_AUTH=true
+```
+
+### Comportamento de sessão
+
+- Cookie de sessão com `lifetime=0` (expira ao fechar navegador).
+- Timeout de inatividade no servidor: **3h30** (12600 segundos).
+- Ao expirar, o usuário é redirecionado para uma tela com modal informando o fim da sessão.

@@ -71,13 +71,21 @@
                         </li>
                     </ul>
 
-                    <?php if (function_exists('is_authenticated') && is_authenticated()): ?>
-                        <div class="d-flex ms-auto">
-                            <a class="btn btn-outline-danger btn-sm" href="<?php echo app_url('logout.php'); ?>">
-                                <i class="fas fa-sign-out-alt me-1"></i> Sair
+                    <ul class="navbar-nav ms-auto">
+                        <?php if (function_exists('is_authenticated') && is_authenticated()): ?>
+                        <li class="nav-item">
+                            <span class="nav-link text-muted">
+                                <i class="fas fa-user-circle"></i>
+                                <?= htmlspecialchars((string) ((auth_user()['nome'] ?? auth_user()['usuario'] ?? 'Usuário')), ENT_QUOTES, 'UTF-8') ?>
+                            </span>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-danger" href="<?= htmlspecialchars(app_url('logout.php'), ENT_QUOTES, 'UTF-8') ?>">
+                                <i class="fas fa-sign-out-alt"></i> Sair
                             </a>
-                        </div>
-                    <?php endif; ?>
+                        </li>
+                        <?php endif; ?>
+                    </ul>
                 </div>
             </div>
         </nav>
