@@ -75,3 +75,12 @@ body {
   cursor: help;
 }
 
+tr.estoque-baixo > td {
+  background-color: #fff3cd !important;
+  color: #664d03;
+}
+
+tr.estoque-critico > td {
+  background-color: #f8d7da !important;
+  color: #842029;
+}
