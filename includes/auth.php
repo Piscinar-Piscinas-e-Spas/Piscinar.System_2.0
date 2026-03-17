@@ -3,6 +3,18 @@
 require_once dirname(__DIR__) . '/config.php';
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
+    $isHttps = (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off')
+        || ((int) ($_SERVER['SERVER_PORT'] ?? 0) === 443)
+        || strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https';
+
+    session_set_cookie_params([
+        'lifetime' => defined('SESSION_COOKIE_LIFETIME') ? max(0, (int) SESSION_COOKIE_LIFETIME) : 0,
+        'path' => '/',
+        'secure' => $isHttps,
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+
     session_start();
 }
 
