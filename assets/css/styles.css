@@ -84,3 +84,60 @@ tr.estoque-critico > td {
   background-color: #f8d7da !important;
   color: #842029;
 }
+
+.brand-logo {
+  width: 34px;
+  height: 34px;
+  object-fit: contain;
+}
+
+.site-footer {
+  background: linear-gradient(135deg, #052f83 0%, #0a4ec4 45%, #1297f4 100%);
+  border-radius: 18px;
+  color: #f2f8ff;
+  box-shadow: 0 14px 28px rgba(2, 19, 59, 0.2);
+}
+
+.footer-logo {
+  width: 42px;
+  height: 42px;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+}
+
+.footer-title {
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.75rem;
+  font-size: 0.8rem;
+  color: #c9e9ff;
+}
+
+.footer-map li + li {
+  margin-top: 0.45rem;
+}
+
+.footer-map a {
+  color: #ffffff;
+  text-decoration: none;
+  transition: opacity 0.2s ease;
+}
+
+.footer-map a:hover {
+  opacity: 0.75;
+}
+
+.version-badge {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  border-radius: 999px;
+  padding: 0.35rem 0.85rem;
+  margin-bottom: 0.6rem;
+  font-weight: 700;
+  font-family: "Courier New", monospace;
+  color: #e7f7ff;
+}
