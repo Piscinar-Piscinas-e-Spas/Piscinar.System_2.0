@@ -45,7 +45,7 @@
       }
 
       setFeedback('success', 'Login realizado com sucesso. Redirecionando...');
-      window.location.href = json.redirect || '/index.php';
+      window.location.href = json.redirect || window.LOGIN_REDIRECT_FALLBACK || '/index.php';
     } catch (err) {
       setFeedback('danger', 'Erro de comunicação. Tente novamente.');
       setLoading(false);
