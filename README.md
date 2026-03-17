@@ -2,6 +2,33 @@
 
 ## Configuração de ambiente (`BASE_URL`)
 
+
+## Sessão: cookie de autenticação e lifetime
+
+A aplicação define o cookie de sessão com `lifetime = 0` por padrão. Isso significa que o cookie é de sessão e expira ao fechar o navegador.
+
+> Observação: alguns navegadores podem restaurar abas/sessões após reinício, o que pode manter sessão ativa mesmo com `lifetime 0`, dependendo da configuração do cliente.
+
+Também são aplicados os atributos de segurança do cookie de sessão:
+
+- `HttpOnly: true`
+- `Secure: true` quando a requisição estiver em HTTPS
+- `SameSite: Lax`
+
+### Override opcional para modo muito longo
+
+Se for necessário um comportamento excepcionalmente longo, use a variável de ambiente `SESSION_COOKIE_LIFETIME_OVERRIDE` (em segundos).
+
+- Padrão seguro: `0`
+- Override opcional: valor inteiro positivo (ex.: `2592000` para ~30 dias)
+
+Exemplo:
+
+```bash
+SESSION_COOKIE_LIFETIME_OVERRIDE=2592000 php -S localhost:8000
+```
+
+
 O sistema lê `BASE_URL` da variável de ambiente em `config.php`.
 
 - Fallback padrão: `''` (raiz do domínio).
