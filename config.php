@@ -1,8 +1,111 @@
 <?php
 // URL base opcional do projeto (ex.: /piscinar.system_2.0).
 // Defina via variável de ambiente BASE_URL.
-// Fallback seguro: string vazia ('') para instalação na raiz do domínio.
-define('BASE_URL', getenv('BASE_URL') ?: '');
+// Detectamos automaticamente o caminho-base da aplicação
+// e só usamos BASE_URL fixo quando ele não conflita com a rota real.
+function normalize_base_path(string $path): string
+{
+    $path = str_replace('\\', '/', trim($path));
+
+    if ($path === '' || $path === '/' || $path === '.') {
+        return '';
+    }
+
+    $path = '/' . trim($path, '/');
+
+    return rtrim($path, '/');
+}
+
+function detected_base_path(): string
+{
+    $scriptName = (string) ($_SERVER['SCRIPT_NAME'] ?? '');
+    $scriptFilename = (string) ($_SERVER['SCRIPT_FILENAME'] ?? '');
+    $projectRoot = realpath(__DIR__);
+    $scriptRealpath = $scriptFilename !== '' ? realpath($scriptFilename) : false;
+
+    if ($scriptName === '' || $projectRoot === false || $scriptRealpath === false) {
+        return '';
+    }
+
+    $projectRoot = str_replace('\\', '/', $projectRoot);
+    $scriptDirFs = str_replace('\\', '/', dirname($scriptRealpath));
+
+    if (strpos($scriptDirFs, $projectRoot) !== 0) {
+        return '';
+    }
+
+    $relativeDir = trim(substr($scriptDirFs, strlen($projectRoot)), '/');
+    $scriptDirUrl = normalize_base_path(dirname($scriptName));
+
+    if ($relativeDir === '') {
+        return $scriptDirUrl;
+    }
+
+    $suffix = '/' . trim($relativeDir, '/');
+
+    if ($scriptDirUrl === $suffix) {
+        return '';
+    }
+
+    if (str_ends_with($scriptDirUrl, $suffix)) {
+        $base = substr($scriptDirUrl, 0, -strlen($suffix));
+        return normalize_base_path((string) $base);
+    }
+
+    return $scriptDirUrl;
+}
+
+function script_path_matches_base(string $basePath): bool
+{
+    if ($basePath === '') {
+        return true;
+    }
+
+    $scriptName = normalize_base_path((string) ($_SERVER['SCRIPT_NAME'] ?? ''));
+
+    if ($scriptName === '') {
+        return true;
+    }
+
+    if ($scriptName === $basePath) {
+        return true;
+    }
+
+    return strpos($scriptName, $basePath . '/') === 0;
+}
+
+function configured_base_path(): string
+{
+    $configured = getenv('BASE_URL');
+
+    if ($configured === false || $configured === null) {
+        return '';
+    }
+
+    return normalize_base_path((string) $configured);
+}
+
+function resolved_base_path(): string
+{
+    $detected = detected_base_path();
+    $configured = configured_base_path();
+
+    if ($configured === '') {
+        return $detected;
+    }
+
+    if ($detected !== '' && $configured !== $detected) {
+        return $detected;
+    }
+
+    if ($detected === '' && !script_path_matches_base($configured)) {
+        return '';
+    }
+
+    return $configured;
+}
+
+define('BASE_URL', resolved_base_path());
 
 // Timeout de inatividade da sessão autenticada (em segundos).
 define('SESSION_TIMEOUT_SECONDS', (int) (getenv('SESSION_TIMEOUT_SECONDS') ?: 12600));
