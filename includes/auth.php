@@ -17,6 +17,18 @@ if (PHP_VERSION_ID >= 70300) {
 }
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
+    $isHttps = (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off')
+        || ((int) ($_SERVER['SERVER_PORT'] ?? 0) === 443)
+        || strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https';
+
+    session_set_cookie_params([
+        'lifetime' => defined('SESSION_COOKIE_LIFETIME') ? max(0, (int) SESSION_COOKIE_LIFETIME) : 0,
+        'path' => '/',
+        'secure' => $isHttps,
+        'httponly' => true,
+        'samesite' => 'Lax',
+    ]);
+
     session_start();
 }
 
@@ -192,6 +204,28 @@ function require_login()
 
         redirect_to_login('auth_required');
     }
+
+    $query = [];
+    $next = (string) ($_SERVER['REQUEST_URI'] ?? '');
+    if ($next !== '') {
+        $query['next'] = $next;
+    }
+
+    if ($reason !== null && $reason !== '') {
+        if ((string) $reason === 'session_expired') {
+            $query['session_expired'] = 1;
+        } else {
+            $query['reason'] = (string) $reason;
+        }
+    }
+
+    $target = app_url('login.php');
+    if (!empty($query)) {
+        $target .= '?' . http_build_query($query);
+    }
+
+    header('Location: ' . $target);
+    exit;
 }
 
 function read_json_input()
