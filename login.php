@@ -8,6 +8,13 @@ if ($next === '' || strpos($next, '/') !== 0 || strpos($next, '//') === 0) {
     $next = app_url('index.php');
 }
 
+if (isset($_SESSION['session_expiration_reason']) && $_SESSION['session_expiration_reason'] === 'inactivity_timeout') {
+    $_GET['session_expired'] = $_GET['session_expired'] ?? '1';
+    unset($_SESSION['session_expiration_reason']);
+}
+
+$sessionExpired = (string) ($_GET['session_expired'] ?? '') === '1';
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $usuarioInformado = trim((string) ($_POST['usuario'] ?? ''));
     $senhaInformada = (string) ($_POST['senha'] ?? '');
@@ -82,6 +89,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <div class="card-body p-4">
                         <h1 class="h4 mb-3 text-center">Entrar no sistema</h1>
 
+                        <?php if ($sessionExpired): ?>
+                            <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1080;">
+                                <div id="sessionExpiredToast" class="toast align-items-center text-bg-warning border-0 shadow" role="alert" aria-live="assertive" aria-atomic="true">
+                                    <div class="d-flex">
+                                        <div class="toast-body">Sessão encerrada por inatividade.</div>
+                                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fechar"></button>
+                                    </div>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+
                         <?php if ($erroLogin !== ''): ?>
                             <div class="alert alert-danger" role="alert">
                                 <?= htmlspecialchars($erroLogin, ENT_QUOTES, 'UTF-8') ?>
@@ -120,5 +138,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
     </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <?php if ($sessionExpired): ?>
+    <script>
+        window.addEventListener('DOMContentLoaded', function () {
+            var toastElement = document.getElementById('sessionExpiredToast');
+            if (!toastElement || typeof bootstrap === 'undefined') {
+                return;
+            }
+
+            var toast = new bootstrap.Toast(toastElement, {
+                autohide: true,
+                delay: 6000,
+                animation: true
+            });
+
+            toast.show();
+        });
+    </script>
+    <?php endif; ?>
+
 </body>
 </html>
