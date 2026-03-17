@@ -247,6 +247,59 @@
 
         <!-- Bootstrap JS e dependências -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+        <?php if (function_exists('is_authenticated') && is_authenticated()): ?>
+        <script>
+            (function () {
+                var timeoutSeconds = <?= (int) (defined('SESSION_TIMEOUT_SECONDS') ? SESSION_TIMEOUT_SECONDS : 12600); ?>;
+                var warningSeconds = <?= (int) (defined('SESSION_EXPIRY_WARNING_SECONDS') ? SESSION_EXPIRY_WARNING_SECONDS : 60); ?>;
+                var lastActivityAt = <?= (int) ($_SESSION['last_activity_at'] ?? time()); ?>;
+
+                if (timeoutSeconds <= 0 || warningSeconds <= 0 || warningSeconds >= timeoutSeconds) {
+                    return;
+                }
+
+                var warned = false;
+                var warningMoment = (lastActivityAt + timeoutSeconds - warningSeconds) * 1000;
+
+                var updateActivity = function () {
+                    lastActivityAt = Math.floor(Date.now() / 1000);
+                    warningMoment = (lastActivityAt + timeoutSeconds - warningSeconds) * 1000;
+                    warned = false;
+                };
+
+                ['click', 'keydown', 'mousemove', 'scroll', 'touchstart'].forEach(function (evt) {
+                    window.addEventListener(evt, updateActivity, { passive: true });
+                });
+
+                window.setInterval(function () {
+                    var now = Date.now();
+                    if (!warned && now >= warningMoment && now < (lastActivityAt + timeoutSeconds) * 1000) {
+                        warned = true;
+                        if (typeof bootstrap !== 'undefined' && bootstrap.Toast) {
+                            var toastEl = document.getElementById('sessionExpiryWarningToast');
+                            if (toastEl) {
+                                var toast = bootstrap.Toast.getOrCreateInstance(toastEl, { delay: 10000, animation: true });
+                                toast.show();
+                                return;
+                            }
+                        }
+
+                        alert('Sua sessão será encerrada em aproximadamente 1 minuto por inatividade.');
+                    }
+                }, 15000);
+            })();
+        </script>
+
+        <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index:1080;">
+            <div id="sessionExpiryWarningToast" class="toast align-items-center text-bg-secondary border-0" role="alert" aria-live="assertive" aria-atomic="true">
+                <div class="d-flex">
+                    <div class="toast-body">Sua sessão será encerrada em aproximadamente 1 minuto por inatividade.</div>
+                    <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Fechar"></button>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
     </div>
 </body>
 </html> 

@@ -150,6 +150,43 @@ function render_security_error($statusCode, $errorCode, $message)
     exit;
 }
 
+function clear_authenticated_session($reason = null)
+{
+    $csrfToken = $_SESSION['csrf_token'] ?? bin2hex(random_bytes(32));
+
+    $_SESSION = [];
+
+    if (is_string($reason) && $reason !== '') {
+        $_SESSION['session_expiration_reason'] = $reason;
+    }
+
+    $_SESSION['csrf_token'] = is_string($csrfToken) && $csrfToken !== ''
+        ? $csrfToken
+        : bin2hex(random_bytes(32));
+
+    session_regenerate_id(true);
+}
+
+function enforce_session_activity_timeout()
+{
+    if (!is_authenticated()) {
+        return;
+    }
+
+    $timeout = defined('SESSION_TIMEOUT_SECONDS') ? (int) SESSION_TIMEOUT_SECONDS : 12600;
+    $timeout = $timeout > 0 ? $timeout : 12600;
+
+    $lastActivityAt = isset($_SESSION['last_activity_at']) ? (int) $_SESSION['last_activity_at'] : 0;
+    $now = time();
+
+    if ($lastActivityAt > 0 && ($now - $lastActivityAt) > $timeout) {
+        clear_authenticated_session('inactivity_timeout');
+        redirect_to_login('session_expired');
+    }
+
+    $_SESSION['last_activity_at'] = $now;
+}
+
 function require_login()
 {
     $requireAuth = defined('REQUIRE_AUTH')
@@ -163,6 +200,8 @@ function require_login()
     if (!is_authenticated()) {
         redirect_to_login('authorization_required');
     }
+
+    enforce_session_activity_timeout();
 }
 
 function redirect_to_login($reason = null)
@@ -178,7 +217,11 @@ function redirect_to_login($reason = null)
     }
 
     if ($reason !== null && $reason !== '') {
-        $query['reason'] = (string) $reason;
+        if ((string) $reason === 'session_expired') {
+            $query['session_expired'] = 1;
+        } else {
+            $query['reason'] = (string) $reason;
+        }
     }
 
     $target = app_url('login.php');
