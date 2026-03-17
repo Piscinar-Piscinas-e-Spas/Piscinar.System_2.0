@@ -118,6 +118,7 @@ $infoMessage = $messages[$reason] ?? null;
 
 <script>
 window.LOGIN_ENDPOINT = <?= json_encode(app_url('login.php')) ?>;
+window.LOGIN_REDIRECT_FALLBACK = <?= json_encode(app_url('index.php')) ?>;
 </script>
 <script src="<?= htmlspecialchars(app_url('assets/js/login.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
 </body>
