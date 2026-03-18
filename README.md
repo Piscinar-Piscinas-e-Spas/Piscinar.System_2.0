@@ -199,6 +199,7 @@ AUTH_SESSION_USER_KEYS=cliente_auth,usuario_logado
 - O fluxo exige gerar um token numérico de 6 dígitos, enviado para `piscinar2014@gmail.com`.
 - O token tem validade de 15 minutos e uso único.
 - Toda alteração de senha dispara e-mail de confirmação para o mesmo endereço.
+- Se o servidor não tiver transporte SMTP/sendmail ativo, o conteúdo do e-mail é salvo em `storage/mail_fallback.log` para reenvio operacional.
 
 ### Arquivos adicionados
 

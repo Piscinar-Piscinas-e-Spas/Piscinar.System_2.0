@@ -35,6 +35,11 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
 
                 if (!send_system_email('Piscinar - token de troca de senha', $emailBody, $emailError)) {
                     $alert = ['type' => 'danger', 'message' => (string) $emailError];
+                } elseif (is_string($emailError) && $emailError !== '') {
+                    $alert = [
+                        'type' => 'warning',
+                        'message' => 'Token gerado. ' . $emailError . ' Contate o suporte para validar o envio ao e-mail de aprovação.',
+                    ];
                 } else {
                     $alert = ['type' => 'success', 'message' => 'Token enviado para o e-mail de aprovação piscinar2014@gmail.com.'];
                 }
@@ -78,7 +83,12 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
                     . "A alteração foi aprovada com token numérico.\n";
                 send_system_email('Piscinar - senha alterada', $emailBody, $emailError);
 
-                $alert = ['type' => 'success', 'message' => 'Senha redefinida com sucesso. Faça login com a nova senha.'];
+                $alertMessage = 'Senha redefinida com sucesso. Faça login com a nova senha.';
+                if (is_string($emailError) && $emailError !== '') {
+                    $alertMessage .= ' Observação: confirmação de e-mail pendente no servidor.';
+                }
+
+                $alert = ['type' => 'success', 'message' => $alertMessage];
                 $usuario = '';
             }
         }

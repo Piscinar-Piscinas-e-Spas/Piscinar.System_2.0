@@ -27,6 +27,35 @@ function ensure_password_reset_table(PDO $pdo): void
     $ensured = true;
 }
 
+function password_reset_mail_fallback_path(): string
+{
+    $configured = trim((string) (getenv('PASSWORD_RESET_MAIL_FALLBACK_LOG') ?: ''));
+
+    if ($configured !== '') {
+        return $configured;
+    }
+
+    return dirname(__DIR__) . '/storage/mail_fallback.log';
+}
+
+function persist_email_fallback(string $to, string $subject, string $message): bool
+{
+    $path = password_reset_mail_fallback_path();
+    $dir = dirname($path);
+
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0775, true);
+    }
+
+    $payload = "\n=== EMAIL PENDENTE ===\n"
+        . 'Data/Hora UTC: ' . gmdate('Y-m-d H:i:s') . "\n"
+        . 'Para: ' . $to . "\n"
+        . 'Assunto: ' . $subject . "\n"
+        . "Mensagem:\n" . $message . "\n";
+
+    return file_put_contents($path, $payload, FILE_APPEND | LOCK_EX) !== false;
+}
+
 function send_system_email(string $subject, string $message, ?string &$error = null): bool
 {
     $to = 'piscinar2014@gmail.com';
@@ -38,11 +67,19 @@ function send_system_email(string $subject, string $message, ?string &$error = n
 
     $ok = @mail($to, $subject, $message, implode("\r\n", $headers));
 
-    if (!$ok) {
-        $error = 'Falha ao enviar e-mail de aprovação. Verifique a configuração de envio de e-mails do servidor.';
+    if ($ok) {
+        return true;
     }
 
-    return $ok;
+    $fallbackSaved = persist_email_fallback($to, $subject, $message);
+
+    if ($fallbackSaved) {
+        $error = 'Não foi possível enviar e-mail automaticamente no servidor. O conteúdo foi salvo na fila local para reenvio.';
+        return true;
+    }
+
+    $error = 'Falha ao enviar e-mail de aprovação e também ao salvar a fila local.';
+    return false;
 }
 
 function create_password_reset_token(PDO $pdo, int $userId): string
