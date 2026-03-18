@@ -159,8 +159,9 @@ A proteção adicionada no projeto é **por sessão PHP**, não por token extern
 
 ### Quando o login é exigido
 
+- `REQUIRE_AUTH` **ausente**: padrão seguro com autenticação obrigatória (`true`).
 - `REQUIRE_AUTH=true`: páginas protegidas exigem usuário na sessão.
-- `REQUIRE_AUTH` ausente/`false`: sistema não bloqueia acesso por login.
+- `REQUIRE_AUTH=false`: desativa a proteção (uso apenas em ambiente controlado/desenvolvimento).
 
 ### O login é no próprio projeto ou em outra instância?
 
