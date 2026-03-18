@@ -78,7 +78,7 @@ $infoMessage = $messages[$reason] ?? null;
 <div class="login-wrap">
     <div class="login-card shadow-lg">
         <div class="login-brand">
-            <i class="fas fa-swimming-pool"></i>
+            <img src="<?= htmlspecialchars(app_url('assets/img/apple-touch-icon.png'), ENT_QUOTES, 'UTF-8') ?>" alt="Piscinar" class="login-logo mb-3">
             <h1>Piscinar System 2.0</h1>
             <p>Acesse com seu usuário e senha.</p>
         </div>
