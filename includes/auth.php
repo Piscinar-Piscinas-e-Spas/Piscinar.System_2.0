@@ -87,10 +87,14 @@ function is_authenticated()
 
 function auth_enforcement_enabled()
 {
+    if (defined('REQUIRE_AUTH')) {
+        return (bool) REQUIRE_AUTH;
+    }
+
     $rawValue = getenv('REQUIRE_AUTH');
 
-    if ($rawValue === false || $rawValue === null || $rawValue === '') {
-        return false;
+    if ($rawValue === false || $rawValue === null || trim((string) $rawValue) === '') {
+        return true;
     }
 
     return filter_var($rawValue, FILTER_VALIDATE_BOOLEAN);
@@ -98,7 +102,7 @@ function auth_enforcement_enabled()
 
 function auth_timeout_seconds()
 {
-    return 12600; // 3h30
+    return defined('SESSION_TIMEOUT_SECONDS') ? (int) SESSION_TIMEOUT_SECONDS : 12600;
 }
 
 function csrf_token()
@@ -129,20 +133,34 @@ function request_expects_json()
 function auth_clear_session()
 {
     $_SESSION = [];
+
     if (ini_get('session.use_cookies')) {
         $params = session_get_cookie_params();
-        setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], (bool) $params['secure'], (bool) $params['httponly']);
+        setcookie(
+            session_name(),
+            '',
+            time() - 42000,
+            $params['path'],
+            $params['domain'],
+            (bool) $params['secure'],
+            (bool) $params['httponly']
+        );
     }
-    session_destroy();
+
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_destroy();
+    }
 }
 
 function redirect_to_login($reason = null)
 {
     $next = $_SERVER['REQUEST_URI'] ?? app_url('index.php');
     $params = [];
+
     if (is_string($reason) && $reason !== '') {
         $params['reason'] = $reason;
     }
+
     $params['next'] = $next;
 
     $target = app_url('login.php') . '?' . http_build_query($params);
@@ -204,28 +222,6 @@ function require_login()
 
         redirect_to_login('auth_required');
     }
-
-    $query = [];
-    $next = (string) ($_SERVER['REQUEST_URI'] ?? '');
-    if ($next !== '') {
-        $query['next'] = $next;
-    }
-
-    if ($reason !== null && $reason !== '') {
-        if ((string) $reason === 'session_expired') {
-            $query['session_expired'] = 1;
-        } else {
-            $query['reason'] = (string) $reason;
-        }
-    }
-
-    $target = app_url('login.php');
-    if (!empty($query)) {
-        $target .= '?' . http_build_query($query);
-    }
-
-    header('Location: ' . $target);
-    exit;
 }
 
 function read_json_input()

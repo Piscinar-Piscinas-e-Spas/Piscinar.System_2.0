@@ -107,6 +107,16 @@ function resolved_base_path(): string
 
 define('BASE_URL', resolved_base_path());
 
+
+// Habilita obrigatoriedade de login por padrão seguro.
+$requireAuthRaw = getenv('REQUIRE_AUTH');
+define(
+    'REQUIRE_AUTH',
+    ($requireAuthRaw === false || $requireAuthRaw === null || trim((string) $requireAuthRaw) === '')
+        ? true
+        : (bool) filter_var($requireAuthRaw, FILTER_VALIDATE_BOOLEAN)
+);
+
 // Timeout de inatividade da sessão autenticada (em segundos).
 define('SESSION_TIMEOUT_SECONDS', (int) (getenv('SESSION_TIMEOUT_SECONDS') ?: 12600));
 
