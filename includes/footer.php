@@ -17,6 +17,7 @@
           <li><a href="<?= htmlspecialchars(app_url('produtos/listar.php'), ENT_QUOTES, 'UTF-8') ?>">Produtos</a></li>
           <li><a href="<?= htmlspecialchars(app_url('clientes/listar.php'), ENT_QUOTES, 'UTF-8') ?>">Clientes</a></li>
           <li><a href="<?= htmlspecialchars(app_url('vendas/nova.php'), ENT_QUOTES, 'UTF-8') ?>">Vendas</a></li>
+          <li><a href="<?= htmlspecialchars(app_url('usuarios/cadastrar.php'), ENT_QUOTES, 'UTF-8') ?>">Cadastro de usuários</a></li>
         </ul>
       </div>
       <div class="col-sm-6 col-lg-4">
