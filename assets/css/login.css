@@ -171,6 +171,18 @@
     opacity: 0.78;
 }
 
+.forgot-password-link {
+    margin-top: 14px;
+    display: block;
+    text-align: center;
+    font-size: 0.92rem;
+    text-decoration: none;
+}
+
+.forgot-password-link:hover {
+    text-decoration: underline;
+}
+
 .alert {
     transition: all 0.25s ease;
 }

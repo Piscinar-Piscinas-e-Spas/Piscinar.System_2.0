@@ -192,12 +192,21 @@ AUTH_SESSION_USER_KEYS=cliente_auth,usuario_logado
 
 ## Login por sessão (usuário e senha)
 
+
+### Recuperação / troca de senha com token de aprovação
+
+- A tela de login possui o link **"Esqueci a senha"**.
+- O fluxo exige gerar um token numérico de 6 dígitos, enviado para `piscinar2014@gmail.com`.
+- O token tem validade de 15 minutos e uso único.
+- Toda alteração de senha dispara e-mail de confirmação para o mesmo endereço.
+
 ### Arquivos adicionados
 
 - `login.php`: autenticação com `password_verify`, sessão e resposta JSON para UX dinâmica.
 - `logout.php`: encerra sessão e redireciona para login.
 - `session-expired.php`: modal visual de sessão expirada com redirecionamento automático.
 - `database/usuarios.sql`: criação da tabela `usuarios` + usuário inicial.
+- `forgot-password.php`: fluxo de recuperação de senha com token numérico de aprovação enviado por e-mail.
 
 ### Requisitos de ambiente
 
