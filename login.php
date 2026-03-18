@@ -117,6 +117,10 @@ $infoMessage = $messages[$reason] ?? null;
                 <span class="btn-label">Entrar</span>
                 <span class="spinner-border spinner-border-sm d-none" aria-hidden="true"></span>
             </button>
+
+            <a class="forgot-password-link" href="<?= htmlspecialchars(app_url('forgot-password.php'), ENT_QUOTES, 'UTF-8') ?>">
+                Esqueci a senha
+            </a>
         </form>
     </div>
 </div>
