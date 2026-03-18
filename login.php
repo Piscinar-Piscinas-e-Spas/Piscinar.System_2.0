@@ -78,9 +78,13 @@ $infoMessage = $messages[$reason] ?? null;
 <div class="login-wrap">
     <div class="login-card shadow-lg">
         <div class="login-brand">
-            <img src="<?= htmlspecialchars(app_url('assets/img/apple-touch-icon.png'), ENT_QUOTES, 'UTF-8') ?>" alt="Piscinar" class="login-logo mb-3">
-            <h1>Piscinar System 2.0</h1>
-            <p>Acesse com seu usuário e senha.</p>
+            <div class="brand-orbit" aria-hidden="true">
+                <div class="brand-orbit-ring"></div>
+                <div class="brand-orbit-dot"></div>
+                <img src="<?= htmlspecialchars(app_url('assets/img/preto-sem-fundo.png'), ENT_QUOTES, 'UTF-8') ?>" alt="Piscinar" class="brand-logo">
+            </div>
+            <h1>Piscinar System</h1>
+            <p>VERSÃO 2.0 • GESTÃO DE PISCINAS</p>
         </div>
 
         <?php if ($infoMessage !== null): ?>

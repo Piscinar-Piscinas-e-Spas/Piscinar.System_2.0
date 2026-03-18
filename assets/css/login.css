@@ -1,13 +1,189 @@
-:root{--brand:#0d6efd;--bg:#f5f8ff;}
-.login-page{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at top,#eef4ff,#f8f9fb 55%);} 
-.login-wrap{width:min(100%,460px);padding:16px;}
-.login-card{background:#fff;border-radius:16px;padding:26px;border:1px solid #e3ebff;}
-.login-brand{text-align:center;margin-bottom:18px}
-.login-brand i{font-size:2rem;color:var(--brand)}
-.login-brand h1{font-size:1.4rem;margin:.5rem 0 .2rem;color:#0b2342}
-.login-brand p{margin:0;color:#64748b}
-.field-wrap .form-control{transition:all .2s ease}
-.field-wrap .form-control:focus{border-color:#6ea8fe;box-shadow:0 0 0 .2rem rgba(13,110,253,.15);transform:translateY(-1px)}
-#btnEntrar{font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px}
-#btnEntrar.loading .btn-label{opacity:.75}
-.alert{transition:all .25s ease}
+:root {
+    --brand-500: #2e7df6;
+    --brand-600: #1f68d8;
+    --brand-100: #d8e8ff;
+    --text-900: #1f2f4b;
+    --text-600: #5f6f88;
+    --card-border: #e8effa;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+.login-page {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f7faff;
+    background-image:
+        linear-gradient(to right, rgba(46, 125, 246, 0.08) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(46, 125, 246, 0.08) 1px, transparent 1px);
+    background-size: 32px 32px;
+}
+
+.login-wrap {
+    width: min(100%, 460px);
+    padding: 24px;
+}
+
+.login-card {
+    background: #ffffff;
+    border: 1px solid var(--card-border);
+    border-radius: 24px;
+    padding: 36px 30px 30px;
+    box-shadow: 0 16px 38px rgba(23, 50, 89, 0.08);
+}
+
+.login-brand {
+    text-align: center;
+    margin-bottom: 22px;
+}
+
+.brand-orbit {
+    width: 108px;
+    height: 108px;
+    margin: 0 auto 14px;
+    position: relative;
+    display: grid;
+    place-items: center;
+}
+
+.brand-orbit-ring {
+    width: 100%;
+    height: 100%;
+    border: 2px solid rgba(46, 125, 246, 0.3);
+    border-radius: 50%;
+    position: absolute;
+    inset: 0;
+}
+
+.brand-orbit-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: linear-gradient(180deg, #71abff, #2e7df6);
+    box-shadow: 0 0 0 5px rgba(46, 125, 246, 0.15);
+    position: absolute;
+    top: -6px;
+    left: calc(50% - 6px);
+    transform-origin: center 60px;
+    animation: orbitSpin 3s linear infinite;
+}
+
+.brand-logo {
+    width: 64px;
+    height: auto;
+    display: block;
+    position: relative;
+    z-index: 1;
+}
+
+.login-brand h1 {
+    font-size: 1.7rem;
+    margin: 0 0 4px;
+    color: var(--text-900);
+    font-weight: 700;
+}
+
+.login-brand p {
+    margin: 0;
+    color: var(--text-600);
+    font-size: 0.8rem;
+    letter-spacing: 0.12em;
+    font-weight: 600;
+}
+
+.form-label {
+    color: #3a4a66;
+    font-weight: 600;
+}
+
+.field-wrap .form-control,
+.field-wrap .input-group .btn {
+    border-color: var(--brand-100);
+    border-radius: 10px;
+}
+
+.field-wrap .form-control {
+    min-height: 46px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.field-wrap .form-control:focus {
+    border-color: #8eb9ff;
+    box-shadow: 0 0 0 0.22rem rgba(46, 125, 246, 0.14);
+}
+
+#toggleSenha {
+    border-left: 0;
+}
+
+#btnEntrar {
+    min-height: 46px;
+    border: 0;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    background: linear-gradient(135deg, var(--brand-500), var(--brand-600));
+    box-shadow: 0 10px 24px rgba(31, 104, 216, 0.24);
+}
+
+#btnEntrar:hover,
+#btnEntrar:focus {
+    filter: brightness(1.03);
+}
+
+#btnEntrar.loading .btn-label {
+    opacity: 0.78;
+}
+
+.alert {
+    transition: all 0.25s ease;
+}
+
+@keyframes orbitSpin {
+    from {
+        transform: rotate(0deg);
+    }
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 576px) {
+    .login-wrap {
+        width: 100%;
+        padding: 14px;
+    }
+
+    .login-card {
+        border-radius: 20px;
+        padding: 28px 20px 22px;
+    }
+
+    .brand-orbit {
+        width: 92px;
+        height: 92px;
+    }
+
+    .brand-orbit-dot {
+        transform-origin: center 52px;
+    }
+
+    .brand-logo {
+        width: 54px;
+    }
+
+    .login-brand h1 {
+        font-size: 1.45rem;
+    }
+
+    .login-brand p {
+        font-size: 0.72rem;
+        letter-spacing: 0.08em;
+    }
+}
