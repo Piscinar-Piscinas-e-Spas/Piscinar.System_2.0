@@ -6,6 +6,39 @@ body {
   margin-bottom: 20px;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
+
+.navbar-light .navbar-nav .nav-link {
+  background: -webkit-linear-gradient(135deg, #2a5298 0%, #4a7fd4 45%, #6db8f8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.navbar-light .navbar-nav .nav-link:hover {
+  background: -webkit-linear-gradient(135deg, #2a5298 0%, #4a7fd4 45%, #6db8f8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.navbar-light .navbar-nav .nav-link.active {
+  background: -webkit-linear-gradient(135deg, #052f83 0%, #0a4ec4 45%, #1297f4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
+  border-bottom: 2px;
+  border-style: solid;
+  border-image: linear-gradient(135deg, rgba(5, 47, 131, 0.3) 0%, rgba(10, 78, 196, 0.3) 45%, rgba(18, 151, 244, 0.3) 100%) 1;
+}
+
+.menu {
+  /* Normal */
+  /*background: linear-gradient(135deg, #2a5298 0%, #4a7fd4 45%, #6db8f8 100%);*/
+
+  /* Light*/
+  background: linear-gradient(135deg, #dce8fb 0%, #b3cff5 45%, #85b8f2 100%);
+
+  /* Dark */
+  /* background: linear-gradient(135deg, #02184a 0%, #063580 45%, #0b5bbf 100%);*/
+}
 .navbar-brand {
   font-weight: bold;
   color: #0d6efd !important;
@@ -86,16 +119,17 @@ tr.estoque-critico > td {
 }
 
 .brand-logo {
-  width: 34px;
-  height: 34px;
+  width: 66px;
+  height: 66px;
   object-fit: contain;
 }
 
 .site-footer {
   background: linear-gradient(135deg, #052f83 0%, #0a4ec4 45%, #1297f4 100%);
-  border-radius: 18px;
+  border-radius: 64px 8px;
   color: #f2f8ff;
   box-shadow: 0 14px 28px rgba(2, 19, 59, 0.2);
+  margin-bottom: 1.5vh;
 }
 
 .footer-logo {
@@ -113,7 +147,7 @@ tr.estoque-critico > td {
   letter-spacing: 0.06em;
   margin-bottom: 0.75rem;
   font-size: 0.8rem;
-  color: #c9e9ff;
+  color: #7EFFF5 ;
 }
 
 .footer-map li + li {

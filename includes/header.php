@@ -46,16 +46,16 @@
 <body>
     <div class="container">
         <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
-            <div class="container-fluid">
+            <div class="container-fluid menu">
                 <a class="navbar-brand link-desativado" href="#">
-                    <img src="<?php echo app_url('assets/img/piscinar-logo.svg'); ?>" alt="Piscinar" class="brand-logo me-2">Piscinar System 2.0
+                    <img src="<?php echo app_url('assets/img/android-chrome-512x512.png'); ?>" alt="Piscinar" class="brand-logo me-2">Piscinar System 2.0
                 </a>
                 <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
 
-                    <ul class="navbar-nav">
+                    <ul class="navbar-nav w-75 justify-content-evenly">
                         <li class="nav-item">
 
                             <a class="nav-link<?php echo $inicioActive; ?>" href="<?php echo app_url('index.php'); ?>">
