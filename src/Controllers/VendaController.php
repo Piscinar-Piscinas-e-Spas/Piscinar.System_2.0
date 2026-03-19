@@ -15,6 +15,7 @@ class VendaController
     public function __construct(PDO $pdo)
     {
         $this->service = new VendaService(
+            $pdo,
             new VendaRepository($pdo),
             new ClienteRepository($pdo),
             new ProdutoRepository($pdo)

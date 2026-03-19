@@ -415,8 +415,8 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
     }
 
     function montarPayloadVenda() {
-        const clienteId = Number(clienteSelecionadoId);
-        if (!Number.isInteger(clienteId) || clienteId <= 0) {
+        const clienteBase = obterClienteSelecionadoPorId(clienteSelecionadoId);
+        if (!clienteBase) {
             throw new Error('Selecione ou salve um cliente antes de salvar a venda.');
         }
 
@@ -440,7 +440,7 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
 
         return {
             csrf_token: csrfToken,
-            cliente_id: clienteId,
+            cliente_id: Number(clienteBase.id_cliente),
             cliente: {
                 nome: document.getElementById('clienteNome').value.trim(),
                 telefone: document.getElementById('clienteTelefone').value.trim(),
@@ -448,6 +448,8 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
                 email: document.getElementById('clienteEmail').value.trim(),
                 endereco: document.getElementById('clienteEndereco').value.trim()
             },
+            cliente_resolucao: 'manter',
+            validar_cliente_consistencia: true,
             condicao_pagamento: document.getElementById('condicaoPagamento').value,
             subtotal: Number(resumo.subtotal.toFixed(2)),
             desconto_total: Number(resumo.desconto_total.toFixed(2)),
@@ -468,11 +470,33 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
         limparFeedback();
 
         let payload;
+        let clienteBase;
         try {
             payload = montarPayloadVenda();
+            clienteBase = obterClienteSelecionadoPorId(payload.cliente_id);
         } catch (error) {
             mostrarFeedback('warning', error.message || 'Verifique os dados da venda antes de salvar.');
             return;
+        }
+
+        if (!clienteBase) {
+            mostrarFeedback('warning', 'Cliente selecionado não encontrado no cadastro base.');
+            return;
+        }
+
+        const divergencias = compararClienteEditavel(clienteBase, payload.cliente);
+        if (divergencias.length > 0) {
+            const resolucao = await solicitarResolucaoCliente(clienteBase, divergencias);
+            if (resolucao === 'cancelar') {
+                mostrarFeedback('warning', 'Operação cancelada pelo usuário.');
+                return;
+            }
+
+            const resolucaoApi = await resolverClienteAntesDaVenda(payload, resolucao);
+            if (!resolucaoApi.ok) {
+                mostrarFeedback('danger', resolucaoApi.mensagem || 'Não foi possível resolver os dados do cliente.');
+                return;
+            }
         }
 
         btnSalvarVenda.disabled = true;
@@ -621,6 +645,88 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
         return clientesData.find(
             (cliente) => (cliente.nome_cliente || '').trim().toLowerCase() === nomeNormalizado
         ) || null;
+    }
+
+    function obterClienteSelecionadoPorId(idCliente) {
+        const id = Number(idCliente);
+        if (!Number.isInteger(id) || id <= 0) return null;
+        return clientesData.find((cliente) => Number(cliente.id_cliente) === id) || null;
+    }
+
+    function normalizarTextoComparacao(valor) {
+        return String(valor ?? '').trim();
+    }
+
+    function normalizarDigitosComparacao(valor) {
+        return String(valor ?? '').replace(/\D+/g, '');
+    }
+
+    function compararClienteEditavel(clienteBase, clienteAtual) {
+        const comparacoes = [
+            ['nome', normalizarTextoComparacao(clienteBase.nome_cliente), normalizarTextoComparacao(clienteAtual.nome)],
+            ['telefone', normalizarDigitosComparacao(clienteBase.telefone_contato), normalizarDigitosComparacao(clienteAtual.telefone)],
+            ['cpf_cnpj', normalizarDigitosComparacao(clienteBase.cpf_cnpj), normalizarDigitosComparacao(clienteAtual.cpf_cnpj)],
+            ['email', normalizarTextoComparacao(clienteBase.email_contato).toLowerCase(), normalizarTextoComparacao(clienteAtual.email).toLowerCase()],
+            ['endereco', normalizarTextoComparacao(clienteBase.endereco), normalizarTextoComparacao(clienteAtual.endereco)]
+        ];
+
+        return comparacoes
+            .filter(([, base, atual]) => base !== atual)
+            .map(([campo]) => campo);
+    }
+
+    async function solicitarResolucaoCliente(clienteBase, camposDivergentes) {
+        const mensagem = [
+            `Foram detectadas divergências no cliente #${clienteBase.id_cliente}.`,
+            `Campos divergentes: ${camposDivergentes.join(', ')}.`,
+            'Digite 1 para ATUALIZAR cliente existente, 2 para CRIAR novo cliente, 3 para CANCELAR.'
+        ].join('\n');
+
+        while (true) {
+            const escolha = window.prompt(mensagem, '1');
+            if (escolha === null) return 'cancelar';
+
+            const escolhaNormalizada = String(escolha).trim();
+            if (escolhaNormalizada === '1') return 'atualizar';
+            if (escolhaNormalizada === '2') return 'novo';
+            if (escolhaNormalizada === '3') return 'cancelar';
+        }
+    }
+
+    async function resolverClienteAntesDaVenda(payloadVenda, resolucao) {
+        payloadVenda.cliente_resolucao = resolucao;
+
+        if (resolucao === 'manter') {
+            return { ok: true };
+        }
+
+        try {
+            const resposta = await fetch('resolver_cliente.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    csrf_token: csrfToken,
+                    cliente_id: payloadVenda.cliente_id,
+                    cliente_resolucao: resolucao,
+                    cliente: payloadVenda.cliente
+                })
+            });
+
+            const dados = await resposta.json();
+            if (!resposta.ok || !dados.status || !dados.cliente) {
+                throw new Error(dados.mensagem || 'Falha ao resolver cliente.');
+            }
+
+            atualizarClienteNaLista(dados.cliente);
+            preencherDadosCliente(dados.cliente);
+            payloadVenda.cliente_id = Number(dados.cliente.id_cliente);
+            payloadVenda.cliente_resolucao = 'manter';
+            return { ok: true };
+        } catch (error) {
+            return { ok: false, mensagem: error.message || 'Falha ao resolver cliente antes da venda.' };
+        }
     }
 
     filtrarSugestoesClientes('');

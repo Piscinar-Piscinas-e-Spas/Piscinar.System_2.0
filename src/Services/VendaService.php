@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Repositories\ClienteRepository;
 use App\Repositories\ProdutoRepository;
 use App\Repositories\VendaRepository;
+use PDO;
 use Throwable;
 
 class VendaService
@@ -12,12 +13,15 @@ class VendaService
     private $vendaRepository;
     private $clienteRepository;
     private $produtoRepository;
+    private $pdo;
 
     public function __construct(
+        PDO $pdo,
         VendaRepository $vendaRepository,
         ClienteRepository $clienteRepository,
         ProdutoRepository $produtoRepository
     ) {
+        $this->pdo = $pdo;
         $this->vendaRepository = $vendaRepository;
         $this->clienteRepository = $clienteRepository;
         $this->produtoRepository = $produtoRepository;
@@ -37,6 +41,9 @@ class VendaService
         $condicaoPagamento = trim((string) ($dados['condicao_pagamento'] ?? 'vista'));
         $itens = is_array($dados['itens'] ?? null) ? $dados['itens'] : [];
         $parcelas = is_array($dados['parcelas'] ?? null) ? $dados['parcelas'] : [];
+        $clienteResolucao = trim((string) ($dados['cliente_resolucao'] ?? 'manter'));
+        $clientePayload = is_array($dados['cliente'] ?? null) ? $dados['cliente'] : null;
+        $validarConsistenciaCliente = (bool) ($dados['validar_cliente_consistencia'] ?? false);
 
         if ($clienteId <= 0) {
             return $this->error(422, 'Cliente inválido para a venda.');
@@ -52,10 +59,6 @@ class VendaService
 
         if (!$parcelas) {
             return $this->error(422, 'A venda deve ter pelo menos uma parcela.');
-        }
-
-        if (!$this->clienteRepository->exists($clienteId)) {
-            return $this->error(422, 'Cliente informado não existe.');
         }
 
         $itensNormalizados = [];
@@ -126,7 +129,29 @@ class VendaService
             return $this->error(422, 'A soma das parcelas difere do total da venda.');
         }
 
+        $startedTransaction = false;
         try {
+            $startedTransaction = !$this->pdo->inTransaction();
+            if ($startedTransaction) {
+                $this->pdo->beginTransaction();
+            }
+
+            $resolucaoCliente = $this->resolverClienteParaVenda(
+                $clienteId,
+                $clienteResolucao,
+                $clientePayload,
+                $validarConsistenciaCliente
+            );
+
+            if (isset($resolucaoCliente['error'])) {
+                if ($startedTransaction && $this->pdo->inTransaction()) {
+                    $this->pdo->rollBack();
+                }
+                return $resolucaoCliente['error'];
+            }
+
+            $clienteId = $resolucaoCliente['cliente_id'];
+
             $vendaId = $this->vendaRepository->create([
                 'cliente_id' => $clienteId,
                 'subtotal' => round($subtotalCalculado, 2),
@@ -136,18 +161,96 @@ class VendaService
                 'condicao_pagamento' => $condicaoPagamento,
             ], $itensNormalizados, $parcelasNormalizadas);
 
+            if ($startedTransaction && $this->pdo->inTransaction()) {
+                $this->pdo->commit();
+            }
+
             return [
                 'status_code' => 200,
                 'payload' => [
                     'status' => true,
                     'mensagem' => 'Venda salva com sucesso.',
                     'id_venda' => $vendaId,
+                    'cliente_id' => $clienteId,
                 ],
             ];
         } catch (Throwable $e) {
+            if ($startedTransaction && $this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
             error_log('Erro ao salvar venda: ' . $e->getMessage());
             return $this->error(500, 'Erro ao salvar venda.');
         }
+    }
+
+    private function resolverClienteParaVenda($clienteId, $clienteResolucao, ?array $clientePayload, $validarConsistencia)
+    {
+        if (!in_array($clienteResolucao, ['manter', 'atualizar', 'novo'], true)) {
+            return ['error' => $this->error(422, 'Valor inválido para cliente_resolucao.')];
+        }
+
+        if ($clienteResolucao !== 'novo' && !$this->clienteRepository->exists($clienteId)) {
+            return ['error' => $this->error(422, 'Cliente informado não existe.')];
+        }
+
+        if ($clientePayload === null) {
+            if ($clienteResolucao !== 'manter') {
+                return ['error' => $this->error(422, 'Dados do cliente são obrigatórios para a resolução solicitada.')];
+            }
+
+            return ['cliente_id' => $clienteId];
+        }
+
+        $clienteNormalizado = $this->normalizarClientePayload($clientePayload);
+        if ($clienteNormalizado['nome_cliente'] === '' || $clienteNormalizado['telefone_contato'] === '') {
+            return ['error' => $this->error(422, 'Nome e telefone do cliente são obrigatórios.')];
+        }
+
+        if ($clienteResolucao === 'novo') {
+            $novoClienteId = $this->clienteRepository->create($clienteNormalizado);
+            return ['cliente_id' => $novoClienteId];
+        }
+
+        $clienteBase = $this->clienteRepository->findById($clienteId);
+        if (!$clienteBase) {
+            return ['error' => $this->error(422, 'Cliente informado não existe.')];
+        }
+
+        $divergencias = $this->compararClienteBaseComPayload($clienteBase, $clienteNormalizado);
+        if ($clienteResolucao === 'atualizar') {
+            $this->clienteRepository->update($clienteId, $clienteNormalizado);
+            return ['cliente_id' => $clienteId];
+        }
+
+        if ($validarConsistencia && $divergencias) {
+            return ['error' => $this->error(422, 'Dados do cliente divergem do cadastro base. Informe cliente_resolucao=atualizar ou novo.')];
+        }
+
+        return ['cliente_id' => $clienteId];
+    }
+
+    private function normalizarClientePayload(array $cliente)
+    {
+        return [
+            'nome_cliente' => trim((string) ($cliente['nome'] ?? '')),
+            'telefone_contato' => trim((string) ($cliente['telefone'] ?? '')),
+            'cpf_cnpj' => $this->nullableDigits($cliente['cpf_cnpj'] ?? null),
+            'email_contato' => $this->nullableTrim($cliente['email'] ?? null),
+            'endereco' => $this->nullableTrim($cliente['endereco'] ?? null),
+        ];
+    }
+
+    private function compararClienteBaseComPayload(array $clienteBase, array $clientePayload)
+    {
+        $baseNormalizado = [
+            'nome_cliente' => trim((string) ($clienteBase['nome_cliente'] ?? '')),
+            'telefone_contato' => trim((string) ($clienteBase['telefone_contato'] ?? '')),
+            'cpf_cnpj' => $this->nullableDigits($clienteBase['cpf_cnpj'] ?? null),
+            'email_contato' => $this->nullableTrim($clienteBase['email_contato'] ?? null),
+            'endereco' => $this->nullableTrim($clienteBase['endereco'] ?? null),
+        ];
+
+        return $baseNormalizado !== $clientePayload;
     }
 
     private function normalizeItem(array $item, $idx)
@@ -228,6 +331,18 @@ class VendaService
     private function almostEquals($a, $b, $tolerance = 0.02)
     {
         return abs($a - $b) <= $tolerance;
+    }
+
+    private function nullableDigits($valor)
+    {
+        $digits = preg_replace('/\D+/', '', (string) $valor);
+        return $digits === '' ? null : $digits;
+    }
+
+    private function nullableTrim($valor)
+    {
+        $texto = trim((string) $valor);
+        return $texto === '' ? null : $texto;
     }
 
     private function error($statusCode, $message)
