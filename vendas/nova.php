@@ -53,6 +53,13 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
                                 <input type="text" class="form-control" id="clienteEndereco" placeholder="Rua, número, bairro...">
                             </div>
                         </div>
+                        <div class="row g-3 align-items-end mt-1">
+                            <div class="col-12 d-flex justify-content-end">
+                                <button type="button" class="btn btn-outline-primary" id="btnSalvarCliente">
+                                    <i class="fas fa-user-plus me-1"></i>Salvar cliente rápido
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -246,6 +253,8 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
     const formVenda = document.getElementById('formVenda');
     const feedbackBox = document.getElementById('vendaFeedback');
     const btnSalvarVenda = document.getElementById('btnSalvarVenda');
+    const btnSalvarCliente = document.getElementById('btnSalvarCliente');
+    let clienteSelecionadoId = null;
 
     function moeda(valor) {
         return Number(valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -406,9 +415,9 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
     }
 
     function montarPayloadVenda() {
-        const cliente = buscarClientePorNome(document.getElementById('clienteNome').value);
-        if (!cliente || !cliente.id_cliente) {
-            throw new Error('Selecione um cliente cadastrado na lista para salvar a venda.');
+        const clienteId = Number(clienteSelecionadoId);
+        if (!Number.isInteger(clienteId) || clienteId <= 0) {
+            throw new Error('Selecione ou salve um cliente antes de salvar a venda.');
         }
 
         if (!itens.length) {
@@ -431,7 +440,7 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
 
         return {
             csrf_token: csrfToken,
-            cliente_id: Number(cliente.id_cliente),
+            cliente_id: clienteId,
             cliente: {
                 nome: document.getElementById('clienteNome').value.trim(),
                 telefone: document.getElementById('clienteTelefone').value.trim(),
@@ -561,6 +570,7 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
 
     function preencherDadosCliente(cliente) {
         if (!cliente) return;
+        clienteSelecionadoId = Number(cliente.id_cliente) || null;
         clienteNome.value = cliente.nome_cliente || '';
         clienteTelefone.value = cliente.telefone_contato || '';
         clienteCpfCnpj.value = cliente.cpf_cnpj || '';
@@ -584,8 +594,24 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
         });
 
         clientesSugestoes.innerHTML = filtrados
-            .map((cliente) => `<option value="${escapeHtmlAttr(cliente.nome_cliente)}"></option>`)
+            .map((cliente) => `<option value="${escapeHtmlAttr(cliente.nome_cliente)}" data-id="${Number(cliente.id_cliente) || ''}"></option>`)
             .join('');
+    }
+
+    function obterClienteSelecionadoPorInput(nomeDigitado) {
+        const nomeNormalizado = (nomeDigitado || '').trim().toLowerCase();
+        if (!nomeNormalizado) return null;
+
+        const opcoes = Array.from(clientesSugestoes.options);
+        const opcao = opcoes.find((item) => (item.value || '').trim().toLowerCase() === nomeNormalizado);
+        if (opcao && opcao.dataset.id) {
+            const id = Number(opcao.dataset.id);
+            if (Number.isInteger(id) && id > 0) {
+                return clientesData.find((cliente) => Number(cliente.id_cliente) === id) || null;
+            }
+        }
+
+        return buscarClientePorNome(nomeDigitado);
     }
 
     function buscarClientePorNome(nome) {
@@ -600,23 +626,84 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
     filtrarSugestoesClientes('');
 
     clienteNome.addEventListener('input', (event) => {
+        clienteSelecionadoId = null;
         filtrarSugestoesClientes(event.target.value);
     });
 
     clienteNome.addEventListener('change', (event) => {
-        const cliente = buscarClientePorNome(event.target.value);
+        const cliente = obterClienteSelecionadoPorInput(event.target.value);
         if (cliente) {
             preencherDadosCliente(cliente);
+            return;
         }
+        clienteSelecionadoId = null;
     });
 
     clienteNome.addEventListener('keydown', (event) => {
         if (event.key !== 'Enter') return;
-        const cliente = buscarClientePorNome(clienteNome.value);
+        const cliente = obterClienteSelecionadoPorInput(clienteNome.value);
         if (!cliente) return;
         event.preventDefault();
         preencherDadosCliente(cliente);
     });
+
+    function montarPayloadClienteRapido() {
+        return {
+            csrf_token: csrfToken,
+            nome_cliente: clienteNome.value.trim(),
+            telefone_contato: clienteTelefone.value.trim(),
+            cpf_cnpj: clienteCpfCnpj.value.trim(),
+            email_contato: clienteEmail.value.trim(),
+            endereco: clienteEndereco.value.trim()
+        };
+    }
+
+    function atualizarClienteNaLista(cliente) {
+        if (!cliente || !cliente.id_cliente) return;
+
+        const clienteId = Number(cliente.id_cliente);
+        const idx = clientesData.findIndex((item) => Number(item.id_cliente) === clienteId);
+        if (idx >= 0) {
+            clientesData[idx] = cliente;
+        } else {
+            clientesData.push(cliente);
+        }
+
+        clientesData.sort((a, b) => (a.nome_cliente || '').localeCompare((b.nome_cliente || ''), 'pt-BR'));
+        filtrarSugestoesClientes(cliente.nome_cliente || '');
+    }
+
+    async function salvarClienteRapido() {
+        limparFeedback();
+        btnSalvarCliente.disabled = true;
+        btnSalvarCliente.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Salvando...';
+
+        try {
+            const resposta = await fetch('salvar_cliente.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(montarPayloadClienteRapido())
+            });
+
+            const dados = await resposta.json();
+            if (!resposta.ok || !dados.status || !dados.cliente) {
+                throw new Error(dados.mensagem || 'Não foi possível salvar o cliente.');
+            }
+
+            atualizarClienteNaLista(dados.cliente);
+            preencherDadosCliente(dados.cliente);
+            mostrarFeedback('success', `Cliente #${dados.id_cliente} salvo com sucesso.`);
+        } catch (error) {
+            mostrarFeedback('danger', error.message || 'Erro ao salvar cliente.');
+        } finally {
+            btnSalvarCliente.disabled = false;
+            btnSalvarCliente.innerHTML = '<i class="fas fa-user-plus me-1"></i>Salvar cliente rápido';
+        }
+    }
+
+    btnSalvarCliente.addEventListener('click', salvarClienteRapido);
 
     document.getElementById('produtoSelect').addEventListener('change', (event) => {
         const opt = event.target.selectedOptions[0];
