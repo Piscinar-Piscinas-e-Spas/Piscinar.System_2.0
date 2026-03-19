@@ -152,4 +152,22 @@ class VendaRepository
             throw $e;
         }
     }
+
+    public function listWithCliente()
+    {
+        $stmt = $this->pdo->query('SELECT
+                v.id_venda,
+                v.data_venda,
+                c.nome_cliente AS cliente,
+                v.condicao_pagamento,
+                v.subtotal,
+                v.desconto_total,
+                v.frete_total,
+                v.total_geral
+            FROM vendas v
+            LEFT JOIN clientes c ON c.id_cliente = v.id_cliente
+            ORDER BY v.data_venda DESC, v.id_venda DESC');
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
 }
