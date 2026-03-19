@@ -25,6 +25,7 @@
           <ul id="administrativas" class="footer-map list-unstyled mb-0">
             <li><a href="<?= htmlspecialchars(app_url('usuarios/cadastrar.php'), ENT_QUOTES, 'UTF-8') ?>">Cadastro de usuarios</a></li>
             <li><a href="<?= htmlspecialchars(app_url('logs/listar.php'), ENT_QUOTES, 'UTF-8') ?>">Logs</a></li>
+            <li><a href="<?= htmlspecialchars(app_url('vendas/listar.php'), ENT_QUOTES, 'UTF-8') ?>">Dashboard de vendas</a></li>
           </ul>
         </div>
       </div>
