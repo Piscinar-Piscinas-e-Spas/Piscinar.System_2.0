@@ -59,12 +59,12 @@ include '../includes/header.php';
                     <thead class="table-dark">
                         <tr>
                             <th>Nome</th>
-                            <th>PreÃ§o Varejo</th>
-                            <th>PreÃ§o Atacado</th>
+                            <th>Pre&ccedil;o Varejo</th>
+                            <th>Pre&ccedil;o Atacado</th>
                             <th>Grupo/Subgrupo</th>
                             <th>Marca</th>
                             <th>Estoque</th>
-                            <th>AÃ§Ãµes</th>
+                            <th>A&ccedil;&otilde;es</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -117,7 +117,7 @@ include '../includes/header.php';
                                         <?= $estoqueTotal ?>
                                     </span>
                                     <?php if ($controleEstoque && $estoqueMinimo !== null): ?>
-                                        <small class="d-block">mÃ­n: <?= $estoqueMinimo ?></small>
+                                        <small class="d-block">m&iacute;n: <?= $estoqueMinimo ?></small>
                                     <?php endif; ?>
                                 </td>
                                 <td>

@@ -3,23 +3,21 @@
     $currentRoute = rtrim($currentRoute, '/');
     $currentRoute = $currentRoute === '' ? '/' : $currentRoute;
 
-     // Caminho relativo para sair da pasta includes e ir à raiz
-                                require_once dirname(__DIR__) . '/config.php';
+    require_once dirname(__DIR__) . '/config.php';
 
-                                $basePath = parse_url(app_url(), PHP_URL_PATH) ?? '';
-                                $basePath = rtrim($basePath, '/');
+    $basePath = parse_url(app_url(), PHP_URL_PATH) ?? '';
+    $basePath = rtrim($basePath, '/');
 
-                                if ($basePath !== '' && strpos($currentRoute, $basePath) === 0) {
-                                    $currentRoute = substr($currentRoute, strlen($basePath));
-                                    $currentRoute = $currentRoute === '' ? '/' : $currentRoute;
-                                }
+    if ($basePath !== '' && strpos($currentRoute, $basePath) === 0) {
+        $currentRoute = substr($currentRoute, strlen($basePath));
+        $currentRoute = $currentRoute === '' ? '/' : $currentRoute;
+    }
 
-                                $inicioActive = ($currentRoute === '/' || $currentRoute === '/index.php') ? ' active' : '';
-                                $produtosActive = strpos($currentRoute, '/produtos/') !== false ? ' active' : '';
-                                $clientesActive = strpos($currentRoute, '/clientes/') !== false ? ' active' : '';
-                                $vendasActive = strpos($currentRoute, '/vendas/') !== false ? ' active' : '';
-                                $styleActive = strpos($currentRoute, '/assets/css/') !== false ? ' active' : '';
-
+    $inicioActive = ($currentRoute === '/' || $currentRoute === '/index.php') ? ' active' : '';
+    $produtosActive = strpos($currentRoute, '/produtos/') !== false ? ' active' : '';
+    $clientesActive = strpos($currentRoute, '/clientes/') !== false ? ' active' : '';
+    $vendasActive = strpos($currentRoute, '/vendas/') !== false ? ' active' : '';
+    $styleActive = strpos($currentRoute, '/assets/css/') !== false ? ' active' : '';
 ?>
 
 <!DOCTYPE html>
@@ -29,18 +27,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Piscinas</title>
 
-    <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
-    
-    <!-- Font Awesome para ícones -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">   
-
-    <!-- Folha de Estilos Personalizados -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" class="<?php echo $styleActive; ?>" href="<?php echo app_url('assets/css/styles.css'); ?>">
     <link rel="icon" type="image/svg+xml" href="<?php echo app_url('assets/img/favicon.svg'); ?>">
     <link rel="apple-touch-icon" href="<?php echo app_url('assets/img/piscinar-logo.svg'); ?>">
 
-    <!-- script Bootstrap -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 </head>
 <body>
@@ -54,12 +46,10 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
-
                     <ul class="navbar-nav w-75 justify-content-evenly">
                         <li class="nav-item">
-
                             <a class="nav-link<?php echo $inicioActive; ?>" href="<?php echo app_url('index.php'); ?>">
-                                <i class="fas fa-home"></i> Início
+                                <i class="fas fa-home"></i> In&iacute;cio
                             </a>
                         </li>
                         <li class="nav-item">
@@ -78,7 +68,7 @@
                         <li class="nav-item">
                             <span class="nav-link text-muted">
                                 <i class="fas fa-user-circle"></i>
-                                <?= htmlspecialchars((string) ((auth_user()['nome'] ?? auth_user()['usuario'] ?? 'Usuário')), ENT_QUOTES, 'UTF-8') ?>
+                                <?= htmlspecialchars((string) ((auth_user()['nome'] ?? auth_user()['usuario'] ?? 'Usuario')), ENT_QUOTES, 'UTF-8') ?>
                             </span>
                         </li>
                         <li class="nav-item">

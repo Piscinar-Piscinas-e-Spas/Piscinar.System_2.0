@@ -40,16 +40,16 @@ class ProdutoService
             'nome' => trim((string) ($input['nome'] ?? '')),
             'custo' => $this->toDecimal($input['custo'] ?? 0),
             'preco1' => $this->toDecimal($input['preco1'] ?? 0),
-            'preco2' => $this->nullableDecimal($input['preco2'] ?? ''),
+            'preco2' => $this->toDecimal($input['preco2'] ?? 0),
             'qtdLoja' => $this->toInt($input['qtdLoja'] ?? 0),
             'qtdEstoque' => $this->toInt($input['qtdEstoque'] ?? 0),
             'controle_estoque' => isset($input['controle_estoque']) ? 1 : 0,
             'estoque_minimo' => $this->nullableInt($input['estoque_minimo'] ?? ''),
             'ponto_compra' => $this->nullableInt($input['ponto_compra'] ?? ''),
-            'grupo' => $this->nullableTrim($input['grupo'] ?? ''),
-            'subgrupo' => $this->nullableTrim($input['subgrupo'] ?? ''),
-            'marca' => $this->nullableTrim($input['marca'] ?? ''),
-            'observacoes' => $this->nullableTrim($input['observacoes'] ?? ''),
+            'grupo' => $this->requiredTrim($input['grupo'] ?? ''),
+            'subgrupo' => $this->requiredTrim($input['subgrupo'] ?? ''),
+            'marca' => $this->requiredTrim($input['marca'] ?? ''),
+            'observacoes' => $this->requiredTrim($input['observacoes'] ?? ''),
         ];
 
         if ($data['controle_estoque'] === 0) {
@@ -63,15 +63,15 @@ class ProdutoService
     public function validate(array $produto)
     {
         if ($produto['nome'] === '') {
-            return AlertRenderer::make('danger', 'O nome do produto é obrigatório.');
+            return AlertRenderer::make('danger', 'O nome do produto e obrigatorio.');
         }
 
         if ($produto['preco1'] <= 0) {
-            return AlertRenderer::make('danger', 'O preço 1 deve ser maior que zero.');
+            return AlertRenderer::make('danger', 'O preco 1 deve ser maior que zero.');
         }
 
         if ($produto['controle_estoque'] === 1 && ($produto['estoque_minimo'] === null || $produto['estoque_minimo'] < 0)) {
-            return AlertRenderer::make('danger', 'Com controle de estoque ativo, o estoque mínimo é obrigatório e deve ser maior ou igual a zero.');
+            return AlertRenderer::make('danger', 'Com controle de estoque ativo, o estoque minimo e obrigatorio e deve ser maior ou igual a zero.');
         }
 
         return null;
@@ -94,7 +94,7 @@ class ProdutoService
                 'data' => $this->defaultData(),
             ];
         } catch (Throwable $e) {
-            error_log('Erro técnico ao cadastrar produto: ' . $e->getMessage());
+            error_log('Erro tecnico ao cadastrar produto: ' . $e->getMessage());
 
             return [
                 'ok' => false,
@@ -142,12 +142,6 @@ class ProdutoService
         return is_numeric($text) ? (float) $text : 0.0;
     }
 
-    private function nullableDecimal($value)
-    {
-        $text = trim((string) $value);
-        return $text === '' ? null : $this->toDecimal($text);
-    }
-
     private function toInt($value)
     {
         return (int) $value;
@@ -159,9 +153,8 @@ class ProdutoService
         return $text === '' ? null : (int) $text;
     }
 
-    private function nullableTrim($value)
+    private function requiredTrim($value)
     {
-        $text = trim((string) $value);
-        return $text === '' ? null : $text;
+        return trim((string) $value);
     }
 }

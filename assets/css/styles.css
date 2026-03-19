@@ -19,6 +19,12 @@ body {
   -webkit-text-fill-color: transparent;
 }
 
+.navbar-light .navbar-nav .nav-item:hover{
+  background-color: rgba(109, 184, 248, 0.2);
+  border-radius: 10% 30% 50% 70%;
+  padding: .5px;
+}
+
 .navbar-light .navbar-nav .nav-link.active {
   background: -webkit-linear-gradient(135deg, #052f83 0%, #0a4ec4 45%, #1297f4 100%);
   -webkit-background-clip: text;

@@ -45,13 +45,13 @@ include '../includes/header.php';
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">PreÃ§o 1 (Varejo)</label>
+                                <label class="form-label">Pre&ccedil;o 1 (Varejo)</label>
                                 <input type="number" step="0.01" class="form-control" name="preco1" value="<?= htmlspecialchars((string) ($produto['preco1'] ?? '')) ?>" required>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">PreÃ§o 2 (Atacado)</label>
+                                <label class="form-label">Pre&ccedil;o 2 (Atacado)</label>
                                 <input type="number" step="0.01" class="form-control" name="preco2" value="<?= htmlspecialchars((string) ($produto['preco2'] ?? '')) ?>">
                             </div>
                         </div>
@@ -97,11 +97,11 @@ include '../includes/header.php';
 
                     <div id="campos-controle-estoque" class="border rounded p-3 <?= !empty($produto['controle_estoque']) ? '' : 'd-none' ?>">
                         <div class="mb-3">
-                            <label class="form-label">Estoque mÃ­nimo</label>
+                            <label class="form-label">Estoque m&iacute;nimo</label>
                             <input type="number" min="0" class="form-control" id="estoque_minimo" name="estoque_minimo"
                                 value="<?= htmlspecialchars((string) ($produto['estoque_minimo'] ?? '')) ?>"
                                 <?= !empty($produto['controle_estoque']) ? 'required' : '' ?>>
-                            <small class="text-muted">ObrigatÃ³rio quando o controle de estoque estiver ativo.</small>
+                            <small class="text-muted">Obrigat&oacute;rio quando o controle de estoque estiver ativo.</small>
                         </div>
 
                         <div class="mb-0">
@@ -120,7 +120,7 @@ include '../includes/header.php';
             </div>
 
             <div class="mb-3">
-                <label class="form-label">ObservaÃ§Ãµes</label>
+                <label class="form-label">Observa&ccedil;&otilde;es</label>
                 <textarea class="form-control" name="observacoes" rows="3"><?= htmlspecialchars((string) ($produto['observacoes'] ?? '')) ?></textarea>
             </div>
 
