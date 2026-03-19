@@ -44,8 +44,8 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 </head>
 <body>
-    <div class="container">
-        <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+    <div class="container page-shell">
+        <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4 mobile-tablet-fixed-nav">
             <div class="container-fluid menu">
                 <a class="navbar-brand link-desativado" href="#">
                     <img src="<?php echo app_url('assets/img/android-chrome-512x512.png'); ?>" alt="Piscinar" class="brand-logo me-2">Piscinar System 2.0
