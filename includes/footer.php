@@ -1,5 +1,5 @@
 <footer class="site-footer mt-5">
-  <div class="container py-4 py-md-5">
+  <div class="container py-2 py-sm-4 py-md-5">
     <div class="row g-4">
       <div class="col-lg-4">
         <div class="footer-brand mb-3">
