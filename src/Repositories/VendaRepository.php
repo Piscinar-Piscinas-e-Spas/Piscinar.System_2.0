@@ -19,8 +19,12 @@ class VendaRepository
 
     public function create(array $venda, array $itens, array $parcelas)
     {
+        $startedTransaction = !$this->pdo->inTransaction();
+
         try {
-            $this->pdo->beginTransaction();
+            if ($startedTransaction) {
+                $this->pdo->beginTransaction();
+            }
 
             $insertVenda = $this->pdo->prepare('INSERT INTO vendas (
                     id_cliente,
@@ -135,11 +139,13 @@ class VendaRepository
                 'parcelas' => $parcelas,
             ]);
 
-            $this->pdo->commit();
+            if ($startedTransaction) {
+                $this->pdo->commit();
+            }
 
             return $vendaId;
         } catch (Throwable $e) {
-            if ($this->pdo->inTransaction()) {
+            if ($startedTransaction && $this->pdo->inTransaction()) {
                 $this->pdo->rollBack();
             }
 
