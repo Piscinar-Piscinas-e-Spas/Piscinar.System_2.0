@@ -34,180 +34,220 @@ include '../includes/header.php';
         </div>
 
         <div class="card-body">
-            <div class="row g-3 mb-4">
-                <div class="col-md-6 col-lg-3">
-                    <div class="card border-0 bg-light h-100">
-                        <div class="card-body">
-                            <small class="text-uppercase text-muted">Total de vendas</small>
-                            <h3 class="mb-0"><?= number_format((int) $resumoKpis['total_vendas'], 0, ',', '.') ?></h3>
-                        </div>
-                    </div>
+            <div class="card border-0 bg-light mb-4">
+                <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Dashboard de vendas</h5>
+                    <button
+                        class="btn btn-outline-primary btn-sm"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#dashboardVendasCollapse"
+                        aria-expanded="true"
+                        aria-controls="dashboardVendasCollapse"
+                    >
+                        <i class="fas fa-caret-down me-1"></i> Exibir / Recolher
+                    </button>
                 </div>
+                <div id="dashboardVendasCollapse" class="collapse show">
+                    <div class="card-body">
+                        <div class="row g-3 mb-0">
+                            <div class="col-md-6 col-lg-3">
+                                <div class="card border-0 bg-white h-100">
+                                    <div class="card-body">
+                                        <small class="text-uppercase text-muted">Total de vendas</small>
+                                        <h3 class="mb-0"><?= number_format((int) $resumoKpis['total_vendas'], 0, ',', '.') ?></h3>
+                                    </div>
+                                </div>
+                            </div>
 
-                <div class="col-md-6 col-lg-3">
-                    <div class="card border-0 bg-light h-100">
-                        <div class="card-body">
-                            <small class="text-uppercase text-muted">Faturamento bruto</small>
-                            <h3 class="mb-0">R$ <?= number_format((float) $resumoKpis['faturamento_bruto'], 2, ',', '.') ?></h3>
+                            <div class="col-md-6 col-lg-3">
+                                <div class="card border-0 bg-white h-100">
+                                    <div class="card-body">
+                                        <small class="text-uppercase text-muted">Faturamento bruto</small>
+                                        <h3 class="mb-0">R$ <?= number_format((float) $resumoKpis['faturamento_bruto'], 2, ',', '.') ?></h3>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-lg-3">
+                                <div class="card border-0 bg-white h-100">
+                                    <div class="card-body">
+                                        <small class="text-uppercase text-muted">Ticket médio</small>
+                                        <h3 class="mb-0">R$ <?= number_format((float) $resumoKpis['ticket_medio'], 2, ',', '.') ?></h3>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 col-lg-3">
+                                <div class="card border-0 bg-white h-100">
+                                    <div class="card-body">
+                                        <small class="text-uppercase text-muted">Total parcelado vs à vista</small>
+                                        <div class="fw-semibold">Parcelado: R$ <?= number_format($totalParcelado, 2, ',', '.') ?> (<?= number_format($percentualParcelado, 1, ',', '.') ?>%)</div>
+                                        <div class="fw-semibold">À vista: R$ <?= number_format($totalVista, 2, ',', '.') ?> (<?= number_format($percentualVista, 1, ',', '.') ?>%)</div>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </div>
 
-                <div class="col-md-6 col-lg-3">
-                    <div class="card border-0 bg-light h-100">
-                        <div class="card-body">
-                            <small class="text-uppercase text-muted">Ticket médio</small>
-                            <h3 class="mb-0">R$ <?= number_format((float) $resumoKpis['ticket_medio'], 2, ',', '.') ?></h3>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-md-6 col-lg-3">
-                    <div class="card border-0 bg-light h-100">
-                        <div class="card-body">
-                            <small class="text-uppercase text-muted">Total parcelado vs à vista</small>
-                            <div class="fw-semibold">Parcelado: R$ <?= number_format($totalParcelado, 2, ',', '.') ?> (<?= number_format($percentualParcelado, 1, ',', '.') ?>%)</div>
-                            <div class="fw-semibold">À vista: R$ <?= number_format($totalVista, 2, ',', '.') ?> (<?= number_format($percentualVista, 1, ',', '.') ?>%)</div>
+                        <div class="card border-0 bg-white mb-0 mt-3 d-none d-lg-block">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h5 class="mb-0">Evolução do faturamento</h5>
+                                    <small id="graficoAgrupamentoInfo" class="text-muted"></small>
+                                </div>
+                                <div class="grafico-faturamento-wrapper">
+                                    <canvas id="graficoFaturamentoVendas"></canvas>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
-
-            <form method="GET" class="mb-4">
-                <div class="row g-3">
-                    <div class="col-md-3">
-                        <label for="data_inicial" class="form-label">Data inicial</label>
-                        <input
-                            type="date"
-                            id="data_inicial"
-                            name="data_inicial"
-                            class="form-control"
-                            value="<?= htmlspecialchars($filtros['data_inicial']) ?>"
-                        >
-                    </div>
-
-                    <div class="col-md-3">
-                        <label for="data_final" class="form-label">Data final</label>
-                        <input
-                            type="date"
-                            id="data_final"
-                            name="data_final"
-                            class="form-control"
-                            value="<?= htmlspecialchars($filtros['data_final']) ?>"
-                        >
-                    </div>
-
-                    <div class="col-md-3">
-                        <label for="condicao_pagamento" class="form-label">Condição de pagamento</label>
-                        <select id="condicao_pagamento" name="condicao_pagamento" class="form-select">
-                            <option value="">Todas</option>
-                            <option value="vista" <?= $filtros['condicao_pagamento'] === 'vista' ? 'selected' : '' ?>>À vista</option>
-                            <option value="parcelado" <?= $filtros['condicao_pagamento'] === 'parcelado' ? 'selected' : '' ?>>Parcelado</option>
-                        </select>
-                    </div>
-
-                    <div class="col-md-3">
-                        <label for="nome_cliente" class="form-label">Nome do cliente</label>
-                        <input
-                            type="text"
-                            id="nome_cliente"
-                            name="nome_cliente"
-                            class="form-control"
-                            placeholder="Digite o nome"
-                            value="<?= htmlspecialchars($filtros['nome_cliente']) ?>"
-                        >
-                    </div>
-
-                    <div class="col-md-3">
-                        <label for="valor_minimo" class="form-label">Valor mínimo</label>
-                        <input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            id="valor_minimo"
-                            name="valor_minimo"
-                            class="form-control"
-                            value="<?= htmlspecialchars($filtros['valor_minimo']) ?>"
-                        >
-                    </div>
-
-                    <div class="col-md-3">
-                        <label for="valor_maximo" class="form-label">Valor máximo</label>
-                        <input
-                            type="number"
-                            step="0.01"
-                            min="0"
-                            id="valor_maximo"
-                            name="valor_maximo"
-                            class="form-control"
-                            value="<?= htmlspecialchars($filtros['valor_maximo']) ?>"
-                        >
-                    </div>
-
-                    <div class="col-md-6 d-flex align-items-end justify-content-end gap-2">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fas fa-search me-1"></i> Filtrar
-                        </button>
-                        <a href="<?= app_url('vendas/listar.php'); ?>" class="btn btn-outline-secondary">Limpar filtros</a>
-                    </div>
-                </div>
-            </form>
 
             <div class="card border-0 bg-light mb-4">
-                <div class="card-body">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <h5 class="mb-0">Evolução do faturamento</h5>
-                        <small id="graficoAgrupamentoInfo" class="text-muted"></small>
-                    </div>
-                    <canvas id="graficoFaturamentoVendas" height="90"></canvas>
+                <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Filtros e lista de vendas</h5>
+                    <button
+                        class="btn btn-outline-primary btn-sm"
+                        type="button"
+                        data-bs-toggle="collapse"
+                        data-bs-target="#listaVendasCollapse"
+                        aria-expanded="true"
+                        aria-controls="listaVendasCollapse"
+                    >
+                        <i class="fas fa-caret-down me-1"></i> Exibir / Recolher
+                    </button>
                 </div>
-            </div>
-
-            <div class="table-responsive">
-                <table class="table table-striped table-hover align-middle">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>ID Venda</th>
-                            <th>Data da Venda</th>
-                            <th>Cliente</th>
-                            <th>Condi&ccedil;&atilde;o de Pagamento</th>
-                            <th>Subtotal</th>
-                            <th>Desconto Total</th>
-                            <th>Frete Total</th>
-                            <th>Total Geral</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php if (empty($vendas)): ?>
-                            <tr>
-                                <td colspan="9" class="text-center text-muted">Nenhuma venda encontrada.</td>
-                            </tr>
-                        <?php endif; ?>
-
-                        <?php foreach ($vendas as $venda): ?>
-                            <tr>
-                                <td><?= str_pad((string) ((int) $venda['id_venda']), 6, '0', STR_PAD_LEFT) ?></td>
-                                <td><?= htmlspecialchars((string) ($venda['data_venda'] ?? '-')) ?></td>
-                                <td><?= htmlspecialchars((string) ($venda['cliente'] ?? '-')) ?></td>
-                                <td><?= htmlspecialchars((string) ($venda['condicao_pagamento'] ?? '-')) ?></td>
-                                <td>R$ <?= number_format((float) $venda['subtotal'], 2, ',', '.') ?></td>
-                                <td>R$ <?= number_format((float) $venda['desconto_total'], 2, ',', '.') ?></td>
-                                <td>R$ <?= number_format((float) $venda['frete_total'], 2, ',', '.') ?></td>
-                                <td>R$ <?= number_format((float) $venda['total_geral'], 2, ',', '.') ?></td>
-                                <td>
-                                    <a
-                                        href="<?= app_url('vendas/detalhes.php'); ?>?id=<?= (int) $venda['id_venda'] ?>"
-                                        class="btn btn-sm btn-outline-primary"
-                                        title="Ver detalhes da venda"
+                <div id="listaVendasCollapse" class="collapse show">
+                    <div class="card-body">
+                        <form method="GET" class="mb-4">
+                            <div class="row g-3">
+                                <div class="col-md-3">
+                                    <label for="data_inicial" class="form-label">Data inicial</label>
+                                    <input
+                                        type="date"
+                                        id="data_inicial"
+                                        name="data_inicial"
+                                        class="form-control"
+                                        value="<?= htmlspecialchars($filtros['data_inicial']) ?>"
                                     >
-                                        <i class="fas fa-eye me-1"></i>Ver
-                                    </a>
-                                </td>
-                            </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label for="data_final" class="form-label">Data final</label>
+                                    <input
+                                        type="date"
+                                        id="data_final"
+                                        name="data_final"
+                                        class="form-control"
+                                        value="<?= htmlspecialchars($filtros['data_final']) ?>"
+                                    >
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label for="condicao_pagamento" class="form-label">Condição de pagamento</label>
+                                    <select id="condicao_pagamento" name="condicao_pagamento" class="form-select">
+                                        <option value="">Todas</option>
+                                        <option value="vista" <?= $filtros['condicao_pagamento'] === 'vista' ? 'selected' : '' ?>>À vista</option>
+                                        <option value="parcelado" <?= $filtros['condicao_pagamento'] === 'parcelado' ? 'selected' : '' ?>>Parcelado</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label for="nome_cliente" class="form-label">Nome do cliente</label>
+                                    <input
+                                        type="text"
+                                        id="nome_cliente"
+                                        name="nome_cliente"
+                                        class="form-control"
+                                        placeholder="Digite o nome"
+                                        value="<?= htmlspecialchars($filtros['nome_cliente']) ?>"
+                                    >
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label for="valor_minimo" class="form-label">Valor mínimo</label>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
+                                        id="valor_minimo"
+                                        name="valor_minimo"
+                                        class="form-control"
+                                        value="<?= htmlspecialchars($filtros['valor_minimo']) ?>"
+                                    >
+                                </div>
+
+                                <div class="col-md-3">
+                                    <label for="valor_maximo" class="form-label">Valor máximo</label>
+                                    <input
+                                        type="number"
+                                        step="0.01"
+                                        min="0"
+                                        id="valor_maximo"
+                                        name="valor_maximo"
+                                        class="form-control"
+                                        value="<?= htmlspecialchars($filtros['valor_maximo']) ?>"
+                                    >
+                                </div>
+
+                                <div class="col-md-6 d-flex align-items-end justify-content-end gap-2">
+                                    <button type="submit" class="btn btn-primary">
+                                        <i class="fas fa-search me-1"></i> Filtrar
+                                    </button>
+                                    <a href="<?= app_url('vendas/listar.php'); ?>" class="btn btn-outline-secondary">Limpar filtros</a>
+                                </div>
+                            </div>
+                        </form>
+
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover align-middle">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>ID Venda</th>
+                                        <th>Data da Venda</th>
+                                        <th>Cliente</th>
+                                        <th>Condi&ccedil;&atilde;o de Pagamento</th>
+                                        <th>Subtotal</th>
+                                        <th>Desconto Total</th>
+                                        <th>Frete Total</th>
+                                        <th>Total Geral</th>
+                                        <th>Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <?php if (empty($vendas)): ?>
+                                        <tr>
+                                            <td colspan="9" class="text-center text-muted">Nenhuma venda encontrada.</td>
+                                        </tr>
+                                    <?php endif; ?>
+
+                                    <?php foreach ($vendas as $venda): ?>
+                                        <tr>
+                                            <td><?= str_pad((string) ((int) $venda['id_venda']), 6, '0', STR_PAD_LEFT) ?></td>
+                                            <td><?= htmlspecialchars((string) ($venda['data_venda'] ?? '-')) ?></td>
+                                            <td><?= htmlspecialchars((string) ($venda['cliente'] ?? '-')) ?></td>
+                                            <td><?= htmlspecialchars((string) ($venda['condicao_pagamento'] ?? '-')) ?></td>
+                                            <td>R$ <?= number_format((float) $venda['subtotal'], 2, ',', '.') ?></td>
+                                            <td>R$ <?= number_format((float) $venda['desconto_total'], 2, ',', '.') ?></td>
+                                            <td>R$ <?= number_format((float) $venda['frete_total'], 2, ',', '.') ?></td>
+                                            <td>R$ <?= number_format((float) $venda['total_geral'], 2, ',', '.') ?></td>
+                                            <td>
+                                                <a
+                                                    href="<?= app_url('vendas/detalhes.php'); ?>?id=<?= (int) $venda['id_venda'] ?>"
+                                                    class="btn btn-sm btn-outline-primary"
+                                                    title="Ver detalhes da venda"
+                                                >
+                                                    <i class="fas fa-eye me-1"></i>Ver
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -219,7 +259,7 @@ include '../includes/header.php';
         const graficoCanvas = document.getElementById('graficoFaturamentoVendas');
         const agrupamentoInfo = document.getElementById('graficoAgrupamentoInfo');
 
-        if (!graficoCanvas || typeof Chart === 'undefined') {
+        if (!window.matchMedia('(min-width: 992px)').matches || !graficoCanvas || typeof Chart === 'undefined') {
             return;
         }
 

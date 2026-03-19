@@ -209,6 +209,13 @@ tr.estoque-critico > td {
   align-items: center;
 }
 
+.grafico-faturamento-wrapper {
+  position: relative;
+  width: 100%;
+  height: min(340px, 42vh);
+  max-height: 340px;
+}
+
 @media (max-width: 575.98px) {
   .dashboard-action-btn {
     min-width: 48px;
