@@ -167,6 +167,52 @@ class VendaRepository
             FROM vendas v
             LEFT JOIN clientes c ON c.id_cliente = v.id_cliente';
 
+        [$whereClause, $params] = $this->buildFilterClause($filters);
+
+        $sql .= $whereClause;
+        $sql .= ' ORDER BY v.data_venda DESC, v.id_venda DESC';
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getResumoKpis(array $filters = []): array
+    {
+        $sql = 'SELECT
+                COUNT(v.id_venda) AS total_vendas,
+                COALESCE(SUM(v.total_geral), 0) AS faturamento_bruto,
+                COALESCE(SUM(CASE WHEN v.condicao_pagamento = "vista" THEN v.total_geral ELSE 0 END), 0) AS total_vista,
+                COALESCE(SUM(CASE WHEN v.condicao_pagamento = "parcelado" THEN v.total_geral ELSE 0 END), 0) AS total_parcelado
+            FROM vendas v
+            LEFT JOIN clientes c ON c.id_cliente = v.id_cliente';
+
+        [$whereClause, $params] = $this->buildFilterClause($filters);
+
+        $sql .= $whereClause;
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+
+        $result = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+
+        $totalVendas = (int) ($result['total_vendas'] ?? 0);
+        $faturamentoBruto = (float) ($result['faturamento_bruto'] ?? 0);
+        $totalVista = (float) ($result['total_vista'] ?? 0);
+        $totalParcelado = (float) ($result['total_parcelado'] ?? 0);
+
+        return [
+            'total_vendas' => $totalVendas,
+            'faturamento_bruto' => $faturamentoBruto,
+            'ticket_medio' => $totalVendas > 0 ? $faturamentoBruto / $totalVendas : 0.0,
+            'total_vista' => $totalVista,
+            'total_parcelado' => $totalParcelado,
+        ];
+    }
+
+    private function buildFilterClause(array $filters): array
+    {
         $conditions = [];
         $params = [];
 
@@ -190,25 +236,18 @@ class VendaRepository
             $params[':condicao_pagamento'] = $filters['condicao_pagamento'];
         }
 
-        if ($filters['valor_minimo'] !== '' && is_numeric($filters['valor_minimo'])) {
+        if (($filters['valor_minimo'] ?? '') !== '' && is_numeric((string) $filters['valor_minimo'])) {
             $conditions[] = 'v.total_geral >= :valor_minimo';
             $params[':valor_minimo'] = (float) $filters['valor_minimo'];
         }
 
-        if ($filters['valor_maximo'] !== '' && is_numeric($filters['valor_maximo'])) {
+        if (($filters['valor_maximo'] ?? '') !== '' && is_numeric((string) $filters['valor_maximo'])) {
             $conditions[] = 'v.total_geral <= :valor_maximo';
             $params[':valor_maximo'] = (float) $filters['valor_maximo'];
         }
 
-        if (!empty($conditions)) {
-            $sql .= ' WHERE ' . implode(' AND ', $conditions);
-        }
+        $whereClause = empty($conditions) ? '' : ' WHERE ' . implode(' AND ', $conditions);
 
-        $sql .= ' ORDER BY v.data_venda DESC, v.id_venda DESC';
-
-        $stmt = $this->pdo->prepare($sql);
-        $stmt->execute($params);
-
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return [$whereClause, $params];
     }
 }
