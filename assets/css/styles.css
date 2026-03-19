@@ -205,10 +205,6 @@ tr.estoque-critico > td {
     padding-top: 104px;
   }
 
-  .page-shell {
-    padding-top: 0.25rem;
-  }
-
   .mobile-tablet-fixed-nav {
     position: fixed;
     top: 0;
@@ -221,6 +217,10 @@ tr.estoque-critico > td {
   .site-footer {
     margin-top: 2rem !important;
   }
+}
+
+.dashboard-actions {
+  align-items: center;
 }
 
 @media (max-width: 575.98px) {

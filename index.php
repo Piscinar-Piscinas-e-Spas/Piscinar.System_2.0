@@ -51,8 +51,8 @@ $resumo = $resumoStmt->fetch(PDO::FETCH_ASSOC) ?: [];
                     </div>
                 </div>
                 
-                <div class="mt-4">
-                    <a href="<?php echo app_url('produtos/listar.php'); ?>" class="btn btn-outline-primary me-2 dashboard-action-btn" aria-label="Ver Produtos">
+                <div class="mt-4 d-flex flex-wrap gap-2 dashboard-actions">
+                    <a href="<?php echo app_url('produtos/listar.php'); ?>" class="btn btn-outline-primary dashboard-action-btn" aria-label="Ver Produtos">
                         <i class="fas fa-box-open" aria-hidden="true"></i>
                         <span class="dashboard-action-label">Ver Produtos</span>
                     </a>
@@ -60,11 +60,11 @@ $resumo = $resumoStmt->fetch(PDO::FETCH_ASSOC) ?: [];
                         <i class="fas fa-plus-circle" aria-hidden="true"></i>
                         <span class="dashboard-action-label">Novo Produto</span>
                     </a>
-                    <a href="<?php echo app_url('clientes/listar.php'); ?>" class="btn btn-outline-info ms-2 dashboard-action-btn" aria-label="Ver Clientes">
+                    <a href="<?php echo app_url('clientes/listar.php'); ?>" class="btn btn-outline-info dashboard-action-btn" aria-label="Ver Clientes">
                         <i class="fas fa-users" aria-hidden="true"></i>
                         <span class="dashboard-action-label">Ver Clientes</span>
                     </a>
-                    <a href="<?php echo app_url('vendas/nova.php'); ?>" class="btn btn-outline-warning ms-2 dashboard-action-btn" aria-label="Nova Venda">
+                    <a href="<?php echo app_url('vendas/nova.php'); ?>" class="btn btn-outline-warning dashboard-action-btn" aria-label="Nova Venda">
                         <i class="fas fa-file-invoice-dollar" aria-hidden="true"></i>
                         <span class="dashboard-action-label">Nova Venda</span>
                     </a>
