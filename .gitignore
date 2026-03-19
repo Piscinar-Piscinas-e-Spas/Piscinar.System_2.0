@@ -1,0 +1,6 @@
+.env
+.env.local
+.env.*.local
+database/
+storage/mail_fallback.log
+storage/smtp_daily_limit.json

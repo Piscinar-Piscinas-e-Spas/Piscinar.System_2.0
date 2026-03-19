@@ -9,6 +9,8 @@ if (is_authenticated()) {
 
 $alert = null;
 $usuario = '';
+$approvalEmail = password_reset_smtp_config()['to_email'] ?: 'piscinar2014@gmail.com';
+$clearFormsAfterSuccess = false;
 
 if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     require_valid_csrf();
@@ -18,7 +20,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
 
     if ($action === 'request_token') {
         if ($usuario === '') {
-            $alert = ['type' => 'danger', 'message' => 'Informe o usuário para gerar o token de aprovação.'];
+            $alert = ['type' => 'danger', 'message' => 'Informe o usuario para gerar o token de aprovacao.'];
         } else {
             $stmt = $pdo->prepare('SELECT id_usuario, usuario, ativo FROM usuarios WHERE usuario = :usuario LIMIT 1');
             $stmt->execute([':usuario' => $usuario]);
@@ -28,9 +30,9 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
                 $token = create_password_reset_token($pdo, (int) $user['id_usuario']);
 
                 $emailError = null;
-                $emailBody = "Solicitação de troca de senha\n"
-                    . "Usuário: " . (string) $user['usuario'] . "\n"
-                    . "Token de aprovação: {$token}\n"
+                $emailBody = "Solicitacao de troca de senha\n"
+                    . "Usuario: " . (string) $user['usuario'] . "\n"
+                    . "Token de aprovacao: {$token}\n"
                     . "Validade: 15 minutos.\n";
 
                 if (!send_system_email('Piscinar - token de troca de senha', $emailBody, $emailError)) {
@@ -38,13 +40,13 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
                 } elseif (is_string($emailError) && $emailError !== '') {
                     $alert = [
                         'type' => 'warning',
-                        'message' => 'Token gerado. ' . $emailError . ' Contate o suporte para validar o envio ao e-mail de aprovação.',
+                        'message' => 'Token gerado com sucesso. ' . $emailError . ' Verifique o log operacional e confirme o envio ao e-mail de aprovacao ' . $approvalEmail . '.',
                     ];
                 } else {
-                    $alert = ['type' => 'success', 'message' => 'Token enviado para o e-mail de aprovação piscinar2014@gmail.com.'];
+                    $alert = ['type' => 'success', 'message' => 'Token gerado e enviado para o e-mail de aprovacao ' . $approvalEmail . '.'];
                 }
             } else {
-                $alert = ['type' => 'info', 'message' => 'Se o usuário existir e estiver ativo, o token será enviado ao e-mail de aprovação.'];
+                $alert = ['type' => 'info', 'message' => 'Se o usuario existir e estiver ativo, o token sera gerado e enviado ao e-mail de aprovacao configurado.'];
             }
         }
     }
@@ -55,20 +57,20 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
         $confirmarSenha = (string) ($_POST['confirmar_senha'] ?? '');
 
         if ($usuario === '' || $token === '' || $novaSenha === '') {
-            $alert = ['type' => 'danger', 'message' => 'Preencha usuário, token e nova senha para continuar.'];
+            $alert = ['type' => 'danger', 'message' => 'Preencha usuario, token e nova senha para continuar.'];
         } elseif (mb_strlen($novaSenha) < 6) {
-            $alert = ['type' => 'danger', 'message' => 'A nova senha deve ter no mínimo 6 caracteres.'];
+            $alert = ['type' => 'danger', 'message' => 'A nova senha deve ter no minimo 6 caracteres.'];
         } elseif (!hash_equals($novaSenha, $confirmarSenha)) {
-            $alert = ['type' => 'danger', 'message' => 'A confirmação da nova senha não confere.'];
+            $alert = ['type' => 'danger', 'message' => 'A confirmacao da nova senha nao confere.'];
         } else {
             $stmt = $pdo->prepare('SELECT id_usuario, usuario, ativo FROM usuarios WHERE usuario = :usuario LIMIT 1');
             $stmt->execute([':usuario' => $usuario]);
             $user = $stmt->fetch();
 
             if (!is_array($user) || (int) ($user['ativo'] ?? 0) !== 1) {
-                $alert = ['type' => 'danger', 'message' => 'Usuário não encontrado ou inativo.'];
+                $alert = ['type' => 'danger', 'message' => 'Usuario nao encontrado ou inativo.'];
             } elseif (!validate_password_reset_token($pdo, (int) $user['id_usuario'], $token)) {
-                $alert = ['type' => 'danger', 'message' => 'Token inválido ou expirado. Gere um novo token e tente novamente.'];
+                $alert = ['type' => 'danger', 'message' => 'Token invalido ou expirado. Gere um novo token e tente novamente.'];
             } else {
                 $update = $pdo->prepare('UPDATE usuarios SET senha_hash = :senha_hash WHERE id_usuario = :id_usuario LIMIT 1');
                 $update->execute([
@@ -78,18 +80,19 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
 
                 $emailError = null;
                 $emailBody = "Senha alterada com sucesso\n"
-                    . "Usuário: " . (string) $user['usuario'] . "\n"
+                    . "Usuario: " . (string) $user['usuario'] . "\n"
                     . "Data/Hora (UTC): " . gmdate('Y-m-d H:i:s') . "\n"
-                    . "A alteração foi aprovada com token numérico.\n";
+                    . "A alteracao foi aprovada com token numerico.\n";
                 send_system_email('Piscinar - senha alterada', $emailBody, $emailError);
 
-                $alertMessage = 'Senha redefinida com sucesso. Faça login com a nova senha.';
+                $alertMessage = 'Senha redefinida com sucesso. Faca login com a nova senha.';
                 if (is_string($emailError) && $emailError !== '') {
-                    $alertMessage .= ' Observação: confirmação de e-mail pendente no servidor.';
+                    $alertMessage .= ' Observacao: a confirmacao por e-mail foi registrada no log operacional de fallback.';
                 }
 
                 $alert = ['type' => 'success', 'message' => $alertMessage];
                 $usuario = '';
+                $clearFormsAfterSuccess = true;
             }
         }
     }
@@ -118,31 +121,31 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
             </div>
         <?php endif; ?>
 
-        <form method="post" class="mb-4">
+        <form method="post" class="mb-4" id="requestTokenForm">
             <?= csrf_input() ?>
             <input type="hidden" name="action" value="request_token">
 
             <div class="mb-3 field-wrap">
-                <label class="form-label" for="usuarioSolicitacao">Usuário</label>
+                <label class="form-label" for="usuarioSolicitacao">Usuario</label>
                 <input type="text" class="form-control" name="usuario" id="usuarioSolicitacao" value="<?= htmlspecialchars($usuario, ENT_QUOTES, 'UTF-8') ?>" required>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100">Enviar token de aprovação</button>
+            <button type="submit" class="btn btn-primary w-100">Enviar token de aprovacao</button>
         </form>
 
         <hr>
 
-        <form method="post">
+        <form method="post" id="resetPasswordForm">
             <?= csrf_input() ?>
             <input type="hidden" name="action" value="reset_password">
 
             <div class="mb-3 field-wrap">
-                <label class="form-label" for="usuario">Usuário</label>
+                <label class="form-label" for="usuario">Usuario</label>
                 <input type="text" class="form-control" name="usuario" id="usuario" value="<?= htmlspecialchars($usuario, ENT_QUOTES, 'UTF-8') ?>" required>
             </div>
 
             <div class="mb-3 field-wrap">
-                <label class="form-label" for="token">Token numérico</label>
+                <label class="form-label" for="token">Token numerico</label>
                 <input type="text" class="form-control" name="token" id="token" maxlength="6" inputmode="numeric" required>
             </div>
 
@@ -157,9 +160,25 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
             </div>
 
             <button type="submit" class="btn btn-primary w-100 mb-2">Redefinir senha</button>
-            <a href="<?= htmlspecialchars(app_url('login.php'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-outline-secondary w-100">Voltar ao login</a>
+            <a href="<?= htmlspecialchars(app_url('login.php'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-outline-success w-100">Voltar ao login</a>
         </form>
     </div>
 </div>
+<?php if ($clearFormsAfterSuccess): ?>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    var requestForm = document.getElementById('requestTokenForm');
+    var resetForm = document.getElementById('resetPasswordForm');
+
+    if (requestForm) {
+        requestForm.reset();
+    }
+
+    if (resetForm) {
+        resetForm.reset();
+    }
+});
+</script>
+<?php endif; ?>
 </body>
 </html>
