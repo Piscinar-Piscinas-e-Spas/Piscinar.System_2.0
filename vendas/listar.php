@@ -13,6 +13,13 @@ $filtros = [
 
 $repository = new \App\Repositories\VendaRepository($pdo);
 $vendas = $repository->listWithCliente($filtros);
+$resumoKpis = $repository->getResumoKpis($filtros);
+
+$totalVista = (float) ($resumoKpis['total_vista'] ?? 0);
+$totalParcelado = (float) ($resumoKpis['total_parcelado'] ?? 0);
+$totalPagamento = $totalVista + $totalParcelado;
+$percentualVista = $totalPagamento > 0 ? ($totalVista / $totalPagamento) * 100 : 0;
+$percentualParcelado = $totalPagamento > 0 ? ($totalParcelado / $totalPagamento) * 100 : 0;
 
 include '../includes/header.php';
 ?>
@@ -27,6 +34,45 @@ include '../includes/header.php';
         </div>
 
         <div class="card-body">
+            <div class="row g-3 mb-4">
+                <div class="col-md-6 col-lg-3">
+                    <div class="card border-0 bg-light h-100">
+                        <div class="card-body">
+                            <small class="text-uppercase text-muted">Total de vendas</small>
+                            <h3 class="mb-0"><?= number_format((int) $resumoKpis['total_vendas'], 0, ',', '.') ?></h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="card border-0 bg-light h-100">
+                        <div class="card-body">
+                            <small class="text-uppercase text-muted">Faturamento bruto</small>
+                            <h3 class="mb-0">R$ <?= number_format((float) $resumoKpis['faturamento_bruto'], 2, ',', '.') ?></h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="card border-0 bg-light h-100">
+                        <div class="card-body">
+                            <small class="text-uppercase text-muted">Ticket médio</small>
+                            <h3 class="mb-0">R$ <?= number_format((float) $resumoKpis['ticket_medio'], 2, ',', '.') ?></h3>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-6 col-lg-3">
+                    <div class="card border-0 bg-light h-100">
+                        <div class="card-body">
+                            <small class="text-uppercase text-muted">Total parcelado vs à vista</small>
+                            <div class="fw-semibold">Parcelado: R$ <?= number_format($totalParcelado, 2, ',', '.') ?> (<?= number_format($percentualParcelado, 1, ',', '.') ?>%)</div>
+                            <div class="fw-semibold">À vista: R$ <?= number_format($totalVista, 2, ',', '.') ?> (<?= number_format($percentualVista, 1, ',', '.') ?>%)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <form method="GET" class="mb-4">
                 <div class="row g-3">
                     <div class="col-md-3">
