@@ -175,12 +175,13 @@ include '../includes/header.php';
                             <th>Desconto Total</th>
                             <th>Frete Total</th>
                             <th>Total Geral</th>
+                            <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody>
                         <?php if (empty($vendas)): ?>
                             <tr>
-                                <td colspan="8" class="text-center text-muted">Nenhuma venda encontrada.</td>
+                                <td colspan="9" class="text-center text-muted">Nenhuma venda encontrada.</td>
                             </tr>
                         <?php endif; ?>
 
@@ -194,6 +195,15 @@ include '../includes/header.php';
                                 <td>R$ <?= number_format((float) $venda['desconto_total'], 2, ',', '.') ?></td>
                                 <td>R$ <?= number_format((float) $venda['frete_total'], 2, ',', '.') ?></td>
                                 <td>R$ <?= number_format((float) $venda['total_geral'], 2, ',', '.') ?></td>
+                                <td>
+                                    <a
+                                        href="<?= app_url('vendas/detalhes.php'); ?>?id=<?= (int) $venda['id_venda'] ?>"
+                                        class="btn btn-sm btn-outline-primary"
+                                        title="Ver detalhes da venda"
+                                    >
+                                        <i class="fas fa-eye me-1"></i>Ver
+                                    </a>
+                                </td>
                             </tr>
                         <?php endforeach; ?>
                     </tbody>
