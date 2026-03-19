@@ -14,7 +14,7 @@ body {
 }
 
 .navbar-light .navbar-nav .nav-link:hover {
-  background: -webkit-linear-gradient(135deg, #2a5298 0%, #4a7fd4 45%, #6db8f8 100%);
+  background: -webkit-linear-gradient(120deg, #1f47b8 0%, #4169e1 45%, #bc13fe 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
