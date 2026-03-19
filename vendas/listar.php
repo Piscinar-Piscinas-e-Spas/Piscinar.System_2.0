@@ -153,6 +153,16 @@ include '../includes/header.php';
                 </div>
             </form>
 
+            <div class="card border-0 bg-light mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <h5 class="mb-0">Evolução do faturamento</h5>
+                        <small id="graficoAgrupamentoInfo" class="text-muted"></small>
+                    </div>
+                    <canvas id="graficoFaturamentoVendas" height="90"></canvas>
+                </div>
+            </div>
+
             <div class="table-responsive">
                 <table class="table table-striped table-hover align-middle">
                     <thead class="table-dark">
@@ -192,5 +202,114 @@ include '../includes/header.php';
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    (function () {
+        const graficoCanvas = document.getElementById('graficoFaturamentoVendas');
+        const agrupamentoInfo = document.getElementById('graficoAgrupamentoInfo');
+
+        if (!graficoCanvas || typeof Chart === 'undefined') {
+            return;
+        }
+
+        const filtros = new URLSearchParams(window.location.search);
+        const endpoint = `<?= app_url('vendas/dashboard_data.php'); ?>?${filtros.toString()}`;
+
+        fetch(endpoint, {
+            headers: {
+                'Accept': 'application/json'
+            }
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error('Falha ao carregar dados do gráfico.');
+                }
+                return response.json();
+            })
+            .then((payload) => {
+                if (!payload || payload.status !== true || !Array.isArray(payload.labels)) {
+                    throw new Error('Resposta inválida do servidor.');
+                }
+
+                const agrupamento = payload.agrupamento === 'mes' ? 'mensal' : 'diário';
+                agrupamentoInfo.textContent = `Agrupamento ${agrupamento}`;
+
+                const tipoGrafico = payload.agrupamento === 'mes' ? 'bar' : 'line';
+
+                new Chart(graficoCanvas.getContext('2d'), {
+                    type: tipoGrafico,
+                    data: {
+                        labels: payload.labels,
+                        datasets: [
+                            {
+                                label: 'Faturamento (R$)',
+                                data: payload.series?.faturamento || [],
+                                borderColor: '#0d6efd',
+                                backgroundColor: 'rgba(13, 110, 253, 0.25)',
+                                borderWidth: 2,
+                                fill: tipoGrafico === 'line',
+                                tension: 0.2,
+                                yAxisID: 'y'
+                            },
+                            {
+                                label: 'Quantidade de vendas',
+                                data: payload.series?.quantidade_vendas || [],
+                                borderColor: '#198754',
+                                backgroundColor: 'rgba(25, 135, 84, 0.35)',
+                                borderWidth: 2,
+                                type: 'line',
+                                tension: 0.2,
+                                yAxisID: 'y1'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false
+                        },
+                        scales: {
+                            y: {
+                                position: 'left',
+                                beginAtZero: true,
+                                ticks: {
+                                    callback: (value) => `R$ ${Number(value).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                                }
+                            },
+                            y1: {
+                                position: 'right',
+                                beginAtZero: true,
+                                grid: {
+                                    drawOnChartArea: false
+                                },
+                                ticks: {
+                                    precision: 0
+                                }
+                            }
+                        },
+                        plugins: {
+                            tooltip: {
+                                callbacks: {
+                                    label: (context) => {
+                                        if (context.dataset.label === 'Faturamento (R$)') {
+                                            return `${context.dataset.label}: R$ ${Number(context.raw).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                                        }
+                                        return `${context.dataset.label}: ${context.raw}`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            })
+            .catch((error) => {
+                console.error(error);
+                agrupamentoInfo.textContent = 'Não foi possível carregar o gráfico.';
+            });
+    })();
+</script>
 
 <?php include '../includes/footer.php'; ?>

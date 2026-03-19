@@ -178,6 +178,33 @@ class VendaRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+
+    public function getSerieFaturamento(array $filters = [], string $agrupamento = 'dia'): array
+    {
+        $agrupamento = $agrupamento === 'mes' ? 'mes' : 'dia';
+
+        $periodoExpr = $agrupamento === 'mes'
+            ? 'DATE_FORMAT(v.data_venda, "%Y-%m")'
+            : 'DATE(v.data_venda)';
+
+        $sql = "SELECT
+                {$periodoExpr} AS periodo,
+                COALESCE(SUM(v.total_geral), 0) AS faturamento,
+                COUNT(v.id_venda) AS quantidade_vendas
+            FROM vendas v
+            LEFT JOIN clientes c ON c.id_cliente = v.id_cliente";
+
+        [$whereClause, $params] = $this->buildFilterClause($filters);
+
+        $sql .= $whereClause;
+        $sql .= " GROUP BY periodo ORDER BY periodo ASC";
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function getResumoKpis(array $filters = []): array
     {
         $sql = 'SELECT
