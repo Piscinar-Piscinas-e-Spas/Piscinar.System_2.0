@@ -199,26 +199,6 @@ tr.estoque-critico > td {
   color: #e7f7ff;
 }
 
-/* Breakpoints do Bootstrap: sm (576px), md (768px), lg (992px) */
-@media (max-width: 991.98px) {
-  body {
-    padding-top: 104px;
-  }
-
-  .mobile-tablet-fixed-nav {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    z-index: 1030;
-    margin-bottom: 0 !important;
-  }
-
-  .site-footer {
-    margin-top: 2rem !important;
-  }
-}
-
 .dashboard-actions {
   align-items: center;
 }
