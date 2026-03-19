@@ -153,9 +153,9 @@ class VendaRepository
         }
     }
 
-    public function listWithCliente()
+    public function listWithCliente(array $filters = [])
     {
-        $stmt = $this->pdo->query('SELECT
+        $sql = 'SELECT
                 v.id_venda,
                 v.data_venda,
                 c.nome_cliente AS cliente,
@@ -165,8 +165,49 @@ class VendaRepository
                 v.frete_total,
                 v.total_geral
             FROM vendas v
-            LEFT JOIN clientes c ON c.id_cliente = v.id_cliente
-            ORDER BY v.data_venda DESC, v.id_venda DESC');
+            LEFT JOIN clientes c ON c.id_cliente = v.id_cliente';
+
+        $conditions = [];
+        $params = [];
+
+        if (!empty($filters['data_inicial'])) {
+            $conditions[] = 'v.data_venda >= :data_inicial';
+            $params[':data_inicial'] = $filters['data_inicial'];
+        }
+
+        if (!empty($filters['data_final'])) {
+            $conditions[] = 'v.data_venda <= :data_final';
+            $params[':data_final'] = $filters['data_final'];
+        }
+
+        if (!empty($filters['nome_cliente'])) {
+            $conditions[] = 'c.nome_cliente LIKE :nome_cliente';
+            $params[':nome_cliente'] = '%' . $filters['nome_cliente'] . '%';
+        }
+
+        if (!empty($filters['condicao_pagamento']) && in_array($filters['condicao_pagamento'], ['vista', 'parcelado'], true)) {
+            $conditions[] = 'v.condicao_pagamento = :condicao_pagamento';
+            $params[':condicao_pagamento'] = $filters['condicao_pagamento'];
+        }
+
+        if ($filters['valor_minimo'] !== '' && is_numeric($filters['valor_minimo'])) {
+            $conditions[] = 'v.total_geral >= :valor_minimo';
+            $params[':valor_minimo'] = (float) $filters['valor_minimo'];
+        }
+
+        if ($filters['valor_maximo'] !== '' && is_numeric($filters['valor_maximo'])) {
+            $conditions[] = 'v.total_geral <= :valor_maximo';
+            $params[':valor_maximo'] = (float) $filters['valor_maximo'];
+        }
+
+        if (!empty($conditions)) {
+            $sql .= ' WHERE ' . implode(' AND ', $conditions);
+        }
+
+        $sql .= ' ORDER BY v.data_venda DESC, v.id_venda DESC';
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
 
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
