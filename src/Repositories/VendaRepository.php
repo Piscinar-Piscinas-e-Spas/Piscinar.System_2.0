@@ -178,6 +178,70 @@ class VendaRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
+    public function findCompleteById(int $vendaId): ?array
+    {
+        $stmtVenda = $this->pdo->prepare('SELECT
+                v.id_venda,
+                v.data_venda,
+                v.subtotal,
+                v.desconto_total,
+                v.frete_total,
+                v.total_geral,
+                v.condicao_pagamento,
+                c.id_cliente,
+                c.nome_cliente,
+                c.telefone_contato,
+                c.cpf_cnpj,
+                c.email_contato,
+                c.endereco
+            FROM vendas v
+            LEFT JOIN clientes c ON c.id_cliente = v.id_cliente
+            WHERE v.id_venda = :id_venda
+            LIMIT 1');
+        $stmtVenda->execute([':id_venda' => $vendaId]);
+        $venda = $stmtVenda->fetch(PDO::FETCH_ASSOC);
+
+        if (!$venda) {
+            return null;
+        }
+
+        $stmtItens = $this->pdo->prepare('SELECT
+                vi.id_venda_item,
+                vi.id_produto,
+                p.nome AS produto_nome,
+                vi.quantidade,
+                vi.valor_unitario,
+                vi.desconto_valor,
+                vi.frete_valor,
+                vi.total_item
+            FROM venda_itens vi
+            LEFT JOIN produtos p ON p.id = vi.id_produto
+            WHERE vi.id_venda = :id_venda
+            ORDER BY vi.id_venda_item ASC');
+        $stmtItens->execute([':id_venda' => $vendaId]);
+        $itens = $stmtItens->fetchAll(PDO::FETCH_ASSOC);
+
+        $stmtParcelas = $this->pdo->prepare('SELECT
+                id_venda_parcela,
+                numero_parcela,
+                vencimento,
+                valor_parcela,
+                tipo_pagamento,
+                qtd_parcelas,
+                total_parcelas
+            FROM venda_parcelas
+            WHERE id_venda = :id_venda
+            ORDER BY numero_parcela ASC, id_venda_parcela ASC');
+        $stmtParcelas->execute([':id_venda' => $vendaId]);
+        $parcelas = $stmtParcelas->fetchAll(PDO::FETCH_ASSOC);
+
+        return [
+            'venda' => $venda,
+            'itens' => $itens,
+            'parcelas' => $parcelas,
+        ];
+    }
+
 
     public function getSerieFaturamento(array $filters = [], string $agrupamento = 'dia'): array
     {
