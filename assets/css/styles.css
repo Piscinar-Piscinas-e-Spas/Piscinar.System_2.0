@@ -8,21 +8,22 @@ body {
 }
 
 .navbar-light .navbar-nav .nav-link {
-  transition: color 0.35s ease, background-position 0.35s ease, filter 0.35s ease;
+  background: -webkit-linear-gradient(135deg, #2a5298 0%, #4a7fd4 45%, #6db8f8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 .navbar-light .navbar-nav .nav-link:hover {
-  background: linear-gradient(120deg, #1f47b8 0%, #4169e1 45%, #bc13fe 100%);
-  background-size: 220% 220%;
-  background-position: 100% 50%;
-  background-clip: text;
-  color: transparent !important;
+  background: -webkit-linear-gradient(120deg, #1f47b8 0%, #4169e1 45%, #bc13fe 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
-  filter: brightness(1.12) saturate(1.2);
 }
 
 .navbar-light .navbar-nav .nav-link.active {
+  background: -webkit-linear-gradient(135deg, #052f83 0%, #0a4ec4 45%, #1297f4 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+
   border-bottom: 2px;
   border-style: solid;
   border-image: linear-gradient(135deg, rgba(5, 47, 131, 0.3) 0%, rgba(10, 78, 196, 0.3) 45%, rgba(18, 151, 244, 0.3) 100%) 1;
