@@ -2,15 +2,19 @@
 
 namespace App\Repositories;
 
+use App\Support\AuditLogger;
 use PDO;
+use Throwable;
 
 class ClienteRepository
 {
     private $pdo;
+    private $auditLogger;
 
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
+        $this->auditLogger = new AuditLogger($pdo);
     }
 
     public function search($term = '', $limit = 100)
@@ -60,50 +64,128 @@ class ClienteRepository
 
     public function create(array $cliente)
     {
-        $stmt = $this->pdo->prepare('INSERT INTO clientes (
-                nome_cliente,
-                telefone_contato,
-                cpf_cnpj,
-                endereco,
-                email_contato,
-                created_at,
-                updated_at
-            ) VALUES (
-                :nome_cliente,
-                :telefone_contato,
-                :cpf_cnpj,
-                :endereco,
-                :email_contato,
-                NOW(),
-                NOW()
-            )');
+        $startedTransaction = !$this->pdo->inTransaction();
 
-        $stmt->execute($cliente);
+        try {
+            if ($startedTransaction) {
+                $this->pdo->beginTransaction();
+            }
 
-        return (int) $this->pdo->lastInsertId();
+            $stmt = $this->pdo->prepare('INSERT INTO clientes (
+                    nome_cliente,
+                    telefone_contato,
+                    cpf_cnpj,
+                    endereco,
+                    email_contato,
+                    created_at,
+                    updated_at
+                ) VALUES (
+                    :nome_cliente,
+                    :telefone_contato,
+                    :cpf_cnpj,
+                    :endereco,
+                    :email_contato,
+                    NOW(),
+                    NOW()
+                )');
+
+            $stmt->execute($cliente);
+
+            $clienteId = (int) $this->pdo->lastInsertId();
+            $this->auditLogger->logCreate('cliente', 'clientes', $clienteId, $cliente);
+
+            if ($startedTransaction) {
+                $this->pdo->commit();
+            }
+
+            return $clienteId;
+        } catch (Throwable $e) {
+            if ($startedTransaction && $this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+
+            throw $e;
+        }
     }
 
     public function update($id, array $cliente)
     {
-        $cliente['id_cliente'] = $id;
+        $before = $this->findById($id);
+        if ($before === null) {
+            return false;
+        }
 
-        $stmt = $this->pdo->prepare('UPDATE clientes SET
-                nome_cliente = :nome_cliente,
-                telefone_contato = :telefone_contato,
-                cpf_cnpj = :cpf_cnpj,
-                endereco = :endereco,
-                email_contato = :email_contato,
-                updated_at = NOW()
-            WHERE id_cliente = :id_cliente');
+        $startedTransaction = !$this->pdo->inTransaction();
 
-        return $stmt->execute($cliente);
+        try {
+            if ($startedTransaction) {
+                $this->pdo->beginTransaction();
+            }
+
+            $cliente['id_cliente'] = $id;
+
+            $stmt = $this->pdo->prepare('UPDATE clientes SET
+                    nome_cliente = :nome_cliente,
+                    telefone_contato = :telefone_contato,
+                    cpf_cnpj = :cpf_cnpj,
+                    endereco = :endereco,
+                    email_contato = :email_contato,
+                    updated_at = NOW()
+                WHERE id_cliente = :id_cliente');
+
+            $updated = $stmt->execute($cliente);
+
+            if ($updated) {
+                $this->auditLogger->logUpdate('cliente', 'clientes', $id, $before, $cliente);
+            }
+
+            if ($startedTransaction) {
+                $this->pdo->commit();
+            }
+
+            return $updated;
+        } catch (Throwable $e) {
+            if ($startedTransaction && $this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+
+            throw $e;
+        }
     }
 
     public function delete($id)
     {
-        $stmt = $this->pdo->prepare('DELETE FROM clientes WHERE id_cliente = :id');
-        $stmt->execute(['id' => $id]);
+        $before = $this->findById($id);
+        if ($before === null) {
+            return false;
+        }
 
-        return $stmt->rowCount() > 0;
+        $startedTransaction = !$this->pdo->inTransaction();
+
+        try {
+            if ($startedTransaction) {
+                $this->pdo->beginTransaction();
+            }
+
+            $stmt = $this->pdo->prepare('DELETE FROM clientes WHERE id_cliente = :id');
+            $stmt->execute(['id' => $id]);
+            $deleted = $stmt->rowCount() > 0;
+
+            if ($deleted) {
+                $this->auditLogger->logDelete('cliente', 'clientes', $id, $before);
+            }
+
+            if ($startedTransaction) {
+                $this->pdo->commit();
+            }
+
+            return $deleted;
+        } catch (Throwable $e) {
+            if ($startedTransaction && $this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+
+            throw $e;
+        }
     }
 }

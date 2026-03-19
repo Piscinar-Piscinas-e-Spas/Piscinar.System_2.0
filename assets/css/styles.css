@@ -154,6 +154,25 @@ tr.estoque-critico > td {
   margin-top: 0.45rem;
 }
 
+.footer-map-columns {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr);
+  gap: 1.25rem;
+  align-items: stretch;
+}
+
+.footer-map-divider {
+  background: linear-gradient(
+    to bottom,
+    rgba(255, 255, 255, 0) 0%,
+    rgba(255, 255, 255, 0.38) 16%,
+    rgba(255, 255, 255, 0.72) 50%,
+    rgba(255, 255, 255, 0.38) 84%,
+    rgba(255, 255, 255, 0) 100%
+  );
+  border-radius: 999px;
+}
+
 .footer-map a {
   color: #ffffff;
   text-decoration: none;
@@ -162,6 +181,10 @@ tr.estoque-critico > td {
 
 .footer-map a:hover {
   opacity: 0.75;
+}
+
+.footer-map-muted {
+  color: rgba(255, 255, 255, 0.68);
 }
 
 .version-badge {
@@ -174,4 +197,15 @@ tr.estoque-critico > td {
   font-weight: 700;
   font-family: "Courier New", monospace;
   color: #e7f7ff;
+}
+
+@media (max-width: 991.98px) {
+  .footer-map-columns {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .footer-map-divider {
+    display: none;
+  }
 }

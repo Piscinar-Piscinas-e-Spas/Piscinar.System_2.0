@@ -1,0 +1,160 @@
+<?php
+
+namespace App\Support;
+
+use PDO;
+
+class AuditLogger
+{
+    private $pdo;
+
+    public function __construct(PDO $pdo)
+    {
+        $this->pdo = $pdo;
+    }
+
+    public function logCreate($entity, $table, $recordId, array $data)
+    {
+        $lines = [];
+
+        foreach ($data as $field => $value) {
+            $lines[] = $this->formatFieldLine((string) $field, $value);
+        }
+
+        $this->insertLog('create', $entity, $table, $recordId, $lines);
+    }
+
+    public function logUpdate($entity, $table, $recordId, array $before, array $after)
+    {
+        $lines = [];
+
+        foreach ($after as $field => $newValue) {
+            $oldValue = array_key_exists($field, $before) ? $before[$field] : null;
+
+            if ($this->valuesAreEqual($oldValue, $newValue)) {
+                continue;
+            }
+
+            $lines[] = sprintf(
+                '%s: %s -> %s',
+                (string) $field,
+                $this->stringifyValue($oldValue),
+                $this->stringifyValue($newValue)
+            );
+        }
+
+        if ($lines === []) {
+            $lines[] = 'Nenhuma alteracao de campos detectada.';
+        }
+
+        $this->insertLog('update', $entity, $table, $recordId, $lines);
+    }
+
+    public function logDelete($entity, $table, $recordId, array $before)
+    {
+        $lines = [];
+
+        foreach ($before as $field => $value) {
+            $lines[] = $this->formatFieldLine((string) $field, $value);
+        }
+
+        $this->insertLog('delete', $entity, $table, $recordId, $lines);
+    }
+
+    private function insertLog($action, $entity, $table, $recordId, array $lines)
+    {
+        $actor = $this->resolveActor();
+
+        $stmt = $this->pdo->prepare('INSERT INTO auditoria_logs (
+                acao,
+                entidade,
+                tabela_referencia,
+                id_registro,
+                usuario_id,
+                usuario_nome,
+                campos_alterados,
+                created_at
+            ) VALUES (
+                :acao,
+                :entidade,
+                :tabela_referencia,
+                :id_registro,
+                :usuario_id,
+                :usuario_nome,
+                :campos_alterados,
+                NOW()
+            )');
+
+        $stmt->execute([
+            ':acao' => $action,
+            ':entidade' => $entity,
+            ':tabela_referencia' => $table,
+            ':id_registro' => (string) $recordId,
+            ':usuario_id' => $actor['id'],
+            ':usuario_nome' => $actor['name'],
+            ':campos_alterados' => implode(PHP_EOL, $lines),
+        ]);
+    }
+
+    private function resolveActor()
+    {
+        $userId = null;
+        $userName = null;
+
+        if (\function_exists('auth_user_id')) {
+            $userId = auth_user_id();
+        }
+
+        if (\function_exists('auth_user')) {
+            $user = auth_user();
+
+            if (\is_array($user)) {
+                $userName = trim((string) ($user['nome'] ?? $user['usuario'] ?? ''));
+            }
+        }
+
+        return [
+            'id' => $userId !== null && $userId !== '' ? (string) $userId : null,
+            'name' => $userName !== '' ? $userName : null,
+        ];
+    }
+
+    private function formatFieldLine($field, $value)
+    {
+        return sprintf('%s: %s', $field, $this->stringifyValue($value));
+    }
+
+    private function stringifyValue($value)
+    {
+        if ($value === null) {
+            return 'NULL';
+        }
+
+        if (\is_bool($value)) {
+            return $value ? 'true' : 'false';
+        }
+
+        if (\is_array($value)) {
+            $encoded = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            return $encoded !== false ? $encoded : '[array]';
+        }
+
+        if (\is_object($value)) {
+            $encoded = json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
+            return $encoded !== false ? $encoded : '[object]';
+        }
+
+        $text = trim((string) $value);
+
+        if ($text === '') {
+            return '""';
+        }
+
+        return preg_replace('/\s+/', ' ', $text) ?: '""';
+    }
+
+    private function valuesAreEqual($left, $right)
+    {
+        return $this->stringifyValue($left) === $this->stringifyValue($right);
+    }
+}

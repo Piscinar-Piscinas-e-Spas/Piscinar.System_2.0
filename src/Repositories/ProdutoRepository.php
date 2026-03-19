@@ -2,15 +2,19 @@
 
 namespace App\Repositories;
 
+use App\Support\AuditLogger;
 use PDO;
+use Throwable;
 
 class ProdutoRepository
 {
     private $pdo;
+    private $auditLogger;
 
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
+        $this->auditLogger = new AuditLogger($pdo);
     }
 
     public function search(array $filters, $limit = 50)
@@ -93,49 +97,127 @@ class ProdutoRepository
 
     public function create(array $produto)
     {
-        $stmt = $this->pdo->prepare('INSERT INTO produtos (
-                nome, custo, preco1, preco2, qtdLoja, qtdEstoque,
-                controle_estoque, estoque_minimo, ponto_compra,
-                grupo, subgrupo, marca, observacoes, created_at
-            ) VALUES (
-                :nome, :custo, :preco1, :preco2, :qtdLoja, :qtdEstoque,
-                :controle_estoque, :estoque_minimo, :ponto_compra,
-                :grupo, :subgrupo, :marca, :observacoes, NOW()
-            )');
+        $startedTransaction = !$this->pdo->inTransaction();
 
-        $stmt->execute($produto);
+        try {
+            if ($startedTransaction) {
+                $this->pdo->beginTransaction();
+            }
 
-        return (int) $this->pdo->lastInsertId();
+            $stmt = $this->pdo->prepare('INSERT INTO produtos (
+                    nome, custo, preco1, preco2, qtdLoja, qtdEstoque,
+                    controle_estoque, estoque_minimo, ponto_compra,
+                    grupo, subgrupo, marca, observacoes, created_at
+                ) VALUES (
+                    :nome, :custo, :preco1, :preco2, :qtdLoja, :qtdEstoque,
+                    :controle_estoque, :estoque_minimo, :ponto_compra,
+                    :grupo, :subgrupo, :marca, :observacoes, NOW()
+                )');
+
+            $stmt->execute($produto);
+
+            $produtoId = (int) $this->pdo->lastInsertId();
+            $this->auditLogger->logCreate('produto', 'produtos', $produtoId, $produto);
+
+            if ($startedTransaction) {
+                $this->pdo->commit();
+            }
+
+            return $produtoId;
+        } catch (Throwable $e) {
+            if ($startedTransaction && $this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+
+            throw $e;
+        }
     }
 
     public function update($id, array $produto)
     {
-        $produto['id'] = $id;
+        $before = $this->findById($id);
+        if ($before === null) {
+            return false;
+        }
 
-        $stmt = $this->pdo->prepare('UPDATE produtos SET
-                nome = :nome,
-                custo = :custo,
-                preco1 = :preco1,
-                preco2 = :preco2,
-                qtdLoja = :qtdLoja,
-                qtdEstoque = :qtdEstoque,
-                controle_estoque = :controle_estoque,
-                estoque_minimo = :estoque_minimo,
-                ponto_compra = :ponto_compra,
-                grupo = :grupo,
-                subgrupo = :subgrupo,
-                marca = :marca,
-                observacoes = :observacoes
-            WHERE id = :id');
+        $startedTransaction = !$this->pdo->inTransaction();
 
-        return $stmt->execute($produto);
+        try {
+            if ($startedTransaction) {
+                $this->pdo->beginTransaction();
+            }
+
+            $produto['id'] = $id;
+
+            $stmt = $this->pdo->prepare('UPDATE produtos SET
+                    nome = :nome,
+                    custo = :custo,
+                    preco1 = :preco1,
+                    preco2 = :preco2,
+                    qtdLoja = :qtdLoja,
+                    qtdEstoque = :qtdEstoque,
+                    controle_estoque = :controle_estoque,
+                    estoque_minimo = :estoque_minimo,
+                    ponto_compra = :ponto_compra,
+                    grupo = :grupo,
+                    subgrupo = :subgrupo,
+                    marca = :marca,
+                    observacoes = :observacoes
+                WHERE id = :id');
+
+            $updated = $stmt->execute($produto);
+
+            if ($updated) {
+                $this->auditLogger->logUpdate('produto', 'produtos', $id, $before, $produto);
+            }
+
+            if ($startedTransaction) {
+                $this->pdo->commit();
+            }
+
+            return $updated;
+        } catch (Throwable $e) {
+            if ($startedTransaction && $this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+
+            throw $e;
+        }
     }
 
     public function delete($id)
     {
-        $stmt = $this->pdo->prepare('DELETE FROM produtos WHERE id = :id');
-        $stmt->execute(['id' => $id]);
+        $before = $this->findById($id);
+        if ($before === null) {
+            return false;
+        }
 
-        return $stmt->rowCount() > 0;
+        $startedTransaction = !$this->pdo->inTransaction();
+
+        try {
+            if ($startedTransaction) {
+                $this->pdo->beginTransaction();
+            }
+
+            $stmt = $this->pdo->prepare('DELETE FROM produtos WHERE id = :id');
+            $stmt->execute(['id' => $id]);
+            $deleted = $stmt->rowCount() > 0;
+
+            if ($deleted) {
+                $this->auditLogger->logDelete('produto', 'produtos', $id, $before);
+            }
+
+            if ($startedTransaction) {
+                $this->pdo->commit();
+            }
+
+            return $deleted;
+        } catch (Throwable $e) {
+            if ($startedTransaction && $this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+
+            throw $e;
+        }
     }
 }

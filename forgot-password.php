@@ -11,6 +11,7 @@ $alert = null;
 $usuario = '';
 $approvalEmail = password_reset_smtp_config()['to_email'] ?: 'piscinar2014@gmail.com';
 $clearFormsAfterSuccess = false;
+$backToLoginButtonClass = 'btn-outline-secondary';
 
 if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     require_valid_csrf();
@@ -93,6 +94,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
                 $alert = ['type' => 'success', 'message' => $alertMessage];
                 $usuario = '';
                 $clearFormsAfterSuccess = true;
+                $backToLoginButtonClass = 'btn-outline-success';
             }
         }
     }
@@ -160,7 +162,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
             </div>
 
             <button type="submit" class="btn btn-primary w-100 mb-2">Redefinir senha</button>
-            <a href="<?= htmlspecialchars(app_url('login.php'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-outline-success w-100">Voltar ao login</a>
+            <a href="<?= htmlspecialchars(app_url('login.php'), ENT_QUOTES, 'UTF-8') ?>" class="btn <?= htmlspecialchars($backToLoginButtonClass, ENT_QUOTES, 'UTF-8') ?> w-100">Voltar ao login</a>
         </form>
     </div>
 </div>

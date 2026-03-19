@@ -7,6 +7,7 @@ $nomeExibicao = '';
 $ativo = 1;
 $alert = null;
 $clearFormAfterSuccess = false;
+$backButtonClass = 'btn-secondary';
 
 if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     require_valid_csrf();
@@ -61,6 +62,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
             $nomeExibicao = '';
             $ativo = 0;
             $clearFormAfterSuccess = true;
+            $backButtonClass = 'btn-success';
         } catch (PDOException $e) {
             $isDuplicado = ((int) $e->getCode() === 23000);
             $alert = [
@@ -126,7 +128,7 @@ include '../includes/header.php';
             </div>
 
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">
-                <a href="<?= app_url('index.php'); ?>" class="btn btn-success me-md-2">
+                <a href="<?= app_url('index.php'); ?>" class="btn <?= htmlspecialchars($backButtonClass, ENT_QUOTES, 'UTF-8') ?> me-md-2">
                     <i class="fas fa-arrow-left me-1"></i> Voltar
                 </a>
                 <button type="submit" class="btn btn-primary">

@@ -2,16 +2,19 @@
 
 namespace App\Repositories;
 
+use App\Support\AuditLogger;
 use PDO;
 use Throwable;
 
 class VendaRepository
 {
     private $pdo;
+    private $auditLogger;
 
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
+        $this->auditLogger = new AuditLogger($pdo);
     }
 
     public function create(array $venda, array $itens, array $parcelas)
@@ -119,6 +122,18 @@ class VendaRepository
                     ':total_parcelas' => $parcela['total_parcelas'],
                 ]);
             }
+
+            $this->auditLogger->logCreate('venda', 'vendas', $vendaId, [
+                'id_cliente' => $venda['cliente_id'],
+                'data_venda' => date('Y-m-d'),
+                'subtotal' => $venda['subtotal'],
+                'desconto_total' => $venda['desconto_total'],
+                'frete_total' => $venda['frete_total'],
+                'total_geral' => $venda['total_geral'],
+                'condicao_pagamento' => $venda['condicao_pagamento'],
+                'itens' => $itens,
+                'parcelas' => $parcelas,
+            ]);
 
             $this->pdo->commit();
 
