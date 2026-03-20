@@ -172,4 +172,166 @@ class ServicoRepository
             'parcelas' => $parcelas,
         ]);
     }
+
+    public function listWithCliente(array $filters = []): array
+    {
+        $sql = 'SELECT
+                s.id_servico,
+                s.data_servico,
+                s.condicao_pagamento,
+                s.subtotal_produtos,
+                s.subtotal_microservicos,
+                s.desconto_total,
+                s.frete_total,
+                s.total_geral,
+                c.nome_cliente
+            FROM servicos_pedidos s
+            LEFT JOIN clientes c ON c.id_cliente = s.cliente_id';
+
+        [$whereClause, $params] = $this->buildFilterClause($filters);
+
+        $sql .= $whereClause;
+        $sql .= ' ORDER BY s.data_servico DESC, s.id_servico DESC';
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function findCompleteById(int $servicoId): ?array
+    {
+        $stmtServico = $this->pdo->prepare('SELECT
+                s.id_servico,
+                s.cliente_id,
+                s.data_servico,
+                s.condicao_pagamento,
+                s.subtotal_produtos,
+                s.subtotal_microservicos,
+                s.desconto_total,
+                s.frete_total,
+                s.total_geral,
+                c.nome_cliente,
+                c.telefone_contato,
+                c.cpf_cnpj,
+                c.email_contato,
+                c.endereco
+            FROM servicos_pedidos s
+            LEFT JOIN clientes c ON c.id_cliente = s.cliente_id
+            WHERE s.id_servico = :id_servico
+            LIMIT 1');
+        $stmtServico->execute([':id_servico' => $servicoId]);
+        $servico = $stmtServico->fetch(PDO::FETCH_ASSOC);
+
+        if (!$servico) {
+            return null;
+        }
+
+        $stmtItens = $this->pdo->prepare('SELECT
+                id_item,
+                tipo_item,
+                produto_id,
+                descricao,
+                quantidade,
+                valor_unitario,
+                desconto_valor,
+                frete_valor,
+                total_item
+            FROM servicos_itens
+            WHERE servico_id = :id_servico
+            ORDER BY id_item ASC');
+        $stmtItens->execute([':id_servico' => $servicoId]);
+        $itens = $stmtItens->fetchAll(PDO::FETCH_ASSOC);
+
+        $stmtParcelas = $this->pdo->prepare('SELECT
+                id_parcela,
+                numero_parcela,
+                vencimento,
+                tipo_pagamento,
+                valor_parcela,
+                qtd_parcelas,
+                total_parcelas
+            FROM servicos_parcelas
+            WHERE servico_id = :id_servico
+            ORDER BY numero_parcela ASC, id_parcela ASC');
+        $stmtParcelas->execute([':id_servico' => $servicoId]);
+        $parcelas = $stmtParcelas->fetchAll(PDO::FETCH_ASSOC);
+
+        return [
+            'servico' => $servico,
+            'itens' => $itens,
+            'parcelas' => $parcelas,
+        ];
+    }
+
+    public function getResumoKpis(array $filters = []): array
+    {
+        $sql = 'SELECT
+                COUNT(s.id_servico) AS total_servicos,
+                COALESCE(SUM(s.total_geral), 0) AS faturamento_bruto,
+                COALESCE(SUM(CASE WHEN s.condicao_pagamento = "vista" THEN s.total_geral ELSE 0 END), 0) AS total_vista,
+                COALESCE(SUM(CASE WHEN s.condicao_pagamento = "parcelado" THEN s.total_geral ELSE 0 END), 0) AS total_parcelado
+            FROM servicos_pedidos s
+            LEFT JOIN clientes c ON c.id_cliente = s.cliente_id';
+
+        [$whereClause, $params] = $this->buildFilterClause($filters);
+        $sql .= $whereClause;
+
+        $stmt = $this->pdo->prepare($sql);
+        $stmt->execute($params);
+        $result = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+
+        $totalServicos = (int) ($result['total_servicos'] ?? 0);
+        $faturamentoBruto = (float) ($result['faturamento_bruto'] ?? 0);
+        $totalVista = (float) ($result['total_vista'] ?? 0);
+        $totalParcelado = (float) ($result['total_parcelado'] ?? 0);
+
+        return [
+            'total_servicos' => $totalServicos,
+            'faturamento_bruto' => $faturamentoBruto,
+            'ticket_medio' => $totalServicos > 0 ? $faturamentoBruto / $totalServicos : 0.0,
+            'total_vista' => $totalVista,
+            'total_parcelado' => $totalParcelado,
+        ];
+    }
+
+    private function buildFilterClause(array $filters): array
+    {
+        $conditions = [];
+        $params = [];
+
+        if (!empty($filters['data_inicial'])) {
+            $conditions[] = 's.data_servico >= :data_inicial';
+            $params[':data_inicial'] = $filters['data_inicial'];
+        }
+
+        if (!empty($filters['data_final'])) {
+            $conditions[] = 's.data_servico <= :data_final';
+            $params[':data_final'] = $filters['data_final'];
+        }
+
+        if (!empty($filters['nome_cliente'])) {
+            $conditions[] = 'c.nome_cliente LIKE :nome_cliente';
+            $params[':nome_cliente'] = '%' . $filters['nome_cliente'] . '%';
+        }
+
+        if (!empty($filters['condicao_pagamento']) && in_array($filters['condicao_pagamento'], ['vista', 'parcelado'], true)) {
+            $conditions[] = 's.condicao_pagamento = :condicao_pagamento';
+            $params[':condicao_pagamento'] = $filters['condicao_pagamento'];
+        }
+
+        if (($filters['valor_minimo'] ?? '') !== '' && is_numeric((string) $filters['valor_minimo'])) {
+            $conditions[] = 's.total_geral >= :valor_minimo';
+            $params[':valor_minimo'] = (float) $filters['valor_minimo'];
+        }
+
+        if (($filters['valor_maximo'] ?? '') !== '' && is_numeric((string) $filters['valor_maximo'])) {
+            $conditions[] = 's.total_geral <= :valor_maximo';
+            $params[':valor_maximo'] = (float) $filters['valor_maximo'];
+        }
+
+        $whereClause = empty($conditions) ? '' : ' WHERE ' . implode(' AND ', $conditions);
+
+        return [$whereClause, $params];
+    }
 }
