@@ -296,30 +296,7 @@ include '../includes/header.php';
         const listaVendasSection = document.getElementById('listaVendasSection');
         const dashboardFiltros = <?= json_encode($filtrosDashboard, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
         const dashboardConteudo = document.getElementById('dashboardVendasCollapse');
-        const listaSection = document.getElementById('listaVendasSection');
-        const listaConteudo = document.getElementById('listaVendasConteudo');
-
-        if (dashboardConteudo) {
-            dashboardConteudo.classList.add('d-none');
-        }
-
-        if (listaSection) {
-            listaSection.classList.remove('d-none');
-        }
-
-        if (listaConteudo) {
-            listaConteudo.classList.remove('d-none');
-        }
-
-        const atualizarVisibilidadeLista = () => {
-            if (!dashboardVendas || !listaVendasSection) {
-                return;
-            }
-
-            const dashboardExpandido = !dashboardVendas.classList.contains('d-none')
-                && !dashboardVendas.classList.contains('collapse');
-            listaVendasSection.classList.toggle('d-none', !dashboardExpandido);
-        };
+        let graficoInicializado = false;
 
         document.querySelectorAll('.js-toggle-section').forEach((botao) => {
             botao.addEventListener('click', () => {
@@ -331,120 +308,135 @@ include '../includes/header.php';
                 const expandido = botao.getAttribute('aria-expanded') === 'true';
                 botao.setAttribute('aria-expanded', expandido ? 'false' : 'true');
                 alvo.classList.toggle('d-none', expandido);
-                alvo.classList.toggle('collapse', expandido);
-                atualizarVisibilidadeLista();
+
+                if (alvo.id === 'dashboardVendasCollapse' && !expandido) {
+                    inicializarGraficoSeNecessario();
+                }
             });
         });
 
-        atualizarVisibilidadeLista();
-
-        if (!window.matchMedia('(min-width: 992px)').matches || !graficoCanvas || typeof Chart === 'undefined') {
-            return;
-        }
-
-        const filtros = new URLSearchParams();
-
-        Object.entries(dashboardFiltros).forEach(([chave, valor]) => {
-            if (typeof valor === 'string' && valor.trim() !== '') {
-                filtros.set(chave, valor.trim());
+        const inicializarGraficoSeNecessario = () => {
+            if (graficoInicializado) {
+                return;
             }
-        });
 
-        const endpoint = `<?= app_url('vendas/dashboard_data.php'); ?>?${filtros.toString()}`;
-
-        fetch(endpoint, {
-            headers: {
-                'Accept': 'application/json'
+            const dashboardVisivel = dashboardConteudo && !dashboardConteudo.classList.contains('d-none');
+            if (!dashboardVisivel) {
+                return;
             }
-        })
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error('Falha ao carregar dados do gráfico.');
+
+            if (!window.matchMedia('(min-width: 992px)').matches || !graficoCanvas || typeof Chart === 'undefined') {
+                return;
+            }
+
+            const filtros = new URLSearchParams();
+
+            Object.entries(dashboardFiltros).forEach(([chave, valor]) => {
+                if (typeof valor === 'string' && valor.trim() !== '') {
+                    filtros.set(chave, valor.trim());
                 }
-                return response.json();
+            });
+
+            const endpoint = `<?= app_url('vendas/dashboard_data.php'); ?>?${filtros.toString()}`;
+
+            fetch(endpoint, {
+                headers: {
+                    'Accept': 'application/json'
+                }
             })
-            .then((payload) => {
-                if (!payload || payload.status !== true || !Array.isArray(payload.labels)) {
-                    throw new Error('Resposta inválida do servidor.');
-                }
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error('Falha ao carregar dados do gráfico.');
+                    }
+                    return response.json();
+                })
+                .then((payload) => {
+                    if (!payload || payload.status !== true || !Array.isArray(payload.labels)) {
+                        throw new Error('Resposta inválida do servidor.');
+                    }
 
-                const agrupamento = payload.agrupamento === 'mes' ? 'mensal' : 'diário';
-                agrupamentoInfo.textContent = `Agrupamento ${agrupamento}`;
+                    const agrupamento = payload.agrupamento === 'mes' ? 'mensal' : 'diário';
+                    agrupamentoInfo.textContent = `Agrupamento ${agrupamento}`;
 
-                const tipoGrafico = payload.agrupamento === 'mes' ? 'bar' : 'line';
+                    const tipoGrafico = payload.agrupamento === 'mes' ? 'bar' : 'line';
 
-                new Chart(graficoCanvas.getContext('2d'), {
-                    type: tipoGrafico,
-                    data: {
-                        labels: payload.labels,
-                        datasets: [
-                            {
-                                label: 'Faturamento (R$)',
-                                data: payload.series?.faturamento || [],
-                                borderColor: '#0d6efd',
-                                backgroundColor: 'rgba(13, 110, 253, 0.25)',
-                                borderWidth: 2,
-                                fill: tipoGrafico === 'line',
-                                tension: 0.2,
-                                yAxisID: 'y'
-                            },
-                            {
-                                label: 'Quantidade de vendas',
-                                data: payload.series?.quantidade_vendas || [],
-                                borderColor: '#198754',
-                                backgroundColor: 'rgba(25, 135, 84, 0.35)',
-                                borderWidth: 2,
-                                type: 'line',
-                                tension: 0.2,
-                                yAxisID: 'y1'
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        interaction: {
-                            mode: 'index',
-                            intersect: false
-                        },
-                        scales: {
-                            y: {
-                                position: 'left',
-                                beginAtZero: true,
-                                ticks: {
-                                    callback: (value) => `R$ ${Number(value).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                                }
-                            },
-                            y1: {
-                                position: 'right',
-                                beginAtZero: true,
-                                grid: {
-                                    drawOnChartArea: false
+                    new Chart(graficoCanvas.getContext('2d'), {
+                        type: tipoGrafico,
+                        data: {
+                            labels: payload.labels,
+                            datasets: [
+                                {
+                                    label: 'Faturamento (R$)',
+                                    data: payload.series?.faturamento || [],
+                                    borderColor: '#0d6efd',
+                                    backgroundColor: 'rgba(13, 110, 253, 0.25)',
+                                    borderWidth: 2,
+                                    fill: tipoGrafico === 'line',
+                                    tension: 0.2,
+                                    yAxisID: 'y'
                                 },
-                                ticks: {
-                                    precision: 0
+                                {
+                                    label: 'Quantidade de vendas',
+                                    data: payload.series?.quantidade_vendas || [],
+                                    borderColor: '#198754',
+                                    backgroundColor: 'rgba(25, 135, 84, 0.35)',
+                                    borderWidth: 2,
+                                    type: 'line',
+                                    tension: 0.2,
+                                    yAxisID: 'y1'
                                 }
-                            }
+                            ]
                         },
-                        plugins: {
-                            tooltip: {
-                                callbacks: {
-                                    label: (context) => {
-                                        if (context.dataset.label === 'Faturamento (R$)') {
-                                            return `${context.dataset.label}: R$ ${Number(context.raw).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: {
+                                mode: 'index',
+                                intersect: false
+                            },
+                            scales: {
+                                y: {
+                                    position: 'left',
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: (value) => `R$ ${Number(value).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                                    }
+                                },
+                                y1: {
+                                    position: 'right',
+                                    beginAtZero: true,
+                                    grid: {
+                                        drawOnChartArea: false
+                                    },
+                                    ticks: {
+                                        precision: 0
+                                    }
+                                }
+                            },
+                            plugins: {
+                                tooltip: {
+                                    callbacks: {
+                                        label: (context) => {
+                                            if (context.dataset.label === 'Faturamento (R$)') {
+                                                return `${context.dataset.label}: R$ ${Number(context.raw).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                                            }
+                                            return `${context.dataset.label}: ${context.raw}`;
                                         }
-                                        return `${context.dataset.label}: ${context.raw}`;
                                     }
                                 }
                             }
                         }
-                    }
+                    });
+
+                    graficoInicializado = true;
+                })
+                .catch((error) => {
+                    console.error(error);
+                    agrupamentoInfo.textContent = 'Não foi possível carregar o gráfico.';
                 });
-            })
-            .catch((error) => {
-                console.error(error);
-                agrupamentoInfo.textContent = 'Não foi possível carregar o gráfico.';
-            });
+        };
+
+        inicializarGraficoSeNecessario();
     })();
 </script>
 
