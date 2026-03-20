@@ -49,7 +49,7 @@ include '../includes/header.php';
                     <button
                         class="btn btn-outline-primary btn-sm js-toggle-section"
                         type="button"
-                        data-target="#dashboardVendasConteudo"
+                        data-target="#dashboardVendasCollapse"
                         aria-expanded="true"
                     >
                         <i class="fas fa-caret-down me-1"></i> Exibir / Recolher
@@ -57,17 +57,6 @@ include '../includes/header.php';
                 </div>
                 <div id="dashboardVendasCollapse" class="collapse show">
                     <div class="card-body">
-                        <div class="row g-3 mb-0">
-                            <div class="col-md-6 col-lg-3">
-                                <div class="card border-0 bg-white h-100">
-                                    <div class="card-body">
-                                        <small class="text-uppercase text-muted">Total de vendas</small>
-                                        <h3 class="mb-0"><?= number_format((int) $resumoKpis['total_vendas'], 0, ',', '.') ?></h3>
-                                    </div>
-                                </div>
-                            </div>
-
-                <div id="dashboardVendasConteudo" class="card-body">
                     <form method="GET" class="mb-4">
                         <?php foreach ($filtrosLista as $campo => $valor): ?>
                             <input type="hidden" name="lista_<?= htmlspecialchars($campo) ?>" value="<?= htmlspecialchars($valor) ?>">
