@@ -212,8 +212,24 @@ tr.estoque-critico > td {
 .grafico-faturamento-wrapper {
   position: relative;
   width: 100%;
-  height: min(340px, 42vh);
-  max-height: 340px;
+  height: min(220px, 34vh);
+  max-height: 220px;
+}
+
+.dashboard-kpis-compact .card {
+  min-height: 96px;
+}
+
+.dashboard-kpis-compact .card-body small {
+  font-size: 0.72rem;
+}
+
+.dashboard-kpis-compact h5 {
+  font-size: 1.35rem;
+}
+
+.dashboard-kpis-compact .fw-semibold {
+  font-size: 0.95rem;
 }
 
 @media (max-width: 575.98px) {
