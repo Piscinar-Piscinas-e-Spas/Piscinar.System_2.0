@@ -292,7 +292,19 @@ include '../includes/header.php';
     (function () {
         const graficoCanvas = document.getElementById('graficoFaturamentoVendas');
         const agrupamentoInfo = document.getElementById('graficoAgrupamentoInfo');
+        const dashboardVendas = document.getElementById('dashboardVendasCollapse');
+        const listaVendasSection = document.getElementById('listaVendasSection');
         const dashboardFiltros = <?= json_encode($filtrosDashboard, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
+
+        const atualizarVisibilidadeLista = () => {
+            if (!dashboardVendas || !listaVendasSection) {
+                return;
+            }
+
+            const dashboardExpandido = !dashboardVendas.classList.contains('d-none')
+                && !dashboardVendas.classList.contains('collapse');
+            listaVendasSection.classList.toggle('d-none', !dashboardExpandido);
+        };
 
         document.querySelectorAll('.js-toggle-section').forEach((botao) => {
             botao.addEventListener('click', () => {
@@ -304,8 +316,12 @@ include '../includes/header.php';
                 const expandido = botao.getAttribute('aria-expanded') === 'true';
                 botao.setAttribute('aria-expanded', expandido ? 'false' : 'true');
                 alvo.classList.toggle('d-none', expandido);
+                alvo.classList.toggle('collapse', expandido);
+                atualizarVisibilidadeLista();
             });
         });
+
+        atualizarVisibilidadeLista();
 
         if (!window.matchMedia('(min-width: 992px)').matches || !graficoCanvas || typeof Chart === 'undefined') {
             return;

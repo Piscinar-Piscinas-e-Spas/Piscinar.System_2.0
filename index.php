@@ -71,27 +71,6 @@ $resumo = $resumoStmt->fetch(PDO::FETCH_ASSOC) ?: [];
                 </div>
             </div>
         </div>
-        <!-- Leitor de codigoos dde barras
-        <div>
-            <h2>Leitor de Código</h2>
-
-            <div class="row">
-                <button class="buttonBar primary" id="btnStart">Iniciar</button>
-                <button class="buttonBar secondary" id="btnStop">Parar</button>
-                <button class="buttonBar secondary" id="btnRestart">Reiniciar câmera</button>
-            </div>
-
-            <div class="hint">
-                Dica corporativa: luz boa, mão firme e câmera traseira. O resto é “alinhamento estratégico”.
-            </div>
-
-            <div id="reader"></div>
-
-            <div id="last">Último lido: <strong id="lastCode">---</strong></div>
-
-            <ul class="ulBar" id="list"></ul>
-        </div> 
-        -->
     </div>
 
 </div>
