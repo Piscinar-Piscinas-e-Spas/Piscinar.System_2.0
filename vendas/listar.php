@@ -55,7 +55,7 @@ include '../includes/header.php';
                         <i class="fas fa-caret-down me-1"></i> Exibir / Recolher
                     </button>
                 </div>
-                <div id="dashboardVendasCollapse" class="collapse">
+                <div id="dashboardVendasCollapse" class="d-none">
                     <div class="card-body p-3">
                     <form method="GET" class="mb-3">
                         <?php foreach ($filtrosLista as $campo => $valor): ?>
@@ -166,7 +166,7 @@ include '../includes/header.php';
                 </div>
             </div>
 
-            <div id="listaVendasSection" class="card border-0 bg-light mb-4 d-none">
+            <div id="listaVendasSection" class="card border-0 bg-light mb-4">
                 <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Filtros e lista de vendas</h5>
                     <button
