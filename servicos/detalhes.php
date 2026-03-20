@@ -14,12 +14,9 @@ if ($servicoId <= 0) {
     exit;
 }
 
-$stmt = $pdo->prepare('SELECT s.*, c.nome_cliente, c.telefone_contato, c.cpf_cnpj, c.email_contato, c.endereco
-                       FROM servicos_pedidos s
-                       LEFT JOIN clientes c ON c.id_cliente = s.cliente_id
-                       WHERE s.id_servico = ? LIMIT 1');
-$stmt->execute([$servicoId]);
-$servico = $stmt->fetch(PDO::FETCH_ASSOC);
+$repository = new \App\Repositories\ServicoRepository($pdo);
+$detalhes = $repository->findCompleteById($servicoId);
+$servico = $detalhes['servico'] ?? null;
 
 if (!$servico) {
     http_response_code(404);
@@ -29,13 +26,8 @@ if (!$servico) {
     exit;
 }
 
-$stmtItens = $pdo->prepare('SELECT * FROM servicos_itens WHERE servico_id = ? ORDER BY id_item ASC');
-$stmtItens->execute([$servicoId]);
-$itens = $stmtItens->fetchAll(PDO::FETCH_ASSOC);
-
-$stmtParcelas = $pdo->prepare('SELECT * FROM servicos_parcelas WHERE servico_id = ? ORDER BY numero_parcela ASC');
-$stmtParcelas->execute([$servicoId]);
-$parcelas = $stmtParcelas->fetchAll(PDO::FETCH_ASSOC);
+$itens = $detalhes['itens'];
+$parcelas = $detalhes['parcelas'];
 
 include '../includes/header.php';
 ?>
