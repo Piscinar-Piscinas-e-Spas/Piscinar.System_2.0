@@ -295,6 +295,21 @@ include '../includes/header.php';
         const dashboardVendas = document.getElementById('dashboardVendasCollapse');
         const listaVendasSection = document.getElementById('listaVendasSection');
         const dashboardFiltros = <?= json_encode($filtrosDashboard, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
+        const dashboardConteudo = document.getElementById('dashboardVendasCollapse');
+        const listaSection = document.getElementById('listaVendasSection');
+        const listaConteudo = document.getElementById('listaVendasConteudo');
+
+        if (dashboardConteudo) {
+            dashboardConteudo.classList.add('d-none');
+        }
+
+        if (listaSection) {
+            listaSection.classList.remove('d-none');
+        }
+
+        if (listaConteudo) {
+            listaConteudo.classList.remove('d-none');
+        }
 
         const atualizarVisibilidadeLista = () => {
             if (!dashboardVendas || !listaVendasSection) {
