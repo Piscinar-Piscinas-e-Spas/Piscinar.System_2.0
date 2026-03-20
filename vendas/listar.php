@@ -292,6 +292,8 @@ include '../includes/header.php';
     (function () {
         const graficoCanvas = document.getElementById('graficoFaturamentoVendas');
         const agrupamentoInfo = document.getElementById('graficoAgrupamentoInfo');
+        const dashboardVendas = document.getElementById('dashboardVendasCollapse');
+        const listaVendasSection = document.getElementById('listaVendasSection');
         const dashboardFiltros = <?= json_encode($filtrosDashboard, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
         const dashboardConteudo = document.getElementById('dashboardVendasCollapse');
         let graficoInicializado = false;
