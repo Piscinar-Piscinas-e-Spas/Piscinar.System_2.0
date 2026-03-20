@@ -49,31 +49,20 @@ include '../includes/header.php';
                     <button
                         class="btn btn-outline-primary btn-sm js-toggle-section"
                         type="button"
-                        data-target="#dashboardVendasConteudo"
-                        aria-expanded="true"
+                        data-target="#dashboardVendasCollapse"
+                        aria-expanded="false"
                     >
                         <i class="fas fa-caret-down me-1"></i> Exibir / Recolher
                     </button>
                 </div>
-                <div id="dashboardVendasCollapse" class="collapse show">
-                    <div class="card-body">
-                        <div class="row g-3 mb-0">
-                            <div class="col-md-6 col-lg-3">
-                                <div class="card border-0 bg-white h-100">
-                                    <div class="card-body">
-                                        <small class="text-uppercase text-muted">Total de vendas</small>
-                                        <h3 class="mb-0"><?= number_format((int) $resumoKpis['total_vendas'], 0, ',', '.') ?></h3>
-                                    </div>
-                                </div>
-                            </div>
-
-                <div id="dashboardVendasConteudo" class="card-body">
-                    <form method="GET" class="mb-4">
+                <div id="dashboardVendasCollapse" class="d-none">
+                    <div class="card-body p-3">
+                    <form method="GET" class="mb-3">
                         <?php foreach ($filtrosLista as $campo => $valor): ?>
                             <input type="hidden" name="lista_<?= htmlspecialchars($campo) ?>" value="<?= htmlspecialchars($valor) ?>">
                         <?php endforeach; ?>
 
-                        <div class="row g-3">
+                        <div class="row g-2">
                             <div class="col-md-3">
                                 <label for="dash_data_inicial" class="form-label">Data inicial (Dashboard)</label>
                                 <input type="date" id="dash_data_inicial" name="dash_data_inicial" class="form-control" value="<?= htmlspecialchars($filtrosDashboard['data_inicial']) ?>">
@@ -124,37 +113,37 @@ include '../includes/header.php';
                         </div>
                     </form>
 
-                    <div class="row g-3 mb-0">
+                    <div class="row g-2 mb-0 dashboard-kpis-compact">
                         <div class="col-md-6 col-lg-3">
                             <div class="card border-0 bg-white h-100">
-                                <div class="card-body">
+                                <div class="card-body p-3">
                                     <small class="text-uppercase text-muted">Total de vendas</small>
-                                    <h3 class="mb-0"><?= number_format((int) $resumoKpis['total_vendas'], 0, ',', '.') ?></h3>
+                                    <h5 class="mb-0 fw-bold"><?= number_format((int) $resumoKpis['total_vendas'], 0, ',', '.') ?></h5>
                                 </div>
                             </div>
                         </div>
 
                         <div class="col-md-6 col-lg-3">
                             <div class="card border-0 bg-white h-100">
-                                <div class="card-body">
+                                <div class="card-body p-3">
                                     <small class="text-uppercase text-muted">Faturamento bruto</small>
-                                    <h3 class="mb-0">R$ <?= number_format((float) $resumoKpis['faturamento_bruto'], 2, ',', '.') ?></h3>
+                                    <h5 class="mb-0 fw-bold">R$ <?= number_format((float) $resumoKpis['faturamento_bruto'], 2, ',', '.') ?></h5>
                                 </div>
                             </div>
                         </div>
 
                         <div class="col-md-6 col-lg-3">
                             <div class="card border-0 bg-white h-100">
-                                <div class="card-body">
+                                <div class="card-body p-3">
                                     <small class="text-uppercase text-muted">Ticket médio</small>
-                                    <h3 class="mb-0">R$ <?= number_format((float) $resumoKpis['ticket_medio'], 2, ',', '.') ?></h3>
+                                    <h5 class="mb-0 fw-bold">R$ <?= number_format((float) $resumoKpis['ticket_medio'], 2, ',', '.') ?></h5>
                                 </div>
                             </div>
                         </div>
 
                         <div class="col-md-6 col-lg-3">
                             <div class="card border-0 bg-white h-100">
-                                <div class="card-body">
+                                <div class="card-body p-3">
                                     <small class="text-uppercase text-muted">Total parcelado vs à vista</small>
                                     <div class="fw-semibold">Parcelado: R$ <?= number_format($totalParcelado, 2, ',', '.') ?> (<?= number_format($percentualParcelado, 1, ',', '.') ?>%)</div>
                                     <div class="fw-semibold">À vista: R$ <?= number_format($totalVista, 2, ',', '.') ?> (<?= number_format($percentualVista, 1, ',', '.') ?>%)</div>
@@ -166,7 +155,7 @@ include '../includes/header.php';
                     <div class="card border-0 bg-white mb-0 mt-3 d-none d-lg-block">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h5 class="mb-0">Evolução do faturamento</h5>
+                                <h6 class="mb-0">Evolução do faturamento</h6>
                                 <small id="graficoAgrupamentoInfo" class="text-muted"></small>
                             </div>
                             <div class="grafico-faturamento-wrapper">
@@ -177,7 +166,7 @@ include '../includes/header.php';
                 </div>
             </div>
 
-            <div class="card border-0 bg-light mb-4">
+            <div id="listaVendasSection" class="card border-0 bg-light mb-4">
                 <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Filtros e lista de vendas</h5>
                     <button
@@ -304,6 +293,8 @@ include '../includes/header.php';
         const graficoCanvas = document.getElementById('graficoFaturamentoVendas');
         const agrupamentoInfo = document.getElementById('graficoAgrupamentoInfo');
         const dashboardFiltros = <?= json_encode($filtrosDashboard, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
+        const dashboardConteudo = document.getElementById('dashboardVendasCollapse');
+        let graficoInicializado = false;
 
         document.querySelectorAll('.js-toggle-section').forEach((botao) => {
             botao.addEventListener('click', () => {
@@ -315,116 +306,135 @@ include '../includes/header.php';
                 const expandido = botao.getAttribute('aria-expanded') === 'true';
                 botao.setAttribute('aria-expanded', expandido ? 'false' : 'true');
                 alvo.classList.toggle('d-none', expandido);
+
+                if (alvo.id === 'dashboardVendasCollapse' && !expandido) {
+                    inicializarGraficoSeNecessario();
+                }
             });
         });
 
-        if (!window.matchMedia('(min-width: 992px)').matches || !graficoCanvas || typeof Chart === 'undefined') {
-            return;
-        }
-
-        const filtros = new URLSearchParams();
-
-        Object.entries(dashboardFiltros).forEach(([chave, valor]) => {
-            if (typeof valor === 'string' && valor.trim() !== '') {
-                filtros.set(chave, valor.trim());
+        const inicializarGraficoSeNecessario = () => {
+            if (graficoInicializado) {
+                return;
             }
-        });
 
-        const endpoint = `<?= app_url('vendas/dashboard_data.php'); ?>?${filtros.toString()}`;
-
-        fetch(endpoint, {
-            headers: {
-                'Accept': 'application/json'
+            const dashboardVisivel = dashboardConteudo && !dashboardConteudo.classList.contains('d-none');
+            if (!dashboardVisivel) {
+                return;
             }
-        })
-            .then((response) => {
-                if (!response.ok) {
-                    throw new Error('Falha ao carregar dados do gráfico.');
+
+            if (!window.matchMedia('(min-width: 992px)').matches || !graficoCanvas || typeof Chart === 'undefined') {
+                return;
+            }
+
+            const filtros = new URLSearchParams();
+
+            Object.entries(dashboardFiltros).forEach(([chave, valor]) => {
+                if (typeof valor === 'string' && valor.trim() !== '') {
+                    filtros.set(chave, valor.trim());
                 }
-                return response.json();
+            });
+
+            const endpoint = `<?= app_url('vendas/dashboard_data.php'); ?>?${filtros.toString()}`;
+
+            fetch(endpoint, {
+                headers: {
+                    'Accept': 'application/json'
+                }
             })
-            .then((payload) => {
-                if (!payload || payload.status !== true || !Array.isArray(payload.labels)) {
-                    throw new Error('Resposta inválida do servidor.');
-                }
+                .then((response) => {
+                    if (!response.ok) {
+                        throw new Error('Falha ao carregar dados do gráfico.');
+                    }
+                    return response.json();
+                })
+                .then((payload) => {
+                    if (!payload || payload.status !== true || !Array.isArray(payload.labels)) {
+                        throw new Error('Resposta inválida do servidor.');
+                    }
 
-                const agrupamento = payload.agrupamento === 'mes' ? 'mensal' : 'diário';
-                agrupamentoInfo.textContent = `Agrupamento ${agrupamento}`;
+                    const agrupamento = payload.agrupamento === 'mes' ? 'mensal' : 'diário';
+                    agrupamentoInfo.textContent = `Agrupamento ${agrupamento}`;
 
-                const tipoGrafico = payload.agrupamento === 'mes' ? 'bar' : 'line';
+                    const tipoGrafico = payload.agrupamento === 'mes' ? 'bar' : 'line';
 
-                new Chart(graficoCanvas.getContext('2d'), {
-                    type: tipoGrafico,
-                    data: {
-                        labels: payload.labels,
-                        datasets: [
-                            {
-                                label: 'Faturamento (R$)',
-                                data: payload.series?.faturamento || [],
-                                borderColor: '#0d6efd',
-                                backgroundColor: 'rgba(13, 110, 253, 0.25)',
-                                borderWidth: 2,
-                                fill: tipoGrafico === 'line',
-                                tension: 0.2,
-                                yAxisID: 'y'
-                            },
-                            {
-                                label: 'Quantidade de vendas',
-                                data: payload.series?.quantidade_vendas || [],
-                                borderColor: '#198754',
-                                backgroundColor: 'rgba(25, 135, 84, 0.35)',
-                                borderWidth: 2,
-                                type: 'line',
-                                tension: 0.2,
-                                yAxisID: 'y1'
-                            }
-                        ]
-                    },
-                    options: {
-                        responsive: true,
-                        maintainAspectRatio: false,
-                        interaction: {
-                            mode: 'index',
-                            intersect: false
-                        },
-                        scales: {
-                            y: {
-                                position: 'left',
-                                beginAtZero: true,
-                                ticks: {
-                                    callback: (value) => `R$ ${Number(value).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                                }
-                            },
-                            y1: {
-                                position: 'right',
-                                beginAtZero: true,
-                                grid: {
-                                    drawOnChartArea: false
+                    new Chart(graficoCanvas.getContext('2d'), {
+                        type: tipoGrafico,
+                        data: {
+                            labels: payload.labels,
+                            datasets: [
+                                {
+                                    label: 'Faturamento (R$)',
+                                    data: payload.series?.faturamento || [],
+                                    borderColor: '#0d6efd',
+                                    backgroundColor: 'rgba(13, 110, 253, 0.25)',
+                                    borderWidth: 2,
+                                    fill: tipoGrafico === 'line',
+                                    tension: 0.2,
+                                    yAxisID: 'y'
                                 },
-                                ticks: {
-                                    precision: 0
+                                {
+                                    label: 'Quantidade de vendas',
+                                    data: payload.series?.quantidade_vendas || [],
+                                    borderColor: '#198754',
+                                    backgroundColor: 'rgba(25, 135, 84, 0.35)',
+                                    borderWidth: 2,
+                                    type: 'line',
+                                    tension: 0.2,
+                                    yAxisID: 'y1'
                                 }
-                            }
+                            ]
                         },
-                        plugins: {
-                            tooltip: {
-                                callbacks: {
-                                    label: (context) => {
-                                        if (context.dataset.label === 'Faturamento (R$)') {
-                                            return `${context.dataset.label}: R$ ${Number(context.raw).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            interaction: {
+                                mode: 'index',
+                                intersect: false
+                            },
+                            scales: {
+                                y: {
+                                    position: 'left',
+                                    beginAtZero: true,
+                                    ticks: {
+                                        callback: (value) => `R$ ${Number(value).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                                    }
+                                },
+                                y1: {
+                                    position: 'right',
+                                    beginAtZero: true,
+                                    grid: {
+                                        drawOnChartArea: false
+                                    },
+                                    ticks: {
+                                        precision: 0
+                                    }
+                                }
+                            },
+                            plugins: {
+                                tooltip: {
+                                    callbacks: {
+                                        label: (context) => {
+                                            if (context.dataset.label === 'Faturamento (R$)') {
+                                                return `${context.dataset.label}: R$ ${Number(context.raw).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+                                            }
+                                            return `${context.dataset.label}: ${context.raw}`;
                                         }
-                                        return `${context.dataset.label}: ${context.raw}`;
                                     }
                                 }
                             }
                         }
-                    }
+                    });
+
+                    graficoInicializado = true;
+                })
+                .catch((error) => {
+                    console.error(error);
+                    agrupamentoInfo.textContent = 'Não foi possível carregar o gráfico.';
                 });
-            })
-            .catch((error) => {
-                console.error(error);
-                agrupamentoInfo.textContent = 'Não foi possível carregar o gráfico.';
-            });
+        };
+
+        inicializarGraficoSeNecessario();
     })();
 </script>
 
