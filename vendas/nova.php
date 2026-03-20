@@ -232,6 +232,7 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
     </div>
 </div>
 
+<script src="../assets/js/composicao_comercial.js"></script>
 <script>
     const hojeSP = '<?= $hojeSaoPaulo ?>';
     const csrfToken = '<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8') ?>';
@@ -242,150 +243,36 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
     ];
     const clientesData = <?= json_encode($clientes, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
 
-    const itens = [];
-    let parcelas = [];
-    let descontoPercentControlando = false;
-    let descontoTotalEditando = false;
-    let freteTotalEditando = false;
-
-    const itensBody = document.querySelector('#itensTable tbody');
-    const parcelasBody = document.querySelector('#parcelasTable tbody');
     const formVenda = document.getElementById('formVenda');
     const feedbackBox = document.getElementById('vendaFeedback');
     const btnSalvarVenda = document.getElementById('btnSalvarVenda');
     const btnSalvarCliente = document.getElementById('btnSalvarCliente');
+    const clienteNome = document.getElementById('clienteNome');
+    const clienteTelefone = document.getElementById('clienteTelefone');
+    const clienteCpfCnpj = document.getElementById('clienteCpfCnpj');
+    const clienteEmail = document.getElementById('clienteEmail');
+    const clienteEndereco = document.getElementById('clienteEndereco');
+    const clientesSugestoes = document.getElementById('clientesSugestoes');
     let clienteSelecionadoId = null;
 
-    function moeda(valor) {
-        return Number(valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
-    }
-
-    function valorNum(v) {
-        if (typeof v === 'number') return Number.isFinite(v) ? v : 0;
-        const texto = String(v ?? '').trim();
-        const normalizado = texto.includes(',')
-            ? texto.replace(/\./g, '').replace(',', '.')
-            : texto;
-        const n = parseFloat(normalizado);
-        return Number.isFinite(n) ? n : 0;
-    }
-
-    function renderItens() {
-        itensBody.innerHTML = '';
-
-        itens.forEach((item, index) => {
-            const total = item.quantidade * item.valorUnitario;
-            item.desconto = Math.max(0, Math.min(item.desconto, total));
-            const totalComDesconto = Math.max(0, total - item.desconto);
-            const unitComDesconto = item.quantidade > 0 ? totalComDesconto / item.quantidade : 0;
-            const totalItem = totalComDesconto + item.freteItem;
-
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>${index + 1}</td>
-                <td>${item.nome}</td>
-                <td><input type="number" min="1" step="1" class="form-control form-control-sm item-qtd" data-index="${index}" value="${item.quantidade}"></td>
-                <td><input type="text" inputmode="decimal" class="form-control form-control-sm item-unit" data-index="${index}" value="${item.valorUnitario.toFixed(2).replace('.', ",")}"></td>
-                <td>${moeda(total)}</td>
-                <td><input type="text" inputmode="decimal" class="form-control form-control-sm item-desc" data-index="${index}" value="${item.desconto.toFixed(2).replace('.', ",")}"></td>
-                <td>${moeda(unitComDesconto)}</td>
-                <td>${moeda(totalComDesconto)}</td>
-                <td><input type="text" inputmode="decimal" class="form-control form-control-sm item-frete" data-index="${index}" value="${item.freteItem.toFixed(2).replace('.', ",")}"></td>
-                <td>${moeda(totalItem)}</td>
-                <td><button type="button" class="btn btn-sm btn-outline-danger item-remove" data-index="${index}"><i class="fas fa-trash"></i></button></td>
-            `;
-            itensBody.appendChild(tr);
-        });
-
-        atualizarResumo();
-    }
-
-    function ratearDesconto(totalDesconto) {
-        const subtotais = itens.map(i => i.quantidade * i.valorUnitario);
-        const totalBase = subtotais.reduce((a, b) => a + b, 0);
-        if (!totalBase || !itens.length) return;
-
-        const itensComDesconto = itens
-            .map((item, idx) => ({ idx, desconto: item.desconto }))
-            .filter(x => x.desconto > 0);
-
-        let baseIndices;
-        let baseValores;
-
-        if (itensComDesconto.length > 0) {
-            baseIndices = itensComDesconto.map(x => x.idx);
-            baseValores = itensComDesconto.map(x => x.desconto);
-        } else {
-            baseIndices = itens.map((_, idx) => idx);
-            baseValores = subtotais;
+    const composicao = window.ComposicaoComercial.init({
+        hoje: hojeSP,
+        tiposPagamento,
+        seletores: {
+            itensBody: '#itensTable tbody',
+            parcelasBody: '#parcelasTable tbody',
+            freteManualCheck: '#freteManualCheck',
+            freteTotalInput: '#freteTotalInput',
+            descontoTotalInput: '#descontoTotalInput',
+            descontoPercentInput: '#descontoPercentInput',
+            condicaoPagamento: '#condicaoPagamento',
+            qtdParcelas: '#qtdParcelas',
+            subtotalProdutos: '#subtotalProdutos',
+            totalDescontos: '#totalDescontos',
+            totalFrete: '#totalFrete',
+            totalGeral: '#totalGeralVenda'
         }
-
-        const somaBase = baseValores.reduce((a, b) => a + b, 0) || 1;
-
-        itens.forEach((item, idx) => {
-            if (!baseIndices.includes(idx)) {
-                item.desconto = 0;
-            }
-        });
-
-        let distribuido = 0;
-        baseIndices.forEach((idx, pos) => {
-            if (pos === baseIndices.length - 1) {
-                itens[idx].desconto = Math.max(0, totalDesconto - distribuido);
-                return;
-            }
-            const parcial = (totalDesconto * baseValores[pos]) / somaBase;
-            const arredondado = Number(parcial.toFixed(2));
-            distribuido += arredondado;
-            itens[idx].desconto = arredondado;
-        });
-
-        itens.forEach((item, idx) => {
-            const subtotal = subtotais[idx];
-            item.desconto = Math.max(0, Math.min(item.desconto, subtotal));
-        });
-
-        renderItens();
-    }
-
-    function totalVenda() {
-        return obterResumo().total_geral;
-    }
-
-    function atualizarResumo() {
-        const subtotal = itens.reduce((acc, item) => acc + (item.quantidade * item.valorUnitario), 0);
-        const desconto = itens.reduce((acc, item) => acc + item.desconto, 0);
-        const freteItens = itens.reduce((acc, item) => acc + item.freteItem, 0);
-
-        const freteManual = document.getElementById('freteManualCheck').checked;
-        const freteInput = document.getElementById('freteTotalInput');
-        const freteFinal = Math.max(0, freteManual ? valorNum(freteInput.value) : freteItens);
-
-        if (!freteManual && !freteTotalEditando) {
-            freteInput.value = freteItens.toFixed(2).replace('.', ',');
-        }
-
-        const total = Math.max(0, subtotal - desconto + freteFinal);
-        const descontoPercent = subtotal > 0 ? (desconto / subtotal) * 100 : 0;
-
-        document.getElementById('subtotalProdutos').textContent = moeda(subtotal);
-        document.getElementById('totalDescontos').textContent = moeda(desconto);
-        document.getElementById('totalFrete').textContent = moeda(freteFinal);
-        document.getElementById('totalGeralVenda').textContent = moeda(total);
-        if (!descontoTotalEditando) {
-            document.getElementById('descontoTotalInput').value = desconto.toFixed(2).replace('.', ',');
-        }
-
-        if (!descontoPercentControlando) {
-            document.getElementById('descontoPercentInput').value = descontoPercent.toFixed(2).replace('.', ',');
-        }
-
-        recalcularParcelas();
-    }
-
-    function criarParcela(vencimento = hojeSP, valor = 0, tipoPagamento = 'PIX', manual = false) {
-        return { vencimento, valor, tipoPagamento, manual };
-    }
+    });
 
     function mostrarFeedback(tipo, mensagem) {
         feedbackBox.className = `alert alert-${tipo}`;
@@ -397,200 +284,6 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
         feedbackBox.className = 'alert d-none';
         feedbackBox.textContent = '';
     }
-
-    function obterResumo() {
-        const subtotal = itens.reduce((acc, item) => acc + (item.quantidade * item.valorUnitario), 0);
-        const descontoTotal = itens.reduce((acc, item) => acc + item.desconto, 0);
-        const freteItens = itens.reduce((acc, item) => acc + item.freteItem, 0);
-        const freteManual = document.getElementById('freteManualCheck').checked;
-        const freteTotal = Math.max(0, freteManual ? valorNum(document.getElementById('freteTotalInput').value) : freteItens);
-        const totalGeral = Math.max(0, subtotal - descontoTotal + freteTotal);
-
-        return {
-            subtotal,
-            desconto_total: descontoTotal,
-            frete_total: freteTotal,
-            total_geral: totalGeral
-        };
-    }
-
-    function montarPayloadVenda() {
-        const clienteBase = obterClienteSelecionadoPorId(clienteSelecionadoId);
-        if (!clienteBase) {
-            throw new Error('Selecione ou salve um cliente antes de salvar a venda.');
-        }
-
-        if (!itens.length) {
-            throw new Error('Adicione ao menos um item na venda.');
-        }
-
-        const resumo = obterResumo();
-        const payloadParcelas = parcelas.map((parcela, index) => ({
-            numero_parcela: index + 1,
-            vencimento: parcela.vencimento || hojeSP,
-            valor: Number(valorNum(parcela.valor).toFixed(2)),
-            tipo_pagamento: parcela.tipoPagamento || 'PIX',
-            qtd_parcelas: parcelas.length,
-            total_parcelas: Number(resumo.total_geral.toFixed(2))
-        }));
-
-        if (!payloadParcelas.length) {
-            throw new Error('Informe ao menos uma parcela para a venda.');
-        }
-
-        return {
-            csrf_token: csrfToken,
-            cliente_id: Number(clienteBase.id_cliente),
-            cliente: {
-                nome: document.getElementById('clienteNome').value.trim(),
-                telefone: document.getElementById('clienteTelefone').value.trim(),
-                cpf_cnpj: document.getElementById('clienteCpfCnpj').value.trim(),
-                email: document.getElementById('clienteEmail').value.trim(),
-                endereco: document.getElementById('clienteEndereco').value.trim()
-            },
-            cliente_resolucao: 'manter',
-            validar_cliente_consistencia: true,
-            condicao_pagamento: document.getElementById('condicaoPagamento').value,
-            subtotal: Number(resumo.subtotal.toFixed(2)),
-            desconto_total: Number(resumo.desconto_total.toFixed(2)),
-            frete_total: Number(resumo.frete_total.toFixed(2)),
-            total_geral: Number(resumo.total_geral.toFixed(2)),
-            itens: itens.map((item) => ({
-                produto_id: Number(item.produtoId),
-                quantidade: Number(item.quantidade),
-                valor_unitario: Number(item.valorUnitario.toFixed(2)),
-                desconto_valor: Number(item.desconto.toFixed(2)),
-                frete_valor: Number(item.freteItem.toFixed(2))
-            })),
-            parcelas: payloadParcelas
-        };
-    }
-
-    async function enviarVenda() {
-        limparFeedback();
-
-        let payload;
-        let clienteBase;
-        try {
-            payload = montarPayloadVenda();
-            clienteBase = obterClienteSelecionadoPorId(payload.cliente_id);
-        } catch (error) {
-            mostrarFeedback('warning', error.message || 'Verifique os dados da venda antes de salvar.');
-            return;
-        }
-
-        if (!clienteBase) {
-            mostrarFeedback('warning', 'Cliente selecionado não encontrado no cadastro base.');
-            return;
-        }
-
-        const divergencias = compararClienteEditavel(clienteBase, payload.cliente);
-        if (divergencias.length > 0) {
-            const resolucao = await solicitarResolucaoCliente(clienteBase, divergencias);
-            if (resolucao === 'cancelar') {
-                mostrarFeedback('warning', 'Operação cancelada pelo usuário.');
-                return;
-            }
-
-            const resolucaoApi = await resolverClienteAntesDaVenda(payload, resolucao);
-            if (!resolucaoApi.ok) {
-                mostrarFeedback('danger', resolucaoApi.mensagem || 'Não foi possível resolver os dados do cliente.');
-                return;
-            }
-        }
-
-        btnSalvarVenda.disabled = true;
-        btnSalvarVenda.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Salvando...';
-
-        try {
-            const resposta = await fetch('salvar.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            });
-
-            const dados = await resposta.json();
-
-            if (!resposta.ok || !dados.status) {
-                throw new Error(dados.mensagem || 'Falha ao salvar venda.');
-            }
-
-            mostrarFeedback('success', `Venda #${dados.id_venda} salva com sucesso.`);
-        } catch (error) {
-            mostrarFeedback('danger', error.message || 'Erro inesperado ao salvar venda.');
-        } finally {
-            btnSalvarVenda.disabled = false;
-            btnSalvarVenda.innerHTML = '<i class="fas fa-save me-1"></i>Salvar venda';
-        }
-    }
-
-    function montarParcelas(qtd) {
-        const quantidade = Math.max(1, qtd);
-        parcelas = Array.from({ length: quantidade }, (_, i) => {
-            const d = new Date(hojeSP + 'T12:00:00');
-            d.setMonth(d.getMonth() + i);
-            const dataISO = d.toISOString().slice(0, 10);
-            return criarParcela(dataISO, 0, 'PIX', false);
-        });
-        recalcularParcelas();
-    }
-
-    function recalcularParcelas() {
-        if (!parcelas.length) montarParcelas(1);
-        const total = totalVenda();
-        const manuais = parcelas.filter(p => p.manual);
-        const somaManuais = manuais.reduce((acc, p) => acc + valorNum(p.valor), 0);
-        const editaveis = parcelas.filter(p => !p.manual);
-        const restante = Math.max(0, total - somaManuais);
-        const valorPadrao = editaveis.length ? restante / editaveis.length : 0;
-
-        editaveis.forEach((p, i) => {
-            if (i === editaveis.length - 1) {
-                const somaPrev = editaveis.slice(0, -1).reduce((acc, cur) => acc + valorNum(cur.valor), 0);
-                p.valor = Number((restante - somaPrev).toFixed(2));
-            } else {
-                p.valor = Number(valorPadrao.toFixed(2));
-            }
-        });
-
-        renderParcelas();
-    }
-
-    function renderParcelas() {
-        const condicao = document.getElementById('condicaoPagamento').value;
-        const qtdTotal = parcelas.length;
-        parcelasBody.innerHTML = '';
-
-        parcelas.forEach((parcela, index) => {
-            const tr = document.createElement('tr');
-            tr.dataset.index = index;
-
-            const tipoOptions = tiposPagamento
-                .map(tipo => `<option value="${tipo}" ${parcela.tipoPagamento === tipo ? 'selected' : ''}>${tipo}</option>`)
-                .join('');
-
-            tr.innerHTML = `
-                <td>${index + 1}</td>
-                <td><input type="date" class="form-control form-control-sm parcela-venc" data-index="${index}" value="${parcela.vencimento}" ${condicao === 'vista' ? 'readonly' : ''}></td>
-                <td><input type="text" inputmode="decimal" class="form-control form-control-sm parcela-valor" data-index="${index}" value="${valorNum(parcela.valor).toFixed(2).replace('.', ",")}"></td>
-                <td><select class="form-select form-select-sm parcela-tipo" data-index="${index}">${tipoOptions}</select></td>
-                <td>${index + 1}</td>
-                <td>${qtdTotal}</td>
-            `;
-            parcelasBody.appendChild(tr);
-        });
-
-        document.getElementById('qtdParcelas').value = qtdTotal;
-    }
-
-    const clienteNome = document.getElementById('clienteNome');
-    const clienteTelefone = document.getElementById('clienteTelefone');
-    const clienteCpfCnpj = document.getElementById('clienteCpfCnpj');
-    const clienteEmail = document.getElementById('clienteEmail');
-    const clienteEndereco = document.getElementById('clienteEndereco');
-    const clientesSugestoes = document.getElementById('clientesSugestoes');
 
     function preencherDadosCliente(cliente) {
         if (!cliente) return;
@@ -729,29 +422,118 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
         }
     }
 
-    filtrarSugestoesClientes('');
+    function montarPayloadVenda() {
+        const clienteBase = obterClienteSelecionadoPorId(clienteSelecionadoId);
+        if (!clienteBase) {
+            throw new Error('Selecione ou salve um cliente antes de salvar a venda.');
+        }
 
-    clienteNome.addEventListener('input', (event) => {
-        clienteSelecionadoId = null;
-        filtrarSugestoesClientes(event.target.value);
-    });
+        const estado = composicao.getState();
+        if (!estado.itens_produto.length) {
+            throw new Error('Adicione ao menos um item na venda.');
+        }
 
-    clienteNome.addEventListener('change', (event) => {
-        const cliente = obterClienteSelecionadoPorInput(event.target.value);
-        if (cliente) {
-            preencherDadosCliente(cliente);
+        const resumo = composicao.getResumo();
+        const payloadParcelas = estado.parcelas.map((parcela, index) => ({
+            numero_parcela: index + 1,
+            vencimento: parcela.vencimento || hojeSP,
+            valor: Number(composicao.valorNum(parcela.valor).toFixed(2)),
+            tipo_pagamento: parcela.tipoPagamento || 'PIX',
+            qtd_parcelas: estado.parcelas.length,
+            total_parcelas: Number(resumo.total_geral.toFixed(2))
+        }));
+
+        if (!payloadParcelas.length) {
+            throw new Error('Informe ao menos uma parcela para a venda.');
+        }
+
+        return {
+            csrf_token: csrfToken,
+            cliente_id: Number(clienteBase.id_cliente),
+            cliente: {
+                nome: clienteNome.value.trim(),
+                telefone: clienteTelefone.value.trim(),
+                cpf_cnpj: clienteCpfCnpj.value.trim(),
+                email: clienteEmail.value.trim(),
+                endereco: clienteEndereco.value.trim()
+            },
+            cliente_resolucao: 'manter',
+            validar_cliente_consistencia: true,
+            condicao_pagamento: document.getElementById('condicaoPagamento').value,
+            subtotal: Number((resumo.subtotal_produtos + resumo.subtotal_microservicos).toFixed(2)),
+            desconto_total: Number(resumo.desconto_total.toFixed(2)),
+            frete_total: Number(resumo.frete_total.toFixed(2)),
+            total_geral: Number(resumo.total_geral.toFixed(2)),
+            itens: estado.itens_produto.map((item) => ({
+                produto_id: Number(item.produtoId),
+                quantidade: Number(item.quantidade),
+                valor_unitario: Number(item.valorUnitario.toFixed(2)),
+                desconto_valor: Number(item.desconto.toFixed(2)),
+                frete_valor: Number(item.freteItem.toFixed(2))
+            })),
+            parcelas: payloadParcelas
+        };
+    }
+
+    async function enviarVenda() {
+        limparFeedback();
+
+        let payload;
+        let clienteBase;
+        try {
+            payload = montarPayloadVenda();
+            clienteBase = obterClienteSelecionadoPorId(payload.cliente_id);
+        } catch (error) {
+            mostrarFeedback('warning', error.message || 'Verifique os dados da venda antes de salvar.');
             return;
         }
-        clienteSelecionadoId = null;
-    });
 
-    clienteNome.addEventListener('keydown', (event) => {
-        if (event.key !== 'Enter') return;
-        const cliente = obterClienteSelecionadoPorInput(clienteNome.value);
-        if (!cliente) return;
-        event.preventDefault();
-        preencherDadosCliente(cliente);
-    });
+        if (!clienteBase) {
+            mostrarFeedback('warning', 'Cliente selecionado não encontrado no cadastro base.');
+            return;
+        }
+
+        const divergencias = compararClienteEditavel(clienteBase, payload.cliente);
+        if (divergencias.length > 0) {
+            const resolucao = await solicitarResolucaoCliente(clienteBase, divergencias);
+            if (resolucao === 'cancelar') {
+                mostrarFeedback('warning', 'Operação cancelada pelo usuário.');
+                return;
+            }
+
+            const resolucaoApi = await resolverClienteAntesDaVenda(payload, resolucao);
+            if (!resolucaoApi.ok) {
+                mostrarFeedback('danger', resolucaoApi.mensagem || 'Não foi possível resolver os dados do cliente.');
+                return;
+            }
+        }
+
+        btnSalvarVenda.disabled = true;
+        btnSalvarVenda.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Salvando...';
+
+        try {
+            const resposta = await fetch('salvar.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const dados = await resposta.json();
+
+            if (!resposta.ok || !dados.status) {
+                throw new Error(dados.mensagem || 'Falha ao salvar venda.');
+            }
+
+            mostrarFeedback('success', `Venda #${dados.id_venda} salva com sucesso.`);
+        } catch (error) {
+            mostrarFeedback('danger', error.message || 'Erro inesperado ao salvar venda.');
+        } finally {
+            btnSalvarVenda.disabled = false;
+            btnSalvarVenda.innerHTML = '<i class="fas fa-save me-1"></i>Salvar venda';
+        }
+    }
 
     function montarPayloadClienteRapido() {
         return {
@@ -809,11 +591,35 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
         }
     }
 
+    filtrarSugestoesClientes('');
+
+    clienteNome.addEventListener('input', (event) => {
+        clienteSelecionadoId = null;
+        filtrarSugestoesClientes(event.target.value);
+    });
+
+    clienteNome.addEventListener('change', (event) => {
+        const cliente = obterClienteSelecionadoPorInput(event.target.value);
+        if (cliente) {
+            preencherDadosCliente(cliente);
+            return;
+        }
+        clienteSelecionadoId = null;
+    });
+
+    clienteNome.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter') return;
+        const cliente = obterClienteSelecionadoPorInput(clienteNome.value);
+        if (!cliente) return;
+        event.preventDefault();
+        preencherDadosCliente(cliente);
+    });
+
     btnSalvarCliente.addEventListener('click', salvarClienteRapido);
 
     document.getElementById('produtoSelect').addEventListener('change', (event) => {
         const opt = event.target.selectedOptions[0];
-        document.getElementById('produtoValorUnitario').value = (valorNum(opt?.dataset?.preco)).toFixed(2).replace('.', ',');
+        document.getElementById('produtoValorUnitario').value = (composicao.valorNum(opt?.dataset?.preco)).toFixed(2).replace('.', ',');
     });
 
     document.getElementById('btnAdicionarProduto').addEventListener('click', () => {
@@ -825,212 +631,24 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
             return;
         }
 
-        itens.push({
+        composicao.addItem('produto', {
             produtoId: Number(opt.value),
             nome: opt.dataset.nome || opt.textContent,
             quantidade: Math.max(1, parseInt(document.getElementById('produtoQtd').value, 10) || 1),
-            valorUnitario: Math.max(0, valorNum(document.getElementById('produtoValorUnitario').value)),
+            valorUnitario: Math.max(0, composicao.valorNum(document.getElementById('produtoValorUnitario').value)),
             desconto: 0,
             freteItem: 0
         });
-
-        renderItens();
-    });
-
-    function atualizarItemPorCampo(target) {
-        const idx = Number(target.dataset.index);
-        if (!Number.isInteger(idx) || !itens[idx]) return false;
-
-        if (target.classList.contains('item-qtd')) {
-            itens[idx].quantidade = Math.max(1, parseInt(target.value, 10) || 1);
-            return true;
-        }
-
-        if (target.classList.contains('item-unit')) {
-            itens[idx].valorUnitario = Math.max(0, valorNum(target.value));
-            return true;
-        }
-
-        if (target.classList.contains('item-desc')) {
-            itens[idx].desconto = Math.max(0, valorNum(target.value));
-            return true;
-        }
-
-        if (target.classList.contains('item-frete')) {
-            itens[idx].freteItem = Math.max(0, valorNum(target.value));
-            return true;
-        }
-
-        return false;
-    }
-
-    itensBody.addEventListener('input', (event) => {
-        const idx = Number(event.target.dataset.index);
-        if (!Number.isInteger(idx) || !itens[idx]) return;
-
-        if (!atualizarItemPorCampo(event.target)) return;
-        atualizarResumo();
-    });
-
-    itensBody.addEventListener('change', (event) => {
-        if (!atualizarItemPorCampo(event.target)) return;
-        renderItens();
-    });
-
-    itensBody.addEventListener('click', (event) => {
-        const btn = event.target.closest('.item-remove');
-        if (!btn) return;
-
-        const idx = Number(btn.dataset.index);
-        itens.splice(idx, 1);
-        renderItens();
-    });
-
-    const freteTotalInput = document.getElementById('freteTotalInput');
-    const descontoTotalInput = document.getElementById('descontoTotalInput');
-
-    document.getElementById('freteManualCheck').addEventListener('change', atualizarResumo);
-
-    freteTotalInput.addEventListener('focus', () => {
-        freteTotalEditando = true;
-    });
-
-    freteTotalInput.addEventListener('blur', () => {
-        freteTotalEditando = false;
-        atualizarResumo();
-    });
-
-    freteTotalInput.addEventListener('input', atualizarResumo);
-
-    descontoTotalInput.addEventListener('focus', () => {
-        descontoTotalEditando = true;
-    });
-
-    descontoTotalInput.addEventListener('blur', () => {
-        descontoTotalEditando = false;
-        atualizarResumo();
-    });
-
-    descontoTotalInput.addEventListener('input', (event) => {
-        const valor = Math.max(0, valorNum(event.target.value));
-        if (!itens.length) return;
-        ratearDesconto(valor);
-    });
-
-    document.getElementById('descontoPercentInput').addEventListener('input', (event) => {
-        descontoPercentControlando = true;
-        const perc = Math.max(0, Math.min(100, valorNum(event.target.value)));
-        const subtotal = itens.reduce((acc, item) => acc + (item.quantidade * item.valorUnitario), 0);
-        const descontoTotal = subtotal * (perc / 100);
-        if (itens.length) {
-            ratearDesconto(descontoTotal);
-        }
-        descontoPercentControlando = false;
     });
 
     document.getElementById('btnZerarDescontos').addEventListener('click', () => {
-        itens.forEach(item => { item.desconto = 0; });
-        document.getElementById('descontoPercentInput').value = '0,00';
-        renderItens();
-    });
-
-    document.getElementById('condicaoPagamento').addEventListener('change', (event) => {
-        const isVista = event.target.value === 'vista';
-        const qtd = document.getElementById('qtdParcelas');
-
-        if (isVista) {
-            qtd.value = 1;
-            qtd.setAttribute('readonly', 'readonly');
-            parcelas = [criarParcela(hojeSP, totalVenda(), 'PIX', false)];
-            renderParcelas();
-            return;
-        }
-
-        qtd.removeAttribute('readonly');
-        montarParcelas(Math.max(1, parseInt(qtd.value, 10) || 1));
-    });
-
-    document.getElementById('qtdParcelas').addEventListener('input', (event) => {
-        if (document.getElementById('condicaoPagamento').value === 'vista') return;
-        montarParcelas(Math.max(1, Math.min(24, parseInt(event.target.value, 10) || 1)));
-    });
-
-    parcelasBody.addEventListener('input', (event) => {
-        const idx = Number(event.target.dataset.index);
-        if (!Number.isInteger(idx) || !parcelas[idx]) return;
-
-        if (event.target.classList.contains('parcela-venc')) {
-            parcelas[idx].vencimento = event.target.value || hojeSP;
-        }
-
-        if (event.target.classList.contains('parcela-valor')) {
-            parcelas[idx].valor = Math.max(0, valorNum(event.target.value));
-            parcelas[idx].manual = true;
-        }
-
-        if (event.target.classList.contains('parcela-tipo')) {
-            parcelas[idx].tipoPagamento = event.target.value;
-        }
-    });
-
-    parcelasBody.addEventListener('change', (event) => {
-        const idx = Number(event.target.dataset.index);
-        if (!Number.isInteger(idx) || !parcelas[idx]) return;
-
-        if (event.target.classList.contains('parcela-venc')) {
-            parcelas[idx].vencimento = event.target.value || hojeSP;
-            return;
-        }
-
-        if (event.target.classList.contains('parcela-valor')) {
-            parcelas[idx].valor = Math.max(0, valorNum(event.target.value));
-            parcelas[idx].manual = true;
-            recalcularParcelas();
-            return;
-        }
-
-        if (event.target.classList.contains('parcela-tipo')) {
-            parcelas[idx].tipoPagamento = event.target.value;
-
-            const tipoNormalizado = (event.target.value || '')
-                .normalize('NFD')
-                .replace(/[\u0300-\u036f]/g, '')
-                .toLowerCase();
-
-            if (tipoNormalizado.includes('credito') || tipoNormalizado.includes('cheque')) {
-                for (let i = idx + 1; i < parcelas.length; i += 1) {
-                    parcelas[i].tipoPagamento = event.target.value;
-                }
-
-                renderParcelas();
-            }
-        }
-    });
-
-    parcelasBody.addEventListener('contextmenu', (event) => {
-        if (document.getElementById('condicaoPagamento').value !== 'parcelado') return;
-
-        event.preventDefault();
-        const row = event.target.closest('tr');
-        if (row && parcelas.length > 1) {
-            parcelas.splice(Number(row.dataset.index), 1);
-            recalcularParcelas();
-            return;
-        }
-
-        const nova = criarParcela(hojeSP, 0, 'PIX', false);
-        parcelas.push(nova);
-        recalcularParcelas();
+        composicao.zerarDescontosProdutos();
     });
 
     formVenda.addEventListener('submit', (event) => {
         event.preventDefault();
         enviarVenda();
     });
-
-    montarParcelas(1);
-    document.getElementById('condicaoPagamento').dispatchEvent(new Event('change'));
-    renderItens();
 </script>
 
 <?php include '../includes/footer.php'; ?>
