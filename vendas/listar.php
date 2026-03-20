@@ -49,31 +49,20 @@ include '../includes/header.php';
                     <button
                         class="btn btn-outline-primary btn-sm js-toggle-section"
                         type="button"
-                        data-target="#dashboardVendasConteudo"
-                        aria-expanded="true"
+                        data-target="#dashboardVendasCollapse"
+                        aria-expanded="false"
                     >
                         <i class="fas fa-caret-down me-1"></i> Exibir / Recolher
                     </button>
                 </div>
-                <div id="dashboardVendasCollapse" class="collapse show">
-                    <div class="card-body">
-                        <div class="row g-3 mb-0">
-                            <div class="col-md-6 col-lg-3">
-                                <div class="card border-0 bg-white h-100">
-                                    <div class="card-body">
-                                        <small class="text-uppercase text-muted">Total de vendas</small>
-                                        <h3 class="mb-0"><?= number_format((int) $resumoKpis['total_vendas'], 0, ',', '.') ?></h3>
-                                    </div>
-                                </div>
-                            </div>
-
-                <div id="dashboardVendasConteudo" class="card-body">
-                    <form method="GET" class="mb-4">
+                <div id="dashboardVendasCollapse" class="d-none">
+                    <div class="card-body p-3">
+                    <form method="GET" class="mb-3">
                         <?php foreach ($filtrosLista as $campo => $valor): ?>
                             <input type="hidden" name="lista_<?= htmlspecialchars($campo) ?>" value="<?= htmlspecialchars($valor) ?>">
                         <?php endforeach; ?>
 
-                        <div class="row g-3">
+                        <div class="row g-2">
                             <div class="col-md-3">
                                 <label for="dash_data_inicial" class="form-label">Data inicial (Dashboard)</label>
                                 <input type="date" id="dash_data_inicial" name="dash_data_inicial" class="form-control" value="<?= htmlspecialchars($filtrosDashboard['data_inicial']) ?>">
@@ -124,37 +113,37 @@ include '../includes/header.php';
                         </div>
                     </form>
 
-                    <div class="row g-3 mb-0">
+                    <div class="row g-2 mb-0 dashboard-kpis-compact">
                         <div class="col-md-6 col-lg-3">
                             <div class="card border-0 bg-white h-100">
-                                <div class="card-body">
+                                <div class="card-body p-3">
                                     <small class="text-uppercase text-muted">Total de vendas</small>
-                                    <h3 class="mb-0"><?= number_format((int) $resumoKpis['total_vendas'], 0, ',', '.') ?></h3>
+                                    <h5 class="mb-0 fw-bold"><?= number_format((int) $resumoKpis['total_vendas'], 0, ',', '.') ?></h5>
                                 </div>
                             </div>
                         </div>
 
                         <div class="col-md-6 col-lg-3">
                             <div class="card border-0 bg-white h-100">
-                                <div class="card-body">
+                                <div class="card-body p-3">
                                     <small class="text-uppercase text-muted">Faturamento bruto</small>
-                                    <h3 class="mb-0">R$ <?= number_format((float) $resumoKpis['faturamento_bruto'], 2, ',', '.') ?></h3>
+                                    <h5 class="mb-0 fw-bold">R$ <?= number_format((float) $resumoKpis['faturamento_bruto'], 2, ',', '.') ?></h5>
                                 </div>
                             </div>
                         </div>
 
                         <div class="col-md-6 col-lg-3">
                             <div class="card border-0 bg-white h-100">
-                                <div class="card-body">
+                                <div class="card-body p-3">
                                     <small class="text-uppercase text-muted">Ticket médio</small>
-                                    <h3 class="mb-0">R$ <?= number_format((float) $resumoKpis['ticket_medio'], 2, ',', '.') ?></h3>
+                                    <h5 class="mb-0 fw-bold">R$ <?= number_format((float) $resumoKpis['ticket_medio'], 2, ',', '.') ?></h5>
                                 </div>
                             </div>
                         </div>
 
                         <div class="col-md-6 col-lg-3">
                             <div class="card border-0 bg-white h-100">
-                                <div class="card-body">
+                                <div class="card-body p-3">
                                     <small class="text-uppercase text-muted">Total parcelado vs à vista</small>
                                     <div class="fw-semibold">Parcelado: R$ <?= number_format($totalParcelado, 2, ',', '.') ?> (<?= number_format($percentualParcelado, 1, ',', '.') ?>%)</div>
                                     <div class="fw-semibold">À vista: R$ <?= number_format($totalVista, 2, ',', '.') ?> (<?= number_format($percentualVista, 1, ',', '.') ?>%)</div>
@@ -166,7 +155,7 @@ include '../includes/header.php';
                     <div class="card border-0 bg-white mb-0 mt-3 d-none d-lg-block">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h5 class="mb-0">Evolução do faturamento</h5>
+                                <h6 class="mb-0">Evolução do faturamento</h6>
                                 <small id="graficoAgrupamentoInfo" class="text-muted"></small>
                             </div>
                             <div class="grafico-faturamento-wrapper">
@@ -177,7 +166,7 @@ include '../includes/header.php';
                 </div>
             </div>
 
-            <div class="card border-0 bg-light mb-4">
+            <div id="listaVendasSection" class="card border-0 bg-light mb-4">
                 <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Filtros e lista de vendas</h5>
                     <button
