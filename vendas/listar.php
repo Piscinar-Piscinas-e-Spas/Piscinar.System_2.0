@@ -165,7 +165,7 @@ include '../includes/header.php';
                     </div>
                 </div>
             </div>
-
+            
             <div id="listaVendasSection" class="card border-0 bg-light mb-4">
                 <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
                     <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Filtros e lista de vendas</h5>
