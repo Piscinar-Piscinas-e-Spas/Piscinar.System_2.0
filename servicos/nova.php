@@ -6,6 +6,78 @@ require_once __DIR__ . '/_infra.php';
 servicos_ensure_schema($pdo);
 $clientes = servicos_obter_clientes($pdo);
 $clienteObrigatorio = servicos_cliente_obrigatorio();
+$servicoIdEdicao = (int) ($_GET['id'] ?? 0);
+$servicoEdicaoPayload = null;
+
+if ($servicoIdEdicao > 0) {
+    $repository = new \App\Repositories\ServicoRepository($pdo);
+    $detalhes = $repository->findCompleteById($servicoIdEdicao);
+    if (!$detalhes) {
+        header('Location: ' . app_url('servicos/listar.php'));
+        exit;
+    }
+
+    $servico = $detalhes['servico'] ?? [];
+    $itens = is_array($detalhes['itens'] ?? null) ? $detalhes['itens'] : [];
+    $parcelas = is_array($detalhes['parcelas'] ?? null) ? $detalhes['parcelas'] : [];
+
+    $produtosEdicao = [];
+    $microservicosEdicao = [];
+    foreach ($itens as $item) {
+        if (!is_array($item)) {
+            continue;
+        }
+
+        $normalizado = [
+            'produto_id' => (int) ($item['produto_id'] ?? 0),
+            'descricao' => (string) ($item['descricao'] ?? ''),
+            'quantidade' => (float) ($item['quantidade'] ?? 1),
+            'valor_unitario' => (float) ($item['valor_unitario'] ?? 0),
+            'desconto_valor' => (float) ($item['desconto_valor'] ?? 0),
+            'frete_valor' => (float) ($item['frete_valor'] ?? 0),
+            'is_frete_embutido' => false,
+        ];
+
+        if (($item['tipo_item'] ?? '') === 'produto') {
+            $produtosEdicao[] = $normalizado;
+            continue;
+        }
+
+        $normalizado['frete_valor'] = 0;
+        $normalizado['is_frete_embutido'] = stripos((string) ($item['descricao'] ?? ''), 'frete') !== false;
+        $microservicosEdicao[] = $normalizado;
+    }
+
+    $parcelasEdicao = [];
+    foreach ($parcelas as $parcela) {
+        if (!is_array($parcela)) {
+            continue;
+        }
+
+        $parcelasEdicao[] = [
+            'vencimento' => (string) ($parcela['vencimento'] ?? date('Y-m-d')),
+            'valor' => (float) ($parcela['valor_parcela'] ?? 0),
+            'tipoPagamento' => (string) ($parcela['tipo_pagamento'] ?? 'PIX'),
+            'manual' => true,
+        ];
+    }
+
+    $servicoEdicaoPayload = [
+        'id_servico' => (int) ($servico['id_servico'] ?? $servicoIdEdicao),
+        'cliente_id' => (int) ($servico['cliente_id'] ?? 0),
+        'cliente' => [
+            'nome_cliente' => (string) ($servico['nome_cliente'] ?? ''),
+            'telefone_contato' => (string) ($servico['telefone_contato'] ?? ''),
+            'cpf_cnpj' => (string) ($servico['cpf_cnpj'] ?? ''),
+            'email_contato' => (string) ($servico['email_contato'] ?? ''),
+            'endereco' => (string) ($servico['endereco'] ?? ''),
+        ],
+        'condicao_pagamento' => (string) ($servico['condicao_pagamento'] ?? 'vista'),
+        'produtos' => $produtosEdicao,
+        'microservicos' => $microservicosEdicao,
+        'parcelas' => $parcelasEdicao,
+    ];
+}
 
 $produtosStmt = $pdo->query("SELECT id, nome, preco1 FROM produtos ORDER BY nome");
 $produtos = $produtosStmt ? $produtosStmt->fetchAll(PDO::FETCH_ASSOC) : [];
@@ -16,7 +88,7 @@ include '../includes/header.php';
 
 <div class="card">
     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-        <h4 class="mb-0"><i class="fas fa-tools me-2"></i>Tela de Serviços</h4>
+        <h4 class="mb-0"><i class="fas fa-tools me-2"></i><?= $servicoEdicaoPayload ? 'Editar Serviço' : 'Tela de Serviços' ?></h4>
         <span class="badge bg-light text-dark">Ordem de Serviço</span>
     </div>
 
@@ -224,7 +296,7 @@ include '../includes/header.php';
                 <div id="servicoFeedback" class="alert d-none" role="alert"></div>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                     <button type="button" class="btn btn-outline-secondary" id="btnLimparServico"><i class="fas fa-broom me-1"></i>Limpar campos</button>
-                    <button type="button" class="btn btn-primary" id="btnSalvarServico"><i class="fas fa-save me-1"></i>Salvar serviço</button>
+                    <button type="button" class="btn btn-primary" id="btnSalvarServico"><i class="fas fa-save me-1"></i><?= $servicoEdicaoPayload ? 'Atualizar serviço' : 'Salvar serviço' ?></button>
                 </div>
             </div>
         </form>
@@ -237,6 +309,7 @@ const hojeSP = '<?= $hojeSaoPaulo ?>';
 const csrfToken = '<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8') ?>';
 const clientesData = <?= json_encode($clientes, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
 const clienteObrigatorio = <?= $clienteObrigatorio ? 'true' : 'false' ?>;
+const servicoEdicaoData = <?= json_encode($servicoEdicaoPayload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
 const tiposPagamento = [
   'PIX', 'Dinheiro', 'Boleto', 'Cheque', 'Pix Pague Seguro',
   'Débito PagSeguro', 'Crédito PagSeguro', 'Débito Stone',
@@ -729,6 +802,7 @@ async function salvarServico() {
 
   const payload = {
     csrf_token: csrfToken,
+    id_servico: servicoEdicaoData && servicoEdicaoData.id_servico ? Number(servicoEdicaoData.id_servico) : null,
     cliente_id: clienteSelecionadoId,
     cliente: {
       nome: document.getElementById('clienteNome').value.trim(),
@@ -758,7 +832,13 @@ async function salvarServico() {
     const resp = await fetch('salvar.php', { method:'POST', headers:{ 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     const dados = await resp.json();
     if (!resp.ok || !dados.status) throw new Error(dados.mensagem || 'Erro ao salvar serviço.');
-    window.alert(`Serviço #${dados.id_servico} salvo com sucesso.`);
+    window.alert(servicoEdicaoData && servicoEdicaoData.id_servico
+      ? `Serviço #${dados.id_servico} atualizado com sucesso.`
+      : `Serviço #${dados.id_servico} salvo com sucesso.`);
+    if (servicoEdicaoData && servicoEdicaoData.id_servico) {
+      window.location.href = `<?= app_url('servicos/detalhes.php?id=') ?>${dados.id_servico}`;
+      return;
+    }
     limparFormularioServicoPosSucesso();
   } catch (err) {
     feedback('danger', err.message || 'Erro ao salvar serviço.');
@@ -791,9 +871,36 @@ btnSalvarServico.addEventListener('blur', () => {
   liberarSalvarServicoPorMouse = false;
 });
 
+function aplicarDadosEdicaoServico() {
+  if (!servicoEdicaoData || !servicoEdicaoData.id_servico) {
+    return;
+  }
+
+  clienteSelecionadoId = Number(servicoEdicaoData.cliente_id || 0) || null;
+  document.getElementById('clienteNome').value = servicoEdicaoData.cliente?.nome_cliente || '';
+  document.getElementById('clienteTelefone').value = servicoEdicaoData.cliente?.telefone_contato || '';
+  document.getElementById('clienteCpfCnpj').value = servicoEdicaoData.cliente?.cpf_cnpj || '';
+  document.getElementById('clienteEmail').value = servicoEdicaoData.cliente?.email_contato || '';
+  document.getElementById('clienteEndereco').value = servicoEdicaoData.cliente?.endereco || '';
+
+  state.produtos = Array.isArray(servicoEdicaoData.produtos) ? servicoEdicaoData.produtos : [];
+  state.microservicos = Array.isArray(servicoEdicaoData.microservicos) ? servicoEdicaoData.microservicos : [];
+
+  document.getElementById('condicaoPagamento').value = servicoEdicaoData.condicao_pagamento === 'parcelado' ? 'parcelado' : 'vista';
+
+  renderClientesSugestao(servicoEdicaoData.cliente?.nome_cliente || '');
+  renderTabelas();
+
+  const parcelas = Array.isArray(servicoEdicaoData.parcelas) ? servicoEdicaoData.parcelas : [];
+  if (parcelas.length) {
+    composicao.setParcelas(parcelas);
+  }
+}
+
 renderClientesSugestao('');
 renderTabelas();
 document.getElementById('condicaoPagamento').dispatchEvent(new Event('change'));
+aplicarDadosEdicaoServico();
 </script>
 
 <?php include '../includes/footer.php'; ?>
