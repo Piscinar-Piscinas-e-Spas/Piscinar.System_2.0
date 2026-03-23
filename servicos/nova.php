@@ -253,6 +253,117 @@ let clienteSelecionadoId = null;
 const clientesSugestoes = document.getElementById('clientesSugestoes');
 const btnSalvarCliente = document.getElementById('btnSalvarCliente');
 const btnLimparServico = document.getElementById('btnLimparServico');
+const subtotalMicroEl = document.getElementById('subtotalMicro');
+
+const composicao = window.ComposicaoComercial.init({
+  hoje: hojeSP,
+  tiposPagamento,
+  seletores: {
+    itensBody: '#itensComposicaoDummy tbody',
+    parcelasBody: '#parcelasTable tbody',
+    freteManualCheck: '#freteManualCheck',
+    freteTotalInput: '#freteTotalInput',
+    descontoTotalInput: '#descontoTotalInput',
+    descontoPercentInput: '#descontoPercentInput',
+    condicaoPagamento: '#condicaoPagamento',
+    qtdParcelas: '#qtdParcelas',
+    subtotalProdutos: '#subtotalProdutos',
+    totalDescontos: '#totalDescontos',
+    totalFrete: '#totalFrete',
+    totalGeral: '#totalGeralServico'
+  },
+  onChange: (snapshot) => {
+    if (!subtotalMicroEl) return;
+    subtotalMicroEl.textContent = moeda(snapshot?.totais?.subtotal_microservicos || 0);
+  }
+});
+
+function syncComposicaoFromState() {
+  const produtos = state.produtos.map((item) => ({
+    nome: item.descricao,
+    quantidade: item.quantidade,
+    valorUnitario: item.valor_unitario,
+    desconto: item.desconto_valor,
+    freteItem: item.frete_valor
+  }));
+
+  const microservicos = state.microservicos.map((item) => ({
+    nome: item.descricao,
+    quantidade: item.quantidade,
+    valorUnitario: item.valor_unitario,
+    desconto: item.desconto_valor,
+    freteItem: 0
+  }));
+
+  composicao.setItens(produtos, microservicos);
+}
+
+function obterIndexMicroservicoFrete() {
+  return state.microservicos.findIndex((item) => item.is_frete_embutido === true);
+}
+
+function limparFreteProdutosServico() {
+  state.produtos = state.produtos.map((item) => ({ ...item, frete_valor: 0 }));
+}
+
+function ratearFreteProdutosServico(valorFreteTotal) {
+  if (!state.produtos.length) return;
+
+  const totalFrete = Math.max(0, valorFreteTotal);
+  const subtotais = state.produtos.map((item) => Math.max(0, Number(item.quantidade || 0) * Number(item.valor_unitario || 0)));
+  const somaSubtotais = subtotais.reduce((acc, valor) => acc + valor, 0);
+  const divisorFallback = state.produtos.length || 1;
+
+  let distribuido = 0;
+  state.produtos = state.produtos.map((item, idx) => {
+    if (idx === state.produtos.length - 1) {
+      return { ...item, frete_valor: Number((totalFrete - distribuido).toFixed(2)) };
+    }
+
+    const base = somaSubtotais > 0 ? subtotais[idx] : 1;
+    const divisor = somaSubtotais > 0 ? somaSubtotais : divisorFallback;
+    const parcial = (totalFrete * base) / divisor;
+    const arredondado = Number(parcial.toFixed(2));
+    distribuido += arredondado;
+    return { ...item, frete_valor: arredondado };
+  });
+}
+
+function sincronizarMicroservicoFrete() {
+  const checkFreteComoMicro = document.getElementById('freteComoMicroservicoCheck');
+  const checkFreteManual = document.getElementById('freteManualCheck');
+  const freteTotalInput = document.getElementById('freteTotalInput');
+  const valorFreteTotal = Math.max(0, valorNum(freteTotalInput.value));
+  const idxFrete = obterIndexMicroservicoFrete();
+
+  if (!checkFreteComoMicro.checked) {
+    if (idxFrete >= 0) {
+      state.microservicos.splice(idxFrete, 1);
+    }
+    checkFreteManual.disabled = false;
+    return;
+  }
+
+  checkFreteManual.checked = true;
+  checkFreteManual.disabled = true;
+  limparFreteProdutosServico();
+
+  const itemFrete = {
+    descricao: DESCRICAO_MICROSERVICO_FRETE,
+    quantidade: 1,
+    valor_unitario: valorFreteTotal,
+    desconto_valor: 0,
+    frete_valor: 0,
+    is_frete_embutido: true
+  };
+
+  if (idxFrete >= 0) {
+    state.microservicos[idxFrete] = { ...state.microservicos[idxFrete], ...itemFrete };
+    return;
+  }
+
+  state.microservicos.push(itemFrete);
+}
 
 const composicao = window.ComposicaoComercial.init({
   hoje: hojeSP,
