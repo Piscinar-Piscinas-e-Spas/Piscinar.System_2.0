@@ -251,11 +251,13 @@ function resumo() {
   const subtotalProdutos = state.produtos.reduce((a,b) => a + b.subtotal, 0);
   const subtotalMicro = state.microservicos.reduce((a,b) => a + b.subtotal, 0);
   const descontosItens = state.produtos.reduce((a,b) => a + Number(b.desconto_valor || 0), 0) + state.microservicos.reduce((a,b) => a + Number(b.desconto_valor || 0), 0);
+  const freteItens = state.produtos.reduce((a,b) => a + Number(b.frete_valor || 0), 0);
   const descontoExtra = Math.max(0, valorNum(document.getElementById('descontoExtraInput').value));
-  const frete = Math.max(0, valorNum(document.getElementById('freteTotalInput').value));
+  const freteManual = Math.max(0, valorNum(document.getElementById('freteTotalInput').value));
+  const frete_total = freteItens + freteManual;
   const descontoTotal = descontosItens + descontoExtra;
-  const total = Math.max(0, subtotalProdutos + subtotalMicro - descontoTotal + frete);
-  return { subtotalProdutos, subtotalMicro, descontoTotal, frete, total };
+  const total = Math.max(0, subtotalProdutos + subtotalMicro - descontoTotal + frete_total);
+  return { subtotalProdutos, subtotalMicro, descontoTotal, frete_total, total };
 }
 
 function renderParcelas() {
@@ -288,7 +290,7 @@ function renderResumoEParcelas() {
   document.getElementById('subtotalProdutos').textContent = moeda(r.subtotalProdutos);
   document.getElementById('subtotalMicro').textContent = moeda(r.subtotalMicro);
   document.getElementById('totalDescontos').textContent = moeda(r.descontoTotal);
-  document.getElementById('totalFrete').textContent = moeda(r.frete);
+  document.getElementById('totalFrete').textContent = moeda(r.frete_total);
   document.getElementById('totalGeralServico').textContent = moeda(r.total);
   distribuirParcelas();
 }
@@ -386,7 +388,7 @@ document.getElementById('formServico').addEventListener('submit', async (e) => {
     subtotal_produtos: Number(r.subtotalProdutos.toFixed(2)),
     subtotal_microservicos: Number(r.subtotalMicro.toFixed(2)),
     desconto_total: Number(r.descontoTotal.toFixed(2)),
-    frete_total: Number(r.frete.toFixed(2)),
+    frete_total: Number(r.frete_total.toFixed(2)),
     total_geral: Number(r.total.toFixed(2)),
     itens_produto: state.produtos,
     itens_microservico: state.microservicos,
