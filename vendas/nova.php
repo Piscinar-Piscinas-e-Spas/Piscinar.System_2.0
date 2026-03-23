@@ -223,6 +223,9 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
             <div class="col-12">
                 <div id="vendaFeedback" class="alert d-none" role="alert"></div>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="button" class="btn btn-outline-secondary" id="btnLimparVenda">
+                        <i class="fas fa-broom me-1"></i>Limpar campos
+                    </button>
                     <button type="submit" class="btn btn-primary" id="btnSalvarVenda">
                         <i class="fas fa-save me-1"></i>Salvar venda
                     </button>
@@ -246,6 +249,7 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
     const formVenda = document.getElementById('formVenda');
     const feedbackBox = document.getElementById('vendaFeedback');
     const btnSalvarVenda = document.getElementById('btnSalvarVenda');
+    const btnLimparVenda = document.getElementById('btnLimparVenda');
     const btnSalvarCliente = document.getElementById('btnSalvarCliente');
     const clienteNome = document.getElementById('clienteNome');
     const clienteTelefone = document.getElementById('clienteTelefone');
@@ -283,6 +287,24 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
     function limparFeedback() {
         feedbackBox.className = 'alert d-none';
         feedbackBox.textContent = '';
+    }
+
+    function limparFormularioVendaPosSucesso() {
+        clienteSelecionadoId = null;
+        clienteNome.value = '';
+        clienteTelefone.value = '';
+        clienteCpfCnpj.value = '';
+        clienteEmail.value = '';
+        clienteEndereco.value = '';
+
+        document.getElementById('produtoSelect').value = '';
+        document.getElementById('produtoQtd').value = '1';
+        document.getElementById('produtoValorUnitario').value = '0,00';
+
+        composicao.reset();
+        filtrarSugestoesClientes('');
+        limparFeedback();
+        clienteNome.focus();
     }
 
     function preencherDadosCliente(cliente) {
@@ -526,7 +548,8 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
                 throw new Error(dados.mensagem || 'Falha ao salvar venda.');
             }
 
-            mostrarFeedback('success', `Venda #${dados.id_venda} salva com sucesso.`);
+            window.alert(`Venda #${dados.id_venda} salva com sucesso.`);
+            limparFormularioVendaPosSucesso();
         } catch (error) {
             mostrarFeedback('danger', error.message || 'Erro inesperado ao salvar venda.');
         } finally {
@@ -643,6 +666,10 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
 
     document.getElementById('btnZerarDescontos').addEventListener('click', () => {
         composicao.zerarDescontosProdutos();
+    });
+
+    btnLimparVenda.addEventListener('click', () => {
+        limparFormularioVendaPosSucesso();
     });
 
     formVenda.addEventListener('submit', (event) => {

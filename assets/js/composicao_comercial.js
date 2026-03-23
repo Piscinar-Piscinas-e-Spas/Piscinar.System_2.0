@@ -476,6 +476,26 @@
             renderItens();
         }
 
+        function reset() {
+            state.itens_produto = [];
+            state.itens_microservico = [];
+            state.parcelas = [criarParcela(hoje, 0, 'PIX', false)];
+            state.flags.descontoPercentControlando = false;
+            state.flags.descontoTotalEditando = false;
+            state.flags.freteTotalEditando = false;
+
+            dom.freteManualCheck.checked = false;
+            dom.freteTotalInput.value = '0,00';
+            dom.descontoTotalInput.value = '0,00';
+            dom.descontoPercentInput.value = '0,00';
+            dom.condicaoPagamento.value = 'vista';
+            dom.qtdParcelas.value = '1';
+            dom.qtdParcelas.setAttribute('readonly', 'readonly');
+
+            renderItens();
+            renderParcelas();
+        }
+
         bindEvents();
         montarParcelas(1);
         dom.condicaoPagamento.dispatchEvent(new Event('change'));
@@ -488,6 +508,7 @@
             totalVenda,
             setParcelas,
             zerarDescontosProdutos,
+            reset,
             valorNum,
             moeda
         };
