@@ -146,6 +146,12 @@ include '../includes/header.php';
                                 <div class="col-md-6">
                                     <label class="form-label">Frete total</label>
                                     <input type="text" inputmode="decimal" class="form-control" id="freteTotalInput" value="0,00">
+                                    <div class="form-check mt-2">
+                                        <input class="form-check-input" type="checkbox" id="freteComoMicroservicoCheck">
+                                        <label class="form-check-label" for="freteComoMicroservicoCheck">
+                                            Lançar frete como micro-serviço de deslocamento
+                                        </label>
+                                    </div>
                                 </div>
                                 <div class="col-md-6 form-check mt-4 ps-5">
                                     <input class="form-check-input" type="checkbox" id="freteManualCheck">
@@ -238,6 +244,7 @@ const tiposPagamento = [
 ];
 
 const state = { produtos: [], microservicos: [] };
+const DESCRICAO_MICROSERVICO_FRETE = 'Deslocamento e Frete de equipe, material ou equipamento';
 
 const moeda = (v) => Number(v || 0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
 const valorNum = window.ComposicaoComercial.valorNum;
@@ -284,6 +291,73 @@ function syncComposicaoFromState() {
   }));
 
   composicao.setItens(produtos, microservicos);
+}
+
+function obterIndexMicroservicoFrete() {
+  return state.microservicos.findIndex((item) => item.is_frete_embutido === true);
+}
+
+function limparFreteProdutosServico() {
+  state.produtos = state.produtos.map((item) => ({ ...item, frete_valor: 0 }));
+}
+
+function ratearFreteProdutosServico(valorFreteTotal) {
+  if (!state.produtos.length) return;
+
+  const totalFrete = Math.max(0, valorFreteTotal);
+  const subtotais = state.produtos.map((item) => Math.max(0, Number(item.quantidade || 0) * Number(item.valor_unitario || 0)));
+  const somaSubtotais = subtotais.reduce((acc, valor) => acc + valor, 0);
+  const divisorFallback = state.produtos.length || 1;
+
+  let distribuido = 0;
+  state.produtos = state.produtos.map((item, idx) => {
+    if (idx === state.produtos.length - 1) {
+      return { ...item, frete_valor: Number((totalFrete - distribuido).toFixed(2)) };
+    }
+
+    const base = somaSubtotais > 0 ? subtotais[idx] : 1;
+    const divisor = somaSubtotais > 0 ? somaSubtotais : divisorFallback;
+    const parcial = (totalFrete * base) / divisor;
+    const arredondado = Number(parcial.toFixed(2));
+    distribuido += arredondado;
+    return { ...item, frete_valor: arredondado };
+  });
+}
+
+function sincronizarMicroservicoFrete() {
+  const checkFreteComoMicro = document.getElementById('freteComoMicroservicoCheck');
+  const checkFreteManual = document.getElementById('freteManualCheck');
+  const freteTotalInput = document.getElementById('freteTotalInput');
+  const valorFreteTotal = Math.max(0, valorNum(freteTotalInput.value));
+  const idxFrete = obterIndexMicroservicoFrete();
+
+  if (!checkFreteComoMicro.checked) {
+    if (idxFrete >= 0) {
+      state.microservicos.splice(idxFrete, 1);
+    }
+    checkFreteManual.disabled = false;
+    return;
+  }
+
+  checkFreteManual.checked = false;
+  checkFreteManual.disabled = true;
+  limparFreteProdutosServico();
+
+  const itemFrete = {
+    descricao: DESCRICAO_MICROSERVICO_FRETE,
+    quantidade: 1,
+    valor_unitario: valorFreteTotal,
+    desconto_valor: 0,
+    frete_valor: 0,
+    is_frete_embutido: true
+  };
+
+  if (idxFrete >= 0) {
+    state.microservicos[idxFrete] = { ...state.microservicos[idxFrete], ...itemFrete };
+    return;
+  }
+
+  state.microservicos.push(itemFrete);
 }
 
 function renderClientesSugestao(filtro='') {
@@ -369,6 +443,7 @@ function renderTabelas() {
   b1.innerHTML = '';
   b2.innerHTML = '';
 
+  sincronizarMicroservicoFrete();
   state.produtos = state.produtos.map(i => calcItem(i, true));
   state.microservicos = state.microservicos.map(i => calcItem(i, false));
 
@@ -385,13 +460,14 @@ function renderTabelas() {
   });
 
   state.microservicos.forEach((i, idx) => {
+    const linhaFrete = i.is_frete_embutido === true;
     b2.insertAdjacentHTML('beforeend', `<tr>
       <td>${idx+1}</td><td>${i.descricao}</td>
-      <td><input class="form-control form-control-sm" data-tipo="micro" data-campo="quantidade" data-idx="${idx}" value="${i.quantidade}"></td>
-      <td><input class="form-control form-control-sm" data-tipo="micro" data-campo="valor_unitario" data-idx="${idx}" value="${Number(i.valor_unitario).toFixed(2).replace('.', ',')}"></td>
-      <td><input class="form-control form-control-sm" data-tipo="micro" data-campo="desconto_valor" data-idx="${idx}" value="${Number(i.desconto_valor).toFixed(2).replace('.', ',')}"></td>
+      <td><input class="form-control form-control-sm" data-tipo="micro" data-campo="quantidade" data-idx="${idx}" value="${i.quantidade}" ${linhaFrete ? 'readonly' : ''}></td>
+      <td><input class="form-control form-control-sm" data-tipo="micro" data-campo="valor_unitario" data-idx="${idx}" value="${Number(i.valor_unitario).toFixed(2).replace('.', ',')}" ${linhaFrete ? 'readonly' : ''}></td>
+      <td><input class="form-control form-control-sm" data-tipo="micro" data-campo="desconto_valor" data-idx="${idx}" value="${Number(i.desconto_valor).toFixed(2).replace('.', ',')}" ${linhaFrete ? 'readonly' : ''}></td>
       <td>${moeda(i.total)}</td>
-      <td><button type="button" class="btn btn-sm btn-outline-danger" data-remover="micro" data-idx="${idx}"><i class="fas fa-trash"></i></button></td>
+      <td>${linhaFrete ? '<span class="badge bg-secondary">Automático</span>' : `<button type="button" class="btn btn-sm btn-outline-danger" data-remover="micro" data-idx="${idx}"><i class="fas fa-trash"></i></button>`}</td>
     </tr>`);
   });
 
@@ -428,6 +504,8 @@ function limparFormularioServicoPosSucesso() {
   document.getElementById('microValor').value = '0,00';
 
   document.getElementById('freteManualCheck').checked = false;
+  document.getElementById('freteManualCheck').disabled = false;
+  document.getElementById('freteComoMicroservicoCheck').checked = false;
   document.getElementById('freteTotalInput').value = '0,00';
   document.getElementById('descontoTotalInput').value = '0,00';
   document.getElementById('descontoPercentInput').value = '0,00';
@@ -449,6 +527,28 @@ document.getElementById('clienteNome').addEventListener('change', (e) => preench
 btnSalvarCliente.addEventListener('click', salvarClienteRapido);
 btnLimparServico.addEventListener('click', limparFormularioServicoPosSucesso);
 document.getElementById('btnZerarDescontos').addEventListener('click', () => composicao.zerarDescontosProdutos());
+
+document.getElementById('freteManualCheck').addEventListener('change', () => {
+  if (document.getElementById('freteComoMicroservicoCheck').checked) return;
+  if (!document.getElementById('freteManualCheck').checked) return;
+  ratearFreteProdutosServico(valorNum(document.getElementById('freteTotalInput').value));
+  renderTabelas();
+});
+
+document.getElementById('freteTotalInput').addEventListener('input', () => {
+  if (document.getElementById('freteComoMicroservicoCheck').checked) {
+    renderTabelas();
+    return;
+  }
+
+  if (!document.getElementById('freteManualCheck').checked) return;
+  ratearFreteProdutosServico(valorNum(document.getElementById('freteTotalInput').value));
+  renderTabelas();
+});
+
+document.getElementById('freteComoMicroservicoCheck').addEventListener('change', () => {
+  renderTabelas();
+});
 
 document.getElementById('produtoSelect').addEventListener('change', (e) => {
   const opt = e.target.selectedOptions[0];
@@ -489,6 +589,7 @@ document.getElementById('btnAdicionarMicro').addEventListener('click', () => {
     const idx = Number(el.dataset.idx); if (!Number.isInteger(idx)) return;
     const tipo = el.dataset.tipo === 'micro' ? 'microservicos' : 'produtos';
     if (!state[tipo][idx]) return;
+    if (tipo === 'microservicos' && state[tipo][idx].is_frete_embutido === true) return;
     const campo = el.dataset.campo;
     state[tipo][idx][campo] = campo === 'quantidade' ? Math.max(1, parseInt(el.value, 10) || 1) : valorNum(el.value);
     renderTabelas();
@@ -498,7 +599,10 @@ document.getElementById('btnAdicionarMicro').addEventListener('click', () => {
     if (!btn) return;
     const idx = Number(btn.dataset.idx);
     if (btn.dataset.remover === 'produto') state.produtos.splice(idx, 1);
-    else state.microservicos.splice(idx, 1);
+    else {
+      if (state.microservicos[idx]?.is_frete_embutido === true) return;
+      state.microservicos.splice(idx, 1);
+    }
     renderTabelas();
   });
 });

@@ -145,6 +145,9 @@
             dom.itensBody.innerHTML = '';
 
             state.itens_produto = state.itens_produto.map((item) => normalizarItem(item, 'produto'));
+            if (dom.freteManualCheck.checked) {
+                aplicarRateioFreteProdutos(Math.max(0, valorNum(dom.freteTotalInput.value)));
+            }
 
             state.itens_produto.forEach((item, index) => {
                 const tr = document.createElement('tr');
@@ -283,6 +286,36 @@
             renderItens();
         }
 
+        function aplicarRateioFreteProdutos(totalFrete) {
+            const itens = state.itens_produto;
+            if (!itens.length) return;
+
+            const totalFreteNormalizado = Math.max(0, totalFrete);
+            const subtotais = itens.map(i => Math.max(0, i.quantidade * i.valorUnitario));
+            const somaSubtotais = subtotais.reduce((a, b) => a + b, 0);
+            const divisorFallback = itens.length || 1;
+
+            let distribuido = 0;
+            itens.forEach((item, idx) => {
+                if (idx === itens.length - 1) {
+                    item.freteItem = Number((totalFreteNormalizado - distribuido).toFixed(2));
+                    return;
+                }
+
+                const base = somaSubtotais > 0 ? subtotais[idx] : 1;
+                const divisor = somaSubtotais > 0 ? somaSubtotais : divisorFallback;
+                const parcial = (totalFreteNormalizado * base) / divisor;
+                const arredondado = Number(parcial.toFixed(2));
+                distribuido += arredondado;
+                item.freteItem = arredondado;
+            });
+        }
+
+        function ratearFreteProdutos(totalFrete) {
+            aplicarRateioFreteProdutos(totalFrete);
+            renderItens();
+        }
+
         function atualizarResumo() {
             const totais = obterResumo();
 
@@ -367,11 +400,23 @@
                 });
             }
 
-            dom.freteManualCheck.addEventListener('change', atualizarResumo);
+            dom.freteManualCheck.addEventListener('change', () => {
+                if (dom.freteManualCheck.checked && state.itens_produto.length) {
+                    ratearFreteProdutos(Math.max(0, valorNum(dom.freteTotalInput.value)));
+                    return;
+                }
+                atualizarResumo();
+            });
 
             dom.freteTotalInput.addEventListener('focus', () => { state.flags.freteTotalEditando = true; });
             dom.freteTotalInput.addEventListener('blur', () => { state.flags.freteTotalEditando = false; atualizarResumo(); });
-            dom.freteTotalInput.addEventListener('input', atualizarResumo);
+            dom.freteTotalInput.addEventListener('input', (event) => {
+                if (dom.freteManualCheck.checked && state.itens_produto.length) {
+                    ratearFreteProdutos(Math.max(0, valorNum(event.target.value)));
+                    return;
+                }
+                atualizarResumo();
+            });
 
             dom.descontoTotalInput.addEventListener('focus', () => { state.flags.descontoTotalEditando = true; });
             dom.descontoTotalInput.addEventListener('blur', () => { state.flags.descontoTotalEditando = false; atualizarResumo(); });
