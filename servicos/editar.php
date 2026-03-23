@@ -2,5 +2,11 @@
 include '../includes/db.php';
 require_login();
 
-header('Location: ' . app_url('index.php'));
+$idServico = (int) ($_GET['id'] ?? 0);
+if ($idServico <= 0) {
+    header('Location: ' . app_url('servicos/listar.php'));
+    exit;
+}
+
+header('Location: ' . app_url('servicos/detalhes.php?id=' . $idServico));
 exit;
