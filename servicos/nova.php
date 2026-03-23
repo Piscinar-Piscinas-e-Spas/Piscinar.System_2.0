@@ -6,7 +6,7 @@ require_once __DIR__ . '/_infra.php';
 servicos_ensure_schema($pdo);
 $clientes = servicos_obter_clientes($pdo);
 $clienteObrigatorio = servicos_cliente_obrigatorio();
-$servicoIdEdicao = (int) ($_GET['id'] ?? 0);
+$servicoIdEdicao = (int) ($_GET['id'] ?? $_GET['id_servico'] ?? $_GET['servico_id'] ?? 0);
 $servicoEdicaoPayload = null;
 
 if ($servicoIdEdicao > 0) {
