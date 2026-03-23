@@ -172,6 +172,7 @@
         }
 
         function renderParcelas() {
+            if (!dom.parcelasBody) return;
             dom.parcelasBody.innerHTML = '';
             const condicao = dom.condicaoPagamento.value;
             const qtdTotal = state.parcelas.length;
@@ -195,7 +196,9 @@
                 dom.parcelasBody.appendChild(tr);
             });
 
-            dom.qtdParcelas.value = qtdTotal;
+            if (dom.qtdParcelas) {
+                dom.qtdParcelas.value = qtdTotal;
+            }
         }
 
         function montarParcelas(qtd) {
@@ -342,25 +345,27 @@
         }
 
         function bindEvents() {
-            dom.itensBody.addEventListener('input', (event) => {
-                if (!atualizarItemPorCampo(event.target)) return;
-                atualizarResumo();
-            });
+            if (dom.itensBody) {
+                dom.itensBody.addEventListener('input', (event) => {
+                    if (!atualizarItemPorCampo(event.target)) return;
+                    atualizarResumo();
+                });
 
-            dom.itensBody.addEventListener('change', (event) => {
-                if (!atualizarItemPorCampo(event.target)) return;
-                renderItens();
-            });
+                dom.itensBody.addEventListener('change', (event) => {
+                    if (!atualizarItemPorCampo(event.target)) return;
+                    renderItens();
+                });
 
-            dom.itensBody.addEventListener('click', (event) => {
-                const btn = event.target.closest('.item-remove');
-                if (!btn) return;
-                const tipo = btn.dataset.tipo || 'produto';
-                const idx = Number(btn.dataset.index);
-                const itens = obterItens(tipo);
-                itens.splice(idx, 1);
-                renderItens();
-            });
+                dom.itensBody.addEventListener('click', (event) => {
+                    const btn = event.target.closest('.item-remove');
+                    if (!btn) return;
+                    const tipo = btn.dataset.tipo || 'produto';
+                    const idx = Number(btn.dataset.index);
+                    const itens = obterItens(tipo);
+                    itens.splice(idx, 1);
+                    renderItens();
+                });
+            }
 
             dom.freteManualCheck.addEventListener('change', atualizarResumo);
 
@@ -465,6 +470,22 @@
             renderItens();
         }
 
+        function setItens(itensProduto, itensMicroservico) {
+            state.itens_produto = Array.isArray(itensProduto)
+                ? itensProduto.map((item) => normalizarItem(item, 'produto'))
+                : [];
+            state.itens_microservico = Array.isArray(itensMicroservico)
+                ? itensMicroservico.map((item) => normalizarItem(item, 'microservico'))
+                : [];
+
+            if (dom.itensBody) {
+                renderItens();
+                return;
+            }
+
+            atualizarResumo();
+        }
+
         function setParcelas(parcelas) {
             state.parcelas = Array.isArray(parcelas) ? parcelas.map((p) => ({ ...p })) : [];
             recalcularParcelas();
@@ -503,6 +524,7 @@
 
         return {
             addItem,
+            setItens,
             getState,
             getResumo: obterResumo,
             totalVenda,
