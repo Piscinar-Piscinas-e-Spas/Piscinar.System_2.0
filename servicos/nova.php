@@ -55,6 +55,13 @@ include '../includes/header.php';
                                 <input type="text" class="form-control" id="clienteEndereco">
                             </div>
                         </div>
+                        <div class="row g-3 align-items-end mt-1">
+                            <div class="col-12 d-flex justify-content-end">
+                                <button type="button" class="btn btn-outline-primary" id="btnSalvarCliente">
+                                    <i class="fas fa-user-plus me-1"></i>Salvar cliente rápido
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -194,6 +201,7 @@ const valorNum = (v) => {
 
 let clienteSelecionadoId = null;
 const clientesSugestoes = document.getElementById('clientesSugestoes');
+const btnSalvarCliente = document.getElementById('btnSalvarCliente');
 
 function renderClientesSugestao(filtro='') {
   const termo = filtro.trim().toLowerCase();
@@ -209,6 +217,60 @@ function preencherCliente(nome) {
   document.getElementById('clienteCpfCnpj').value = c.cpf_cnpj || '';
   document.getElementById('clienteEmail').value = c.email_contato || '';
   document.getElementById('clienteEndereco').value = c.endereco || '';
+}
+
+function montarPayloadClienteRapido() {
+  return {
+    csrf_token: csrfToken,
+    nome_cliente: document.getElementById('clienteNome').value.trim(),
+    telefone_contato: document.getElementById('clienteTelefone').value.trim(),
+    cpf_cnpj: document.getElementById('clienteCpfCnpj').value.trim(),
+    email_contato: document.getElementById('clienteEmail').value.trim(),
+    endereco: document.getElementById('clienteEndereco').value.trim()
+  };
+}
+
+function atualizarClienteNaLista(cliente) {
+  if (!cliente || !cliente.id_cliente) return;
+  const clienteId = Number(cliente.id_cliente);
+  const idx = clientesData.findIndex((item) => Number(item.id_cliente) === clienteId);
+  if (idx >= 0) clientesData[idx] = cliente;
+  else clientesData.push(cliente);
+  clientesData.sort((a, b) => (a.nome_cliente || '').localeCompare((b.nome_cliente || ''), 'pt-BR'));
+  renderClientesSugestao(cliente.nome_cliente || '');
+}
+
+async function salvarClienteRapido() {
+  const textoPadraoBotao = '<i class="fas fa-user-plus me-1"></i>Salvar cliente rápido';
+  btnSalvarCliente.disabled = true;
+  btnSalvarCliente.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span>Salvando...';
+
+  try {
+    const resp = await fetch('salvar_cliente.php', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(montarPayloadClienteRapido())
+    });
+
+    const dados = await resp.json();
+    if (!resp.ok || !dados.status || !dados.cliente) {
+      throw new Error(dados.mensagem || 'Não foi possível salvar o cliente.');
+    }
+
+    atualizarClienteNaLista(dados.cliente);
+    document.getElementById('clienteNome').value = dados.cliente.nome_cliente || '';
+    document.getElementById('clienteTelefone').value = dados.cliente.telefone_contato || '';
+    document.getElementById('clienteCpfCnpj').value = dados.cliente.cpf_cnpj || '';
+    document.getElementById('clienteEmail').value = dados.cliente.email_contato || '';
+    document.getElementById('clienteEndereco').value = dados.cliente.endereco || '';
+    clienteSelecionadoId = Number(dados.id_cliente);
+    feedback('success', `Cliente #${dados.id_cliente} salvo com sucesso.`);
+  } catch (err) {
+    feedback('danger', err.message || 'Erro ao salvar cliente.');
+  } finally {
+    btnSalvarCliente.disabled = false;
+    btnSalvarCliente.innerHTML = textoPadraoBotao;
+  }
 }
 
 function calcItem(item, isProduto) {
@@ -406,6 +468,7 @@ function feedback(tipo, msg) {
 
 document.getElementById('clienteNome').addEventListener('input', (e) => renderClientesSugestao(e.target.value));
 document.getElementById('clienteNome').addEventListener('change', (e) => preencherCliente(e.target.value));
+btnSalvarCliente.addEventListener('click', salvarClienteRapido);
 
 document.getElementById('produtoSelect').addEventListener('change', (e) => {
   const opt = e.target.selectedOptions[0];
