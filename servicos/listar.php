@@ -235,7 +235,7 @@ include '../includes/header.php';
                                                     type="button"
                                                     class="btn btn-sm btn-outline-warning js-auth-action"
                                                     data-action-label="editar o serviço #<?= str_pad((string) ((int) $servico['id_servico']), 6, '0', STR_PAD_LEFT) ?>"
-                                                    data-target-url="<?= app_url('servicos/editar.php?id=' . (int) $servico['id_servico']); ?>"
+                                                    data-target-url="<?= app_url('servicos/nova.php'); ?>?id=<?= (int) $servico['id_servico'] ?>"
                                                 >
                                                     <i class="fas fa-pen me-1"></i>Editar
                                                 </button>
