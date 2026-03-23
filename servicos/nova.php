@@ -141,12 +141,49 @@ include '../includes/header.php';
                 <div class="card border-primary-subtle h-100">
                     <div class="card-header bg-light sales-block-title">3) Composição (frete e descontos)</div>
                     <div class="card-body">
-                        <div class="row g-2 mb-2">
-                            <div class="col-md-6"><label class="form-label">Frete total</label><input type="text" id="freteTotalInput" class="form-control" value="0,00"></div>
-                            <div class="col-md-6"><label class="form-label">Desconto extra (R$)</label><input type="text" id="descontoExtraInput" class="form-control" value="0,00"></div>
+                        <div class="resumo-card">
+                            <div class="row g-2 align-items-end">
+                                <div class="col-md-6">
+                                    <label class="form-label">Frete total</label>
+                                    <input type="text" inputmode="decimal" class="form-control" id="freteTotalInput" value="0,00">
+                                    <div class="form-check mt-2">
+                                        <input class="form-check-input" type="checkbox" id="freteComoMicroservicoCheck">
+                                        <label class="form-check-label" for="freteComoMicroservicoCheck">
+                                            Lançar frete como micro-serviço de deslocamento
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="col-md-6 form-check mt-4 ps-5">
+                                    <input class="form-check-input" type="checkbox" id="freteManualCheck">
+                                    <label class="form-check-label" for="freteManualCheck">
+                                        Informar frete manual (sobrescrever soma dos itens)
+                                    </label>
+                                </div>
+                            </div>
                         </div>
+
+                        <div class="resumo-card">
+                            <div class="row g-2 align-items-end">
+                                <div class="col-md-4">
+                                    <label class="form-label">Desconto total (R$)</label>
+                                    <input type="text" inputmode="decimal" class="form-control" id="descontoTotalInput" value="0,00">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">ou Desconto (%)</label>
+                                    <input type="text" inputmode="decimal" class="form-control" id="descontoPercentInput" value="0,00">
+                                </div>
+                                <div class="col-md-4 d-grid">
+                                    <button type="button" id="btnZerarDescontos" class="btn btn-outline-danger">
+                                        <i class="fas fa-eraser me-1"></i>Zerar descontos
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="context-tip mt-2">
+                                Se houver itens com desconto preenchido, o rateio respeita esses itens. Caso contrário, distribui proporcionalmente pelo valor dos itens.
+                            </div>
+                        </div>
+
                         <div class="d-flex justify-content-between mt-4"><span>Subtotal produtos:</span><strong id="subtotalProdutos">R$ 0,00</strong></div>
-                        <div class="d-flex justify-content-between"><span>Subtotal micro-serviços:</span><strong id="subtotalMicro">R$ 0,00</strong></div>
                         <div class="d-flex justify-content-between"><span>Total descontos:</span><strong id="totalDescontos">R$ 0,00</strong></div>
                         <div class="d-flex justify-content-between"><span>Total frete:</span><strong id="totalFrete">R$ 0,00</strong></div>
                         <hr>
@@ -163,13 +200,21 @@ include '../includes/header.php';
                             <div class="col-md-6"><label class="form-label">Condição</label><select id="condicaoPagamento" class="form-select"><option value="vista">À vista</option><option value="parcelado">Parcelado</option></select></div>
                             <div class="col-md-6"><label class="form-label">Qtd. parcelas</label><input type="number" id="qtdParcelas" class="form-control" min="1" max="24" value="1"></div>
                         </div>
+                        <p class="context-tip mb-2">No modo parcelado, clique com o botão direito na tabela para adicionar parcela; botão direito em uma linha remove.</p>
                         <div class="table-responsive">
-                            <table class="table table-sm table-bordered" id="parcelasTable"><thead class="table-secondary"><tr><th>#</th><th>Vencimento</th><th>Valor</th><th>Tipo</th></tr></thead><tbody></tbody></table>
-                        </div>
-                        <div class="d-grid mt-2">
-                            <button type="button" class="btn btn-outline-secondary btn-sm" id="btnRecalcularParcelas">
-                                <i class="fas fa-calculator me-1"></i>Recalcular parcelas
-                            </button>
+                            <table class="table table-sm table-bordered" id="parcelasTable">
+                                <thead class="table-secondary">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Vencimento</th>
+                                        <th>Valor</th>
+                                        <th>Tipo Pagamento</th>
+                                        <th>Qtd. Parcelas</th>
+                                        <th>Total Parcelas</th>
+                                    </tr>
+                                </thead>
+                                <tbody></tbody>
+                            </table>
                         </div>
                     </div>
                 </div>
@@ -179,33 +224,141 @@ include '../includes/header.php';
                 <div id="servicoFeedback" class="alert d-none" role="alert"></div>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                     <button type="button" class="btn btn-outline-secondary" id="btnLimparServico"><i class="fas fa-broom me-1"></i>Limpar campos</button>
-                    <button type="submit" class="btn btn-primary" id="btnSalvarServico"><i class="fas fa-save me-1"></i>Salvar serviço</button>
+                    <button type="button" class="btn btn-primary" id="btnSalvarServico"><i class="fas fa-save me-1"></i>Salvar serviço</button>
                 </div>
             </div>
         </form>
     </div>
 </div>
 
+<script src="../assets/js/composicao_comercial.js"></script>
 <script>
 const hojeSP = '<?= $hojeSaoPaulo ?>';
 const csrfToken = '<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8') ?>';
 const clientesData = <?= json_encode($clientes, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
 const clienteObrigatorio = <?= $clienteObrigatorio ? 'true' : 'false' ?>;
+const tiposPagamento = [
+  'PIX', 'Dinheiro', 'Boleto', 'Cheque', 'Pix Pague Seguro',
+  'Débito PagSeguro', 'Crédito PagSeguro', 'Débito Stone',
+  'Crédito Stone', 'Débito Infinite', 'Crédito Infinite'
+];
 
-const state = { produtos: [], microservicos: [], parcelas: [{ vencimento: hojeSP, valor: 0, tipo: 'PIX', manual: false }] };
-let ultimoTotalParcelado = null;
+const state = { produtos: [], microservicos: [] };
+const DESCRICAO_MICROSERVICO_FRETE = 'Deslocamento e Frete de equipe, material ou equipamento';
 
 const moeda = (v) => Number(v || 0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
-const valorNum = (v) => {
-  const t = String(v ?? '').trim();
-  const n = parseFloat(t.includes(',') ? t.replace(/\./g, '').replace(',', '.') : t);
-  return Number.isFinite(n) ? n : 0;
-};
+const valorNum = window.ComposicaoComercial.valorNum;
 
 let clienteSelecionadoId = null;
 const clientesSugestoes = document.getElementById('clientesSugestoes');
 const btnSalvarCliente = document.getElementById('btnSalvarCliente');
 const btnLimparServico = document.getElementById('btnLimparServico');
+
+const composicao = window.ComposicaoComercial.init({
+  hoje: hojeSP,
+  tiposPagamento,
+  seletores: {
+    itensBody: '#itensComposicaoDummy tbody',
+    parcelasBody: '#parcelasTable tbody',
+    freteManualCheck: '#freteManualCheck',
+    freteTotalInput: '#freteTotalInput',
+    descontoTotalInput: '#descontoTotalInput',
+    descontoPercentInput: '#descontoPercentInput',
+    condicaoPagamento: '#condicaoPagamento',
+    qtdParcelas: '#qtdParcelas',
+    subtotalProdutos: '#subtotalProdutos',
+    totalDescontos: '#totalDescontos',
+    totalFrete: '#totalFrete',
+    totalGeral: '#totalGeralServico'
+  }
+});
+
+function syncComposicaoFromState() {
+  const produtos = state.produtos.map((item) => ({
+    nome: item.descricao,
+    quantidade: item.quantidade,
+    valorUnitario: item.valor_unitario,
+    desconto: item.desconto_valor,
+    freteItem: item.frete_valor
+  }));
+
+  const microservicos = state.microservicos.map((item) => ({
+    nome: item.descricao,
+    quantidade: item.quantidade,
+    valorUnitario: item.valor_unitario,
+    desconto: item.desconto_valor,
+    freteItem: 0
+  }));
+
+  composicao.setItens(produtos, microservicos);
+}
+
+function obterIndexMicroservicoFrete() {
+  return state.microservicos.findIndex((item) => item.is_frete_embutido === true);
+}
+
+function limparFreteProdutosServico() {
+  state.produtos = state.produtos.map((item) => ({ ...item, frete_valor: 0 }));
+}
+
+function ratearFreteProdutosServico(valorFreteTotal) {
+  if (!state.produtos.length) return;
+
+  const totalFrete = Math.max(0, valorFreteTotal);
+  const subtotais = state.produtos.map((item) => Math.max(0, Number(item.quantidade || 0) * Number(item.valor_unitario || 0)));
+  const somaSubtotais = subtotais.reduce((acc, valor) => acc + valor, 0);
+  const divisorFallback = state.produtos.length || 1;
+
+  let distribuido = 0;
+  state.produtos = state.produtos.map((item, idx) => {
+    if (idx === state.produtos.length - 1) {
+      return { ...item, frete_valor: Number((totalFrete - distribuido).toFixed(2)) };
+    }
+
+    const base = somaSubtotais > 0 ? subtotais[idx] : 1;
+    const divisor = somaSubtotais > 0 ? somaSubtotais : divisorFallback;
+    const parcial = (totalFrete * base) / divisor;
+    const arredondado = Number(parcial.toFixed(2));
+    distribuido += arredondado;
+    return { ...item, frete_valor: arredondado };
+  });
+}
+
+function sincronizarMicroservicoFrete() {
+  const checkFreteComoMicro = document.getElementById('freteComoMicroservicoCheck');
+  const checkFreteManual = document.getElementById('freteManualCheck');
+  const freteTotalInput = document.getElementById('freteTotalInput');
+  const valorFreteTotal = Math.max(0, valorNum(freteTotalInput.value));
+  const idxFrete = obterIndexMicroservicoFrete();
+
+  if (!checkFreteComoMicro.checked) {
+    if (idxFrete >= 0) {
+      state.microservicos.splice(idxFrete, 1);
+    }
+    checkFreteManual.disabled = false;
+    return;
+  }
+
+  checkFreteManual.checked = true;
+  checkFreteManual.disabled = true;
+  limparFreteProdutosServico();
+
+  const itemFrete = {
+    descricao: DESCRICAO_MICROSERVICO_FRETE,
+    quantidade: 1,
+    valor_unitario: valorFreteTotal,
+    desconto_valor: 0,
+    frete_valor: 0,
+    is_frete_embutido: true
+  };
+
+  if (idxFrete >= 0) {
+    state.microservicos[idxFrete] = { ...state.microservicos[idxFrete], ...itemFrete };
+    return;
+  }
+
+  state.microservicos.push(itemFrete);
+}
 
 function renderClientesSugestao(filtro='') {
   const termo = filtro.trim().toLowerCase();
@@ -290,6 +443,7 @@ function renderTabelas() {
   b1.innerHTML = '';
   b2.innerHTML = '';
 
+  sincronizarMicroservicoFrete();
   state.produtos = state.produtos.map(i => calcItem(i, true));
   state.microservicos = state.microservicos.map(i => calcItem(i, false));
 
@@ -306,161 +460,18 @@ function renderTabelas() {
   });
 
   state.microservicos.forEach((i, idx) => {
+    const linhaFrete = i.is_frete_embutido === true;
     b2.insertAdjacentHTML('beforeend', `<tr>
       <td>${idx+1}</td><td>${i.descricao}</td>
-      <td><input class="form-control form-control-sm" data-tipo="micro" data-campo="quantidade" data-idx="${idx}" value="${i.quantidade}"></td>
-      <td><input class="form-control form-control-sm" data-tipo="micro" data-campo="valor_unitario" data-idx="${idx}" value="${Number(i.valor_unitario).toFixed(2).replace('.', ',')}"></td>
-      <td><input class="form-control form-control-sm" data-tipo="micro" data-campo="desconto_valor" data-idx="${idx}" value="${Number(i.desconto_valor).toFixed(2).replace('.', ',')}"></td>
+      <td><input class="form-control form-control-sm" data-tipo="micro" data-campo="quantidade" data-idx="${idx}" value="${i.quantidade}" ${linhaFrete ? 'readonly' : ''}></td>
+      <td><input class="form-control form-control-sm" data-tipo="micro" data-campo="valor_unitario" data-idx="${idx}" value="${Number(i.valor_unitario).toFixed(2).replace('.', ',')}" ${linhaFrete ? 'readonly' : ''}></td>
+      <td><input class="form-control form-control-sm" data-tipo="micro" data-campo="desconto_valor" data-idx="${idx}" value="${Number(i.desconto_valor).toFixed(2).replace('.', ',')}" ${linhaFrete ? 'readonly' : ''}></td>
       <td>${moeda(i.total)}</td>
-      <td><button type="button" class="btn btn-sm btn-outline-danger" data-remover="micro" data-idx="${idx}"><i class="fas fa-trash"></i></button></td>
+      <td>${linhaFrete ? '<span class="badge bg-secondary">Automático</span>' : `<button type="button" class="btn btn-sm btn-outline-danger" data-remover="micro" data-idx="${idx}"><i class="fas fa-trash"></i></button>`}</td>
     </tr>`);
   });
 
-  renderResumoEParcelas();
-}
-
-function resumo() {
-  const subtotalProdutos = state.produtos.reduce((a,b) => a + b.subtotal, 0);
-  const subtotalMicro = state.microservicos.reduce((a,b) => a + b.subtotal, 0);
-  const descontosItens = state.produtos.reduce((a,b) => a + Number(b.desconto_valor || 0), 0) + state.microservicos.reduce((a,b) => a + Number(b.desconto_valor || 0), 0);
-  const freteItens = state.produtos.reduce((a,b) => a + Number(b.frete_valor || 0), 0);
-  const descontoExtra = Math.max(0, valorNum(document.getElementById('descontoExtraInput').value));
-  const freteManual = Math.max(0, valorNum(document.getElementById('freteTotalInput').value));
-  const frete_total = freteItens + freteManual;
-  const descontoTotal = descontosItens + descontoExtra;
-  const total = Math.max(0, subtotalProdutos + subtotalMicro - descontoTotal + frete_total);
-  return { subtotalProdutos, subtotalMicro, descontoTotal, frete_total, total };
-}
-
-function renderParcelas() {
-  const body = document.querySelector('#parcelasTable tbody');
-  body.innerHTML = '';
-  state.parcelas.forEach((p, idx) => {
-    body.insertAdjacentHTML('beforeend', `<tr>
-      <td>${idx+1}</td>
-      <td><input type="date" class="form-control form-control-sm" data-parcela="vencimento" data-idx="${idx}" value="${p.vencimento}"></td>
-      <td><input class="form-control form-control-sm" data-parcela="valor" data-idx="${idx}" value="${Number(p.valor).toFixed(2).replace('.', ',')}"></td>
-      <td><input class="form-control form-control-sm" data-parcela="tipo" data-idx="${idx}" value="${p.tipo}"></td>
-    </tr>`);
-  });
-}
-
-function obterCondicaoPagamento() {
-  return document.getElementById('condicaoPagamento').value === 'parcelado' ? 'parcelado' : 'vista';
-}
-
-function distribuirParcelas() {
-  const total = resumo().total;
-  const qtd = Math.max(1, parseInt(document.getElementById('qtdParcelas').value, 10) || 1);
-  const parcelaBase = state.parcelas[0] || { vencimento: hojeSP, tipo: 'PIX' };
-  const baseVencimento = parcelaBase.vencimento || hojeSP;
-  const baseTipo = parcelaBase.tipo || 'PIX';
-  const baseDate = new Date(`${baseVencimento}T12:00:00`);
-  const dataInicial = Number.isNaN(baseDate.getTime()) ? new Date(`${hojeSP}T12:00:00`) : baseDate;
-
-  state.parcelas = Array.from({ length: qtd }, (_, i) => {
-    const atual = state.parcelas[i] || {};
-    const d = new Date(dataInicial);
-    d.setMonth(d.getMonth() + i);
-    return {
-      vencimento: atual.vencimento || d.toISOString().slice(0,10),
-      valor: Number(atual.valor || 0),
-      tipo: atual.tipo || baseTipo,
-      manual: Boolean(atual.manual)
-    };
-  });
-
-  const manuais = state.parcelas.filter((p) => p.manual);
-  const editaveis = state.parcelas.filter((p) => !p.manual);
-  const somaManuais = manuais.reduce((acc, p) => acc + Number(p.valor || 0), 0);
-  const restante = Math.max(0, Number((total - somaManuais).toFixed(2)));
-  const valorPadrao = editaveis.length ? restante / editaveis.length : 0;
-
-  editaveis.forEach((p, i) => {
-    if (i === editaveis.length - 1) {
-      const somaPrev = editaveis.slice(0, -1).reduce((acc, cur) => acc + Number(cur.valor || 0), 0);
-      p.valor = Number((restante - somaPrev).toFixed(2));
-      return;
-    }
-    p.valor = Number(valorPadrao.toFixed(2));
-  });
-
-  ultimoTotalParcelado = Number(total.toFixed(2));
-  renderParcelas();
-}
-
-function forcarParcelaVista() {
-  const total = resumo().total;
-  const atual = state.parcelas[0] || {};
-  state.parcelas = [{
-    vencimento: atual.vencimento || hojeSP,
-    valor: Number(total.toFixed(2)),
-    tipo: atual.tipo || 'PIX',
-    manual: false
-  }];
-  ultimoTotalParcelado = Number(total.toFixed(2));
-  renderParcelas();
-}
-
-function aplicarCondicaoPagamento({ redistribuir = true } = {}) {
-  const condicao = obterCondicaoPagamento();
-  const qtdInput = document.getElementById('qtdParcelas');
-
-  if (condicao === 'vista') {
-    qtdInput.value = '1';
-    qtdInput.disabled = true;
-    forcarParcelaVista();
-    return;
-  }
-
-  qtdInput.disabled = false;
-  qtdInput.value = String(Math.max(1, parseInt(qtdInput.value, 10) || state.parcelas.length || 1));
-  if (redistribuir) distribuirParcelas();
-  else renderParcelas();
-}
-
-function sincronizarValoresParcelasComTotal() {
-  const totalAtual = Number(resumo().total.toFixed(2));
-  const totalAnterior = Number.isFinite(ultimoTotalParcelado) ? ultimoTotalParcelado : null;
-  const diferenca = totalAnterior === null ? totalAtual : Number((totalAtual - totalAnterior).toFixed(2));
-
-  if (obterCondicaoPagamento() === 'vista') {
-    forcarParcelaVista();
-    return;
-  }
-
-  if (!state.parcelas.length) return;
-
-  if (Math.abs(diferenca) < 0.01) {
-    return;
-  }
-
-  const indicesNaoManuais = state.parcelas
-    .map((p, idx) => ({ p, idx }))
-    .filter(({ p }) => !p.manual)
-    .map(({ idx }) => idx);
-
-  if (!indicesNaoManuais.length) {
-    ultimoTotalParcelado = totalAtual;
-    return;
-  }
-
-  const idxAjuste = indicesNaoManuais[indicesNaoManuais.length - 1];
-  state.parcelas[idxAjuste].valor = Number((Number(state.parcelas[idxAjuste].valor || 0) + diferenca).toFixed(2));
-  if (state.parcelas[idxAjuste].valor < 0) state.parcelas[idxAjuste].valor = 0;
-
-  ultimoTotalParcelado = totalAtual;
-  renderParcelas();
-}
-
-function renderResumoEParcelas() {
-  const r = resumo();
-  document.getElementById('subtotalProdutos').textContent = moeda(r.subtotalProdutos);
-  document.getElementById('subtotalMicro').textContent = moeda(r.subtotalMicro);
-  document.getElementById('totalDescontos').textContent = moeda(r.descontoTotal);
-  document.getElementById('totalFrete').textContent = moeda(r.frete_total);
-  document.getElementById('totalGeralServico').textContent = moeda(r.total);
-  sincronizarValoresParcelasComTotal();
+  syncComposicaoFromState();
 }
 
 function feedback(tipo, msg) {
@@ -492,20 +503,21 @@ function limparFormularioServicoPosSucesso() {
   document.getElementById('microQtd').value = '1';
   document.getElementById('microValor').value = '0,00';
 
+  document.getElementById('freteManualCheck').checked = false;
+  document.getElementById('freteManualCheck').disabled = false;
+  document.getElementById('freteComoMicroservicoCheck').checked = false;
   document.getElementById('freteTotalInput').value = '0,00';
-  document.getElementById('descontoExtraInput').value = '0,00';
-
+  document.getElementById('descontoTotalInput').value = '0,00';
+  document.getElementById('descontoPercentInput').value = '0,00';
   document.getElementById('condicaoPagamento').value = 'vista';
   document.getElementById('qtdParcelas').value = '1';
 
   state.produtos = [];
   state.microservicos = [];
-  state.parcelas = [{ vencimento: hojeSP, valor: 0, tipo: 'PIX', manual: false }];
-  ultimoTotalParcelado = null;
 
   renderClientesSugestao('');
   renderTabelas();
-  aplicarCondicaoPagamento({ redistribuir: false });
+  document.getElementById('condicaoPagamento').dispatchEvent(new Event('change'));
   limparFeedback();
   document.getElementById('clienteNome').focus();
 }
@@ -514,6 +526,29 @@ document.getElementById('clienteNome').addEventListener('input', (e) => renderCl
 document.getElementById('clienteNome').addEventListener('change', (e) => preencherCliente(e.target.value));
 btnSalvarCliente.addEventListener('click', salvarClienteRapido);
 btnLimparServico.addEventListener('click', limparFormularioServicoPosSucesso);
+document.getElementById('btnZerarDescontos').addEventListener('click', () => composicao.zerarDescontosProdutos());
+
+document.getElementById('freteManualCheck').addEventListener('change', () => {
+  if (document.getElementById('freteComoMicroservicoCheck').checked) return;
+  if (!document.getElementById('freteManualCheck').checked) return;
+  ratearFreteProdutosServico(valorNum(document.getElementById('freteTotalInput').value));
+  renderTabelas();
+});
+
+document.getElementById('freteTotalInput').addEventListener('input', () => {
+  if (document.getElementById('freteComoMicroservicoCheck').checked) {
+    renderTabelas();
+    return;
+  }
+
+  if (!document.getElementById('freteManualCheck').checked) return;
+  ratearFreteProdutosServico(valorNum(document.getElementById('freteTotalInput').value));
+  renderTabelas();
+});
+
+document.getElementById('freteComoMicroservicoCheck').addEventListener('change', () => {
+  renderTabelas();
+});
 
 document.getElementById('produtoSelect').addEventListener('change', (e) => {
   const opt = e.target.selectedOptions[0];
@@ -554,6 +589,7 @@ document.getElementById('btnAdicionarMicro').addEventListener('click', () => {
     const idx = Number(el.dataset.idx); if (!Number.isInteger(idx)) return;
     const tipo = el.dataset.tipo === 'micro' ? 'microservicos' : 'produtos';
     if (!state[tipo][idx]) return;
+    if (tipo === 'microservicos' && state[tipo][idx].is_frete_embutido === true) return;
     const campo = el.dataset.campo;
     state[tipo][idx][campo] = campo === 'quantidade' ? Math.max(1, parseInt(el.value, 10) || 1) : valorNum(el.value);
     renderTabelas();
@@ -563,54 +599,23 @@ document.getElementById('btnAdicionarMicro').addEventListener('click', () => {
     if (!btn) return;
     const idx = Number(btn.dataset.idx);
     if (btn.dataset.remover === 'produto') state.produtos.splice(idx, 1);
-    else state.microservicos.splice(idx, 1);
+    else {
+      if (state.microservicos[idx]?.is_frete_embutido === true) return;
+      state.microservicos.splice(idx, 1);
+    }
     renderTabelas();
   });
 });
 
-['freteTotalInput','descontoExtraInput'].forEach((id) => {
-  document.getElementById(id).addEventListener('input', renderResumoEParcelas);
-  document.getElementById(id).addEventListener('change', renderResumoEParcelas);
-});
-
-document.getElementById('qtdParcelas').addEventListener('input', () => {
-  if (obterCondicaoPagamento() !== 'parcelado') return;
-  distribuirParcelas();
-});
-document.getElementById('qtdParcelas').addEventListener('change', () => {
-  if (obterCondicaoPagamento() !== 'parcelado') return;
-  distribuirParcelas();
-});
-
-document.getElementById('condicaoPagamento').addEventListener('change', () => {
-  aplicarCondicaoPagamento({ redistribuir: true });
-});
-
-document.getElementById('btnRecalcularParcelas').addEventListener('click', () => {
-  if (obterCondicaoPagamento() === 'vista') {
-    forcarParcelaVista();
-    return;
-  }
-  distribuirParcelas();
-});
-
-document.querySelector('#parcelasTable tbody').addEventListener('input', (e) => {
-  const idx = Number(e.target.dataset.idx); if (!state.parcelas[idx]) return;
-  if (e.target.dataset.parcela === 'vencimento') state.parcelas[idx].vencimento = e.target.value || hojeSP;
-  if (e.target.dataset.parcela === 'valor') {
-    state.parcelas[idx].valor = valorNum(e.target.value);
-    state.parcelas[idx].manual = true;
-  }
-  if (e.target.dataset.parcela === 'tipo') state.parcelas[idx].tipo = e.target.value || 'PIX';
-});
-
-document.getElementById('formServico').addEventListener('submit', async (e) => {
-  e.preventDefault();
+async function salvarServico() {
   if (!state.produtos.length && !state.microservicos.length) return feedback('warning', 'Adicione ao menos um item de produto ou micro-serviço.');
   if (clienteObrigatorio && !clienteSelecionadoId) {
     return feedback('warning', 'Selecione um cliente existente ou use o botão "Salvar cliente rápido" antes de salvar o serviço.');
   }
-  const r = resumo();
+
+  const resumo = composicao.getResumo();
+  const composicaoState = composicao.getState();
+
   const payload = {
     csrf_token: csrfToken,
     cliente_id: clienteSelecionadoId,
@@ -622,14 +627,18 @@ document.getElementById('formServico').addEventListener('submit', async (e) => {
       endereco: document.getElementById('clienteEndereco').value.trim()
     },
     condicao_pagamento: document.getElementById('condicaoPagamento').value,
-    subtotal_produtos: Number(r.subtotalProdutos.toFixed(2)),
-    subtotal_microservicos: Number(r.subtotalMicro.toFixed(2)),
-    desconto_total: Number(r.descontoTotal.toFixed(2)),
-    frete_total: Number(r.frete_total.toFixed(2)),
-    total_geral: Number(r.total.toFixed(2)),
+    subtotal_produtos: Number(resumo.subtotal_produtos.toFixed(2)),
+    subtotal_microservicos: Number(resumo.subtotal_microservicos.toFixed(2)),
+    desconto_total: Number(resumo.desconto_total.toFixed(2)),
+    frete_total: Number(resumo.frete_total.toFixed(2)),
+    total_geral: Number(resumo.total_geral.toFixed(2)),
     itens_produto: state.produtos,
     itens_microservico: state.microservicos,
-    parcelas: state.parcelas
+    parcelas: composicaoState.parcelas.map((p) => ({
+      vencimento: p.vencimento,
+      valor: Number(Number(p.valor || 0).toFixed(2)),
+      tipo: p.tipoPagamento || 'PIX'
+    }))
   };
 
   const btn = document.getElementById('btnSalvarServico');
@@ -643,11 +652,37 @@ document.getElementById('formServico').addEventListener('submit', async (e) => {
   } catch (err) {
     feedback('danger', err.message || 'Erro ao salvar serviço.');
   } finally { btn.disabled = false; }
+}
+
+const formServico = document.getElementById('formServico');
+const btnSalvarServico = document.getElementById('btnSalvarServico');
+let liberarSalvarServicoPorMouse = false;
+
+formServico.addEventListener('submit', (event) => {
+  event.preventDefault();
+});
+
+btnSalvarServico.addEventListener('pointerdown', () => {
+  liberarSalvarServicoPorMouse = true;
+});
+
+btnSalvarServico.addEventListener('click', (event) => {
+  if (!liberarSalvarServicoPorMouse) {
+    event.preventDefault();
+    return;
+  }
+
+  liberarSalvarServicoPorMouse = false;
+  salvarServico();
+});
+
+btnSalvarServico.addEventListener('blur', () => {
+  liberarSalvarServicoPorMouse = false;
 });
 
 renderClientesSugestao('');
 renderTabelas();
-aplicarCondicaoPagamento({ redistribuir: false });
+document.getElementById('condicaoPagamento').dispatchEvent(new Event('change'));
 </script>
 
 <?php include '../includes/footer.php'; ?>

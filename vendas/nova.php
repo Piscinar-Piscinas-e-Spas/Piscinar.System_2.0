@@ -226,7 +226,7 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
                     <button type="button" class="btn btn-outline-secondary" id="btnLimparVenda">
                         <i class="fas fa-broom me-1"></i>Limpar campos
                     </button>
-                    <button type="submit" class="btn btn-primary" id="btnSalvarVenda">
+                    <button type="button" class="btn btn-primary" id="btnSalvarVenda">
                         <i class="fas fa-save me-1"></i>Salvar venda
                     </button>
                 </div>
@@ -672,9 +672,28 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
         limparFormularioVendaPosSucesso();
     });
 
+    let liberarSalvarVendaPorMouse = false;
+
     formVenda.addEventListener('submit', (event) => {
         event.preventDefault();
+    });
+
+    btnSalvarVenda.addEventListener('pointerdown', () => {
+        liberarSalvarVendaPorMouse = true;
+    });
+
+    btnSalvarVenda.addEventListener('click', (event) => {
+        if (!liberarSalvarVendaPorMouse) {
+            event.preventDefault();
+            return;
+        }
+
+        liberarSalvarVendaPorMouse = false;
         enviarVenda();
+    });
+
+    btnSalvarVenda.addEventListener('blur', () => {
+        liberarSalvarVendaPorMouse = false;
     });
 </script>
 
