@@ -223,6 +223,9 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
             <div class="col-12">
                 <div id="vendaFeedback" class="alert d-none" role="alert"></div>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="button" class="btn btn-outline-secondary" id="btnLimparVenda">
+                        <i class="fas fa-broom me-1"></i>Limpar campos
+                    </button>
                     <button type="submit" class="btn btn-primary" id="btnSalvarVenda">
                         <i class="fas fa-save me-1"></i>Salvar venda
                     </button>
@@ -246,6 +249,7 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
     const formVenda = document.getElementById('formVenda');
     const feedbackBox = document.getElementById('vendaFeedback');
     const btnSalvarVenda = document.getElementById('btnSalvarVenda');
+    const btnLimparVenda = document.getElementById('btnLimparVenda');
     const btnSalvarCliente = document.getElementById('btnSalvarCliente');
     const clienteNome = document.getElementById('clienteNome');
     const clienteTelefone = document.getElementById('clienteTelefone');
@@ -662,6 +666,10 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
 
     document.getElementById('btnZerarDescontos').addEventListener('click', () => {
         composicao.zerarDescontosProdutos();
+    });
+
+    btnLimparVenda.addEventListener('click', () => {
+        limparFormularioVendaPosSucesso();
     });
 
     formVenda.addEventListener('submit', (event) => {

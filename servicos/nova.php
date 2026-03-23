@@ -178,6 +178,7 @@ include '../includes/header.php';
             <div class="col-12">
                 <div id="servicoFeedback" class="alert d-none" role="alert"></div>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button type="button" class="btn btn-outline-secondary" id="btnLimparServico"><i class="fas fa-broom me-1"></i>Limpar campos</button>
                     <button type="submit" class="btn btn-primary" id="btnSalvarServico"><i class="fas fa-save me-1"></i>Salvar serviço</button>
                 </div>
             </div>
@@ -204,6 +205,7 @@ const valorNum = (v) => {
 let clienteSelecionadoId = null;
 const clientesSugestoes = document.getElementById('clientesSugestoes');
 const btnSalvarCliente = document.getElementById('btnSalvarCliente');
+const btnLimparServico = document.getElementById('btnLimparServico');
 
 function renderClientesSugestao(filtro='') {
   const termo = filtro.trim().toLowerCase();
@@ -511,6 +513,7 @@ function limparFormularioServicoPosSucesso() {
 document.getElementById('clienteNome').addEventListener('input', (e) => renderClientesSugestao(e.target.value));
 document.getElementById('clienteNome').addEventListener('change', (e) => preencherCliente(e.target.value));
 btnSalvarCliente.addEventListener('click', salvarClienteRapido);
+btnLimparServico.addEventListener('click', limparFormularioServicoPosSucesso);
 
 document.getElementById('produtoSelect').addEventListener('change', (e) => {
   const opt = e.target.selectedOptions[0];
