@@ -8,5 +8,5 @@ if ($idServico <= 0) {
     exit;
 }
 
-header('Location: ' . app_url('servicos/detalhes.php?id=' . $idServico));
+header('Location: ' . app_url('servicos/nova.php?id=' . $idServico));
 exit;
