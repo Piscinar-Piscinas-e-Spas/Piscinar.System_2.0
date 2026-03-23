@@ -5,6 +5,7 @@ require_once __DIR__ . '/_infra.php';
 
 servicos_ensure_schema($pdo);
 $clientes = servicos_obter_clientes($pdo);
+$clienteObrigatorio = servicos_cliente_obrigatorio();
 
 $produtosStmt = $pdo->query("SELECT id, nome, preco1 FROM produtos ORDER BY nome");
 $produtos = $produtosStmt ? $produtosStmt->fetchAll(PDO::FETCH_ASSOC) : [];
@@ -188,6 +189,7 @@ include '../includes/header.php';
 const hojeSP = '<?= $hojeSaoPaulo ?>';
 const csrfToken = '<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8') ?>';
 const clientesData = <?= json_encode($clientes, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+const clienteObrigatorio = <?= $clienteObrigatorio ? 'true' : 'false' ?>;
 
 const state = { produtos: [], microservicos: [], parcelas: [{ vencimento: hojeSP, valor: 0, tipo: 'PIX', manual: false }] };
 let ultimoTotalParcelado = null;
@@ -562,6 +564,9 @@ document.querySelector('#parcelasTable tbody').addEventListener('input', (e) => 
 document.getElementById('formServico').addEventListener('submit', async (e) => {
   e.preventDefault();
   if (!state.produtos.length && !state.microservicos.length) return feedback('warning', 'Adicione ao menos um item de produto ou micro-serviço.');
+  if (clienteObrigatorio && !clienteSelecionadoId) {
+    return feedback('warning', 'Selecione um cliente existente ou use o botão "Salvar cliente rápido" antes de salvar o serviço.');
+  }
   const r = resumo();
   const payload = {
     csrf_token: csrfToken,

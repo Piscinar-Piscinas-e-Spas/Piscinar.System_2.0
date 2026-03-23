@@ -62,3 +62,13 @@ function servicos_obter_clientes(PDO $pdo): array
     $stmt = $pdo->query("SELECT id_cliente, nome_cliente, telefone_contato, cpf_cnpj, email_contato, endereco FROM clientes ORDER BY nome_cliente");
     return $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
 }
+
+function servicos_cliente_obrigatorio(): bool
+{
+    $valor = getenv('SERVICOS_CLIENTE_OBRIGATORIO');
+    if ($valor === false || trim((string) $valor) === '') {
+        return false;
+    }
+
+    return (bool) filter_var($valor, FILTER_VALIDATE_BOOLEAN);
+}
