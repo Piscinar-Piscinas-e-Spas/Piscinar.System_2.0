@@ -141,13 +141,17 @@
         }
 
         function renderItens() {
-            if (!dom.itensBody) return;
-            dom.itensBody.innerHTML = '';
-
             state.itens_produto = state.itens_produto.map((item) => normalizarItem(item, 'produto'));
             if (dom.freteManualCheck.checked) {
                 aplicarRateioFreteProdutos(Math.max(0, valorNum(dom.freteTotalInput.value)));
             }
+
+            if (!dom.itensBody) {
+                atualizarResumo();
+                return;
+            }
+
+            dom.itensBody.innerHTML = '';
 
             state.itens_produto.forEach((item, index) => {
                 const tr = document.createElement('tr');

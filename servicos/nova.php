@@ -86,6 +86,31 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
 include '../includes/header.php';
 ?>
 
+<style>
+    .servico-desconto-card .form-label {
+        font-size: 0.92rem;
+        margin-bottom: 0.35rem;
+    }
+
+    .servico-desconto-card .form-control {
+        height: 38px;
+        font-size: 0.95rem;
+        padding-top: 0.35rem;
+        padding-bottom: 0.35rem;
+    }
+
+    .servico-desconto-card .btn {
+        height: 38px;
+        font-size: 0.95rem;
+        padding-top: 0.35rem;
+        padding-bottom: 0.35rem;
+    }
+
+    .servico-resumo-linhas > div {
+        margin-bottom: 0.2rem;
+    }
+</style>
+
 <div class="card">
     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
         <h4 class="mb-0"><i class="fas fa-tools me-2"></i><?= $servicoEdicaoPayload ? 'Editar Serviço' : 'Tela de Serviços' ?></h4>
@@ -234,20 +259,37 @@ include '../includes/header.php';
                             </div>
                         </div>
 
-                        <div class="resumo-card">
+                        <div class="resumo-card servico-desconto-card">
                             <div class="row g-2 align-items-end">
                                 <div class="col-md-4">
                                     <label class="form-label">Desconto total (R$)</label>
-                                    <input type="text" inputmode="decimal" class="form-control" id="descontoTotalInput" value="0,00">
+                                    <input type="text" inputmode="decimal" class="form-control form-control-sm" id="descontoTotalInput" value="0,00">
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label">ou Desconto (%)</label>
-                                    <input type="text" inputmode="decimal" class="form-control" id="descontoPercentInput" value="0,00">
+                                    <input type="text" inputmode="decimal" class="form-control form-control-sm" id="descontoPercentInput" value="0,00">
                                 </div>
                                 <div class="col-md-4 d-grid">
-                                    <button type="button" id="btnZerarDescontos" class="btn btn-outline-danger">
+                                    <button type="button" id="btnZerarDescontos" class="btn btn-sm btn-outline-danger">
                                         <i class="fas fa-eraser me-1"></i>Zerar descontos
                                     </button>
+                                </div>
+                            </div>
+                            <div class="mt-3">
+                                <span class="form-label d-block mb-2">Aplicar desconto com rateio em</span>
+                                <div class="d-flex flex-wrap gap-3">
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="descontoRateioModo" id="descontoRateioProdutos" value="produtos" checked>
+                                        <label class="form-check-label" for="descontoRateioProdutos">Produtos</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="descontoRateioModo" id="descontoRateioMicro" value="microservicos">
+                                        <label class="form-check-label" for="descontoRateioMicro">Micro-serviços</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="descontoRateioModo" id="descontoRateioGeral" value="geral">
+                                        <label class="form-check-label" for="descontoRateioGeral">Rateio geral</label>
+                                    </div>
                                 </div>
                             </div>
                             <div class="context-tip mt-2">
@@ -255,9 +297,12 @@ include '../includes/header.php';
                             </div>
                         </div>
 
-                        <div class="d-flex justify-content-between mt-4"><span>Subtotal produtos:</span><strong id="subtotalProdutos">R$ 0,00</strong></div>
-                        <div class="d-flex justify-content-between"><span>Total descontos:</span><strong id="totalDescontos">R$ 0,00</strong></div>
-                        <div class="d-flex justify-content-between"><span>Total frete:</span><strong id="totalFrete">R$ 0,00</strong></div>
+                        <div class="servico-resumo-linhas mt-4">
+                            <div class="d-flex justify-content-between"><span>Subtotal produtos:</span><strong id="subtotalProdutos">R$ 0,00</strong></div>
+                            <div class="d-flex justify-content-between"><span>Subtotal micro-serviços:</span><strong id="subtotalMicro">R$ 0,00</strong></div>
+                            <div class="d-flex justify-content-between"><span>Total descontos:</span><strong id="totalDescontos">R$ 0,00</strong></div>
+                            <div class="d-flex justify-content-between"><span>Total frete:</span><strong id="totalFrete">R$ 0,00</strong></div>
+                        </div>
                         <hr>
                         <div class="d-flex justify-content-between"><span>Total geral do serviço:</span><span class="total-pill" id="totalGeralServico">R$ 0,00</span></div>
                     </div>
@@ -319,6 +364,7 @@ const tiposPagamento = [
 const state = { produtos: [], microservicos: [] };
 const DESCRICAO_MICROSERVICO_FRETE = 'Deslocamento e Frete de equipe, material ou equipamento';
 let sincronizandoComposicao = false;
+let ultimaOrigemDesconto = 'valor';
 
 const moeda = (v) => Number(v || 0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
 const valorNum = window.ComposicaoComercial.valorNum;
@@ -328,6 +374,8 @@ const clientesSugestoes = document.getElementById('clientesSugestoes');
 const btnSalvarCliente = document.getElementById('btnSalvarCliente');
 const btnLimparServico = document.getElementById('btnLimparServico');
 const subtotalMicroEl = document.getElementById('subtotalMicro');
+const descontoTotalInput = document.getElementById('descontoTotalInput');
+const descontoPercentInput = document.getElementById('descontoPercentInput');
 
 const composicao = window.ComposicaoComercial.init({
   hoje: hojeSP,
@@ -350,6 +398,7 @@ const composicao = window.ComposicaoComercial.init({
     if (subtotalMicroEl) {
       subtotalMicroEl.textContent = moeda(snapshot?.totais?.subtotal_microservicos || 0);
     }
+    atualizarPercentualDescontoServico(snapshot);
     if (sincronizandoComposicao) return;
     syncStateFromComposicao(snapshot);
     renderTabelas({ skipComposicaoSync: true });
@@ -406,6 +455,125 @@ function syncStateFromComposicao(snapshot) {
       valor_unitario: Number(composicaoItem.valorUnitario || 0),
       desconto_valor: Number(composicaoItem.desconto || 0)
     };
+  });
+}
+
+function obterModoRateioDesconto() {
+  return document.querySelector('input[name="descontoRateioModo"]:checked')?.value || 'produtos';
+}
+
+function obterEntradasRateioDesconto() {
+  const modo = obterModoRateioDesconto();
+  const entradas = [];
+
+  if (modo === 'produtos' || modo === 'geral') {
+    state.produtos.forEach((item, idx) => {
+      entradas.push({
+        grupo: 'produtos',
+        idx,
+        subtotal: Math.max(0, Number(item.quantidade || 0) * Number(item.valor_unitario || 0)),
+        desconto: Math.max(0, Number(item.desconto_valor || 0))
+      });
+    });
+  }
+
+  if (modo === 'microservicos' || modo === 'geral') {
+    state.microservicos.forEach((item, idx) => {
+      if (item.is_frete_embutido === true) return;
+      entradas.push({
+        grupo: 'microservicos',
+        idx,
+        subtotal: Math.max(0, Number(item.quantidade || 0) * Number(item.valor_unitario || 0)),
+        desconto: Math.max(0, Number(item.desconto_valor || 0))
+      });
+    });
+  }
+
+  return entradas.filter((item) => item.subtotal > 0);
+}
+
+function definirDescontoItem(grupo, idx, valor) {
+  if (!state[grupo]?.[idx]) return;
+  state[grupo][idx].desconto_valor = Math.max(0, Number(valor || 0));
+}
+
+function zerarDescontosServico() {
+  state.produtos = state.produtos.map((item) => ({ ...item, desconto_valor: 0 }));
+  state.microservicos = state.microservicos.map((item) => ({ ...item, desconto_valor: 0 }));
+}
+
+function aplicarDescontoRateadoServico(totalDesconto) {
+  const descontoNormalizado = Math.max(0, Number(totalDesconto || 0));
+  const entradas = obterEntradasRateioDesconto();
+
+  zerarDescontosServico();
+
+  if (!entradas.length || descontoNormalizado <= 0) {
+    renderTabelas();
+    return;
+  }
+
+  const candidatosComDesconto = entradas.filter((item) => item.desconto > 0);
+  const base = candidatosComDesconto.length ? candidatosComDesconto : entradas;
+  const somaBase = base.reduce((acc, item) => acc + (candidatosComDesconto.length ? item.desconto : item.subtotal), 0) || 1;
+  const limiteTotal = entradas.reduce((acc, item) => acc + item.subtotal, 0);
+  const descontoAplicado = Math.min(descontoNormalizado, limiteTotal);
+
+  let distribuido = 0;
+  base.forEach((item, pos) => {
+    if (pos === base.length - 1) {
+      definirDescontoItem(item.grupo, item.idx, Math.max(0, descontoAplicado - distribuido));
+      return;
+    }
+
+    const valorBase = candidatosComDesconto.length ? item.desconto : item.subtotal;
+    const parcial = (descontoAplicado * valorBase) / somaBase;
+    const arredondado = Number(parcial.toFixed(2));
+    distribuido += arredondado;
+    definirDescontoItem(item.grupo, item.idx, arredondado);
+  });
+
+  entradas.forEach((item) => {
+    const atual = Math.max(0, Number(state[item.grupo]?.[item.idx]?.desconto_valor || 0));
+    definirDescontoItem(item.grupo, item.idx, Math.min(atual, item.subtotal));
+  });
+
+  renderTabelas();
+}
+
+function reaplicarDescontoAtualServico() {
+  if (ultimaOrigemDesconto === 'percentual') {
+    const entradas = obterEntradasRateioDesconto();
+    const subtotalBase = entradas.reduce((acc, item) => acc + item.subtotal, 0);
+    const percentual = Math.max(0, Math.min(100, valorNum(descontoPercentInput.value)));
+    aplicarDescontoRateadoServico(subtotalBase * (percentual / 100));
+    return;
+  }
+
+  aplicarDescontoRateadoServico(valorNum(descontoTotalInput.value));
+}
+
+function atualizarPercentualDescontoServico(snapshot) {
+  const entradas = obterEntradasRateioDesconto();
+  const subtotalBase = entradas.reduce((acc, item) => acc + item.subtotal, 0);
+  const descontoTotal = Number(snapshot?.totais?.desconto_total || 0);
+  const percentual = subtotalBase > 0 ? (descontoTotal / subtotalBase) * 100 : 0;
+  descontoPercentInput.value = percentual.toFixed(2).replace('.', ',');
+}
+
+function prepararCampoDescontoParaDigitacao(input) {
+  input.addEventListener('focus', () => {
+    if (input.value === '0,00') {
+      input.value = '';
+      return;
+    }
+
+    input.select();
+  });
+
+  input.addEventListener('blur', () => {
+    if (String(input.value || '').trim() !== '') return;
+    input.value = '0,00';
   });
 }
 
@@ -625,13 +793,15 @@ function limparFormularioServicoPosSucesso() {
   document.getElementById('freteManualCheck').disabled = false;
   document.getElementById('freteComoMicroservicoCheck').checked = false;
   document.getElementById('freteTotalInput').value = '0,00';
-  document.getElementById('descontoTotalInput').value = '0,00';
-  document.getElementById('descontoPercentInput').value = '0,00';
+  descontoTotalInput.value = '0,00';
+  descontoPercentInput.value = '0,00';
+  document.getElementById('descontoRateioProdutos').checked = true;
   document.getElementById('condicaoPagamento').value = 'vista';
   document.getElementById('qtdParcelas').value = '1';
 
   state.produtos = [];
   state.microservicos = [];
+  ultimaOrigemDesconto = 'valor';
 
   renderClientesSugestao('');
   renderTabelas();
@@ -644,7 +814,36 @@ document.getElementById('clienteNome').addEventListener('input', (e) => renderCl
 document.getElementById('clienteNome').addEventListener('change', (e) => preencherCliente(e.target.value));
 btnSalvarCliente.addEventListener('click', salvarClienteRapido);
 btnLimparServico.addEventListener('click', limparFormularioServicoPosSucesso);
-document.getElementById('btnZerarDescontos').addEventListener('click', () => composicao.zerarDescontosProdutos());
+prepararCampoDescontoParaDigitacao(descontoTotalInput);
+prepararCampoDescontoParaDigitacao(descontoPercentInput);
+document.getElementById('btnZerarDescontos').addEventListener('click', () => {
+  ultimaOrigemDesconto = 'valor';
+  descontoTotalInput.value = '0,00';
+  descontoPercentInput.value = '0,00';
+  zerarDescontosServico();
+  renderTabelas();
+});
+
+descontoTotalInput.addEventListener('input', (event) => {
+  event.stopImmediatePropagation();
+  ultimaOrigemDesconto = 'valor';
+  aplicarDescontoRateadoServico(valorNum(event.target.value));
+}, true);
+
+descontoPercentInput.addEventListener('input', (event) => {
+  event.stopImmediatePropagation();
+  ultimaOrigemDesconto = 'percentual';
+  const percentual = Math.max(0, Math.min(100, valorNum(event.target.value)));
+  const entradas = obterEntradasRateioDesconto();
+  const subtotalBase = entradas.reduce((acc, item) => acc + item.subtotal, 0);
+  aplicarDescontoRateadoServico(subtotalBase * (percentual / 100));
+}, true);
+
+document.querySelectorAll('input[name="descontoRateioModo"]').forEach((input) => {
+  input.addEventListener('change', () => {
+    reaplicarDescontoAtualServico();
+  });
+});
 
 document.getElementById('freteManualCheck').addEventListener('change', () => {
   if (document.getElementById('freteComoMicroservicoCheck').checked) return;
