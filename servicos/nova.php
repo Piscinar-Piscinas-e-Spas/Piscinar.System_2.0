@@ -194,7 +194,7 @@ include '../includes/header.php';
 
             <div class="col-lg-5">
                 <div class="card border-primary-subtle h-100">
-                    <div class="card-header bg-light sales-block-title">Forma e condição de pagamento</div>
+                    <div class="card-header bg-light sales-block-title">4) Forma e condição de pagamento</div>
                     <div class="card-body">
                         <div class="row g-2 mb-2">
                             <div class="col-md-6"><label class="form-label">Condição</label><select id="condicaoPagamento" class="form-select"><option value="vista">À vista</option><option value="parcelado">Parcelado</option></select></div>

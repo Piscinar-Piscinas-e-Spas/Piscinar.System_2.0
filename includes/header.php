@@ -47,7 +47,7 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav justify-content-evenly">
+                    <ul class="navbar-nav w-75 justify-content-around">
                         <li class="nav-item">
                             <a class="nav-link<?php echo $inicioActive; ?>" href="<?php echo app_url('index.php'); ?>">
                                 <i class="fas fa-home"></i> In&iacute;cio
