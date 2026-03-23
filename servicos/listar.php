@@ -239,14 +239,16 @@ include '../includes/header.php';
                                                 >
                                                     <i class="fas fa-pen me-1"></i>Editar
                                                 </button>
-                                                <button
-                                                    type="button"
-                                                    class="btn btn-sm btn-outline-danger js-auth-action"
-                                                    data-action-label="excluir o serviço #<?= str_pad((string) ((int) $servico['id_servico']), 6, '0', STR_PAD_LEFT) ?>"
-                                                    data-target-url="<?= app_url('servicos/excluir.php?id=' . (int) $servico['id_servico']); ?>"
-                                                >
-                                                    <i class="fas fa-trash me-1"></i>Excluir
-                                                </button>
+                                                <form method="POST" action="<?= app_url('servicos/excluir.php'); ?>" class="d-inline-block m-0">
+                                                    <?= csrf_input() ?>
+                                                    <input type="hidden" name="id" value="<?= (int) $servico['id_servico'] ?>">
+                                                    <button
+                                                        type="submit"
+                                                        class="btn btn-sm btn-outline-danger"
+                                                    >
+                                                        <i class="fas fa-trash me-1"></i>Excluir
+                                                    </button>
+                                                </form>
                                             </div>
                                         </td>
                                     </tr>

@@ -3,7 +3,14 @@ include '../includes/db.php';
 require_login();
 require_once __DIR__ . '/_infra.php';
 
-$idServico = (int) ($_GET['id'] ?? 0);
+$idServico = (int) ($_POST['id'] ?? 0);
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    header('Location: ' . app_url('servicos/listar.php'));
+    exit;
+}
+
+require_valid_csrf();
+
 if ($idServico <= 0) {
     header('Location: ' . app_url('servicos/listar.php'));
     exit;
