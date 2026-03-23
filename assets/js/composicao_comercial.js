@@ -117,8 +117,8 @@
             const descontoMicro = microservicos.reduce((acc, item) => acc + item.desconto, 0);
             const freteItens = produtos.reduce((acc, item) => acc + item.freteItem, 0);
 
-            const freteManual = dom.freteManualCheck.checked;
-            const freteTotal = Math.max(0, freteManual ? valorNum(dom.freteTotalInput.value) : freteItens);
+            const freteRateadoPorItens = dom.freteManualCheck.checked;
+            const freteTotal = Math.max(0, freteRateadoPorItens ? freteItens : valorNum(dom.freteTotalInput.value));
 
             const subtotalTotal = subtotalProdutos + subtotalMicro;
             const descontoTotal = descontoProdutos + descontoMicro;
@@ -319,10 +319,6 @@
         function atualizarResumo() {
             const totais = obterResumo();
 
-            if (!dom.freteManualCheck.checked && !state.flags.freteTotalEditando) {
-                dom.freteTotalInput.value = totais.frete_itens.toFixed(2).replace('.', ',');
-            }
-
             dom.subtotalProdutos.textContent = moeda(totais.subtotal_produtos);
             dom.totalDescontos.textContent = moeda(totais.desconto_total);
             dom.totalFrete.textContent = moeda(totais.frete_total);
@@ -401,7 +397,7 @@
             }
 
             dom.freteManualCheck.addEventListener('change', () => {
-                if (dom.freteManualCheck.checked && state.itens_produto.length) {
+                if (dom.freteManualCheck.checked && state.itens_produto.length && dom.itensBody) {
                     ratearFreteProdutos(Math.max(0, valorNum(dom.freteTotalInput.value)));
                     return;
                 }
@@ -411,7 +407,7 @@
             dom.freteTotalInput.addEventListener('focus', () => { state.flags.freteTotalEditando = true; });
             dom.freteTotalInput.addEventListener('blur', () => { state.flags.freteTotalEditando = false; atualizarResumo(); });
             dom.freteTotalInput.addEventListener('input', (event) => {
-                if (dom.freteManualCheck.checked && state.itens_produto.length) {
+                if (dom.freteManualCheck.checked && state.itens_produto.length && dom.itensBody) {
                     ratearFreteProdutos(Math.max(0, valorNum(event.target.value)));
                     return;
                 }

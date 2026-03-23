@@ -339,7 +339,7 @@ function sincronizarMicroservicoFrete() {
     return;
   }
 
-  checkFreteManual.checked = false;
+  checkFreteManual.checked = true;
   checkFreteManual.disabled = true;
   limparFreteProdutosServico();
 
