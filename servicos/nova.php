@@ -178,6 +178,7 @@ const csrfToken = '<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8') ?>';
 const clientesData = <?= json_encode($clientes, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
 
 const state = { produtos: [], microservicos: [], parcelas: [{ vencimento: hojeSP, valor: 0, tipo: 'PIX' }] };
+let ultimoTotalParcelado = null;
 
 const moeda = (v) => Number(v || 0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
 const valorNum = (v) => {
@@ -273,15 +274,91 @@ function renderParcelas() {
   });
 }
 
+function obterCondicaoPagamento() {
+  return document.getElementById('condicaoPagamento').value === 'parcelado' ? 'parcelado' : 'vista';
+}
+
 function distribuirParcelas() {
   const total = resumo().total;
   const qtd = Math.max(1, parseInt(document.getElementById('qtdParcelas').value, 10) || 1);
+  const parcelaBase = state.parcelas[0] || { vencimento: hojeSP, tipo: 'PIX' };
+  const baseVencimento = parcelaBase.vencimento || hojeSP;
+  const baseTipo = parcelaBase.tipo || 'PIX';
+  const baseDate = new Date(`${baseVencimento}T12:00:00`);
+  const dataInicial = Number.isNaN(baseDate.getTime()) ? new Date(`${hojeSP}T12:00:00`) : baseDate;
+
   state.parcelas = Array.from({ length: qtd }, (_, i) => {
-    const d = new Date(`${hojeSP}T12:00:00`); d.setMonth(d.getMonth()+i);
-    return { vencimento: d.toISOString().slice(0,10), valor: Number((total / qtd).toFixed(2)), tipo: 'PIX' };
+    const atual = state.parcelas[i] || {};
+    const d = new Date(dataInicial);
+    d.setMonth(d.getMonth() + i);
+    return {
+      vencimento: atual.vencimento || d.toISOString().slice(0,10),
+      valor: Number((total / qtd).toFixed(2)),
+      tipo: atual.tipo || baseTipo
+    };
   });
   const soma = state.parcelas.slice(0, -1).reduce((acc, p) => acc + p.valor, 0);
   state.parcelas[state.parcelas.length - 1].valor = Number((total - soma).toFixed(2));
+  ultimoTotalParcelado = Number(total.toFixed(2));
+  renderParcelas();
+}
+
+function forcarParcelaVista() {
+  const total = resumo().total;
+  const atual = state.parcelas[0] || {};
+  state.parcelas = [{
+    vencimento: atual.vencimento || hojeSP,
+    valor: Number(total.toFixed(2)),
+    tipo: atual.tipo || 'PIX'
+  }];
+  ultimoTotalParcelado = Number(total.toFixed(2));
+  renderParcelas();
+}
+
+function aplicarCondicaoPagamento({ redistribuir = true } = {}) {
+  const condicao = obterCondicaoPagamento();
+  const qtdInput = document.getElementById('qtdParcelas');
+
+  if (condicao === 'vista') {
+    qtdInput.value = '1';
+    qtdInput.disabled = true;
+    forcarParcelaVista();
+    return;
+  }
+
+  qtdInput.disabled = false;
+  qtdInput.value = String(Math.max(1, parseInt(qtdInput.value, 10) || state.parcelas.length || 1));
+  if (redistribuir) distribuirParcelas();
+  else renderParcelas();
+}
+
+function sincronizarValoresParcelasComTotal() {
+  const totalAtual = Number(resumo().total.toFixed(2));
+  const totalAnterior = Number.isFinite(ultimoTotalParcelado) ? ultimoTotalParcelado : null;
+  const diferenca = totalAnterior === null ? totalAtual : Number((totalAtual - totalAnterior).toFixed(2));
+
+  if (obterCondicaoPagamento() === 'vista') {
+    forcarParcelaVista();
+    return;
+  }
+
+  if (!state.parcelas.length) {
+    distribuirParcelas();
+    return;
+  }
+
+  if (Math.abs(diferenca) < 0.01) {
+    return;
+  }
+
+  const ultima = state.parcelas.length - 1;
+  state.parcelas[ultima].valor = Number((Number(state.parcelas[ultima].valor || 0) + diferenca).toFixed(2));
+  if (state.parcelas[ultima].valor < 0) {
+    distribuirParcelas();
+    return;
+  }
+
+  ultimoTotalParcelado = totalAtual;
   renderParcelas();
 }
 
@@ -292,7 +369,7 @@ function renderResumoEParcelas() {
   document.getElementById('totalDescontos').textContent = moeda(r.descontoTotal);
   document.getElementById('totalFrete').textContent = moeda(r.frete_total);
   document.getElementById('totalGeralServico').textContent = moeda(r.total);
-  distribuirParcelas();
+  sincronizarValoresParcelasComTotal();
 }
 
 function feedback(tipo, msg) {
@@ -358,9 +435,22 @@ document.getElementById('btnAdicionarMicro').addEventListener('click', () => {
   });
 });
 
-['freteTotalInput','descontoExtraInput','qtdParcelas','condicaoPagamento'].forEach((id) => {
+['freteTotalInput','descontoExtraInput'].forEach((id) => {
   document.getElementById(id).addEventListener('input', renderResumoEParcelas);
   document.getElementById(id).addEventListener('change', renderResumoEParcelas);
+});
+
+document.getElementById('qtdParcelas').addEventListener('input', () => {
+  if (obterCondicaoPagamento() !== 'parcelado') return;
+  distribuirParcelas();
+});
+document.getElementById('qtdParcelas').addEventListener('change', () => {
+  if (obterCondicaoPagamento() !== 'parcelado') return;
+  distribuirParcelas();
+});
+
+document.getElementById('condicaoPagamento').addEventListener('change', () => {
+  aplicarCondicaoPagamento({ redistribuir: true });
 });
 
 document.querySelector('#parcelasTable tbody').addEventListener('input', (e) => {
@@ -409,6 +499,7 @@ document.getElementById('formServico').addEventListener('submit', async (e) => {
 
 renderClientesSugestao('');
 renderTabelas();
+aplicarCondicaoPagamento({ redistribuir: false });
 </script>
 
 <?php include '../includes/footer.php'; ?>
