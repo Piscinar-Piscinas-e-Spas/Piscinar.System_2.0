@@ -218,7 +218,7 @@ include '../includes/header.php';
                 <div id="servicoFeedback" class="alert d-none" role="alert"></div>
                 <div class="d-grid gap-2 d-md-flex justify-content-md-end">
                     <button type="button" class="btn btn-outline-secondary" id="btnLimparServico"><i class="fas fa-broom me-1"></i>Limpar campos</button>
-                    <button type="submit" class="btn btn-primary" id="btnSalvarServico"><i class="fas fa-save me-1"></i>Salvar serviço</button>
+                    <button type="button" class="btn btn-primary" id="btnSalvarServico"><i class="fas fa-save me-1"></i>Salvar serviço</button>
                 </div>
             </div>
         </form>
@@ -503,8 +503,7 @@ document.getElementById('btnAdicionarMicro').addEventListener('click', () => {
   });
 });
 
-document.getElementById('formServico').addEventListener('submit', async (e) => {
-  e.preventDefault();
+async function salvarServico() {
   if (!state.produtos.length && !state.microservicos.length) return feedback('warning', 'Adicione ao menos um item de produto ou micro-serviço.');
   if (clienteObrigatorio && !clienteSelecionadoId) {
     return feedback('warning', 'Selecione um cliente existente ou use o botão "Salvar cliente rápido" antes de salvar o serviço.');
@@ -549,6 +548,32 @@ document.getElementById('formServico').addEventListener('submit', async (e) => {
   } catch (err) {
     feedback('danger', err.message || 'Erro ao salvar serviço.');
   } finally { btn.disabled = false; }
+}
+
+const formServico = document.getElementById('formServico');
+const btnSalvarServico = document.getElementById('btnSalvarServico');
+let liberarSalvarServicoPorMouse = false;
+
+formServico.addEventListener('submit', (event) => {
+  event.preventDefault();
+});
+
+btnSalvarServico.addEventListener('pointerdown', () => {
+  liberarSalvarServicoPorMouse = true;
+});
+
+btnSalvarServico.addEventListener('click', (event) => {
+  if (!liberarSalvarServicoPorMouse) {
+    event.preventDefault();
+    return;
+  }
+
+  liberarSalvarServicoPorMouse = false;
+  salvarServico();
+});
+
+btnSalvarServico.addEventListener('blur', () => {
+  liberarSalvarServicoPorMouse = false;
 });
 
 renderClientesSugestao('');
