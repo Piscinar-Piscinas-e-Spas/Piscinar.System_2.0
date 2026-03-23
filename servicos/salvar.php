@@ -15,6 +15,7 @@ if (!is_array($dados)) {
 require_valid_csrf(is_string($dados['csrf_token'] ?? null) ? $dados['csrf_token'] : null);
 servicos_ensure_schema($pdo);
 $clienteObrigatorio = servicos_cliente_obrigatorio();
+$servicoIdEdicao = (int) ($dados['id_servico'] ?? 0);
 
 $clienteId = (int) ($dados['cliente_id'] ?? 0);
 if ($clienteId <= 0) {
@@ -39,25 +40,55 @@ if (!$itensProduto && !$itensMicro) {
 try {
     $pdo->beginTransaction();
 
-    $stmt = $pdo->prepare(
-        'INSERT INTO servicos_pedidos (
-            cliente_id, data_servico, condicao_pagamento,
-            subtotal_produtos, subtotal_microservicos, desconto_total,
-            frete_total, total_geral
-        ) VALUES (?, CURDATE(), ?, ?, ?, ?, ?, ?)'
-    );
+    if ($servicoIdEdicao > 0) {
+        $stmt = $pdo->prepare(
+            'UPDATE servicos_pedidos
+             SET cliente_id = ?,
+                 condicao_pagamento = ?,
+                 subtotal_produtos = ?,
+                 subtotal_microservicos = ?,
+                 desconto_total = ?,
+                 frete_total = ?,
+                 total_geral = ?
+             WHERE id_servico = ?'
+        );
 
-    $stmt->execute([
-        $clienteId,
-        (string) ($dados['condicao_pagamento'] ?? 'vista'),
-        (float) ($dados['subtotal_produtos'] ?? 0),
-        (float) ($dados['subtotal_microservicos'] ?? 0),
-        (float) ($dados['desconto_total'] ?? 0),
-        (float) ($dados['frete_total'] ?? 0),
-        (float) ($dados['total_geral'] ?? 0),
-    ]);
+        $stmt->execute([
+            $clienteId,
+            (string) ($dados['condicao_pagamento'] ?? 'vista'),
+            (float) ($dados['subtotal_produtos'] ?? 0),
+            (float) ($dados['subtotal_microservicos'] ?? 0),
+            (float) ($dados['desconto_total'] ?? 0),
+            (float) ($dados['frete_total'] ?? 0),
+            (float) ($dados['total_geral'] ?? 0),
+            $servicoIdEdicao,
+        ]);
 
-    $servicoId = (int) $pdo->lastInsertId();
+        $servicoId = $servicoIdEdicao;
+
+        $pdo->prepare('DELETE FROM servicos_itens WHERE servico_id = ?')->execute([$servicoId]);
+        $pdo->prepare('DELETE FROM servicos_parcelas WHERE servico_id = ?')->execute([$servicoId]);
+    } else {
+        $stmt = $pdo->prepare(
+            'INSERT INTO servicos_pedidos (
+                cliente_id, data_servico, condicao_pagamento,
+                subtotal_produtos, subtotal_microservicos, desconto_total,
+                frete_total, total_geral
+            ) VALUES (?, CURDATE(), ?, ?, ?, ?, ?, ?)'
+        );
+
+        $stmt->execute([
+            $clienteId,
+            (string) ($dados['condicao_pagamento'] ?? 'vista'),
+            (float) ($dados['subtotal_produtos'] ?? 0),
+            (float) ($dados['subtotal_microservicos'] ?? 0),
+            (float) ($dados['desconto_total'] ?? 0),
+            (float) ($dados['frete_total'] ?? 0),
+            (float) ($dados['total_geral'] ?? 0),
+        ]);
+
+        $servicoId = (int) $pdo->lastInsertId();
+    }
 
     $stmtItem = $pdo->prepare(
         'INSERT INTO servicos_itens (
@@ -128,9 +159,9 @@ try {
 
     $pdo->commit();
 
-    \App\Views\ApiResponse::send(201, [
+    \App\Views\ApiResponse::send($servicoIdEdicao > 0 ? 200 : 201, [
         'status' => true,
-        'mensagem' => 'Serviço salvo com sucesso.',
+        'mensagem' => $servicoIdEdicao > 0 ? 'Serviço atualizado com sucesso.' : 'Serviço salvo com sucesso.',
         'id_servico' => $servicoId,
     ]);
 } catch (Throwable $e) {

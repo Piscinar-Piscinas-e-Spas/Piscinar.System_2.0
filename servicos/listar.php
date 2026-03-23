@@ -226,7 +226,29 @@ include '../includes/header.php';
                                         <td>R$ <?= number_format((float) $servico['desconto_total'], 2, ',', '.') ?></td>
                                         <td>R$ <?= number_format((float) $servico['frete_total'], 2, ',', '.') ?></td>
                                         <td><strong>R$ <?= number_format((float) $servico['total_geral'], 2, ',', '.') ?></strong></td>
-                                        <td><a href="<?= app_url('servicos/detalhes.php?id=' . (int) $servico['id_servico']); ?>" class="btn btn-sm btn-outline-primary"><i class="fas fa-eye"></i></a></td>
+                                        <td>
+                                            <div class="d-flex flex-wrap gap-1">
+                                                <a href="<?= app_url('servicos/detalhes.php?id=' . (int) $servico['id_servico']); ?>" class="btn btn-sm btn-outline-primary" title="Ver detalhes do serviço">
+                                                    <i class="fas fa-eye me-1"></i>Ver
+                                                </a>
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-sm btn-outline-warning js-auth-action"
+                                                    data-action-label="editar o serviço #<?= str_pad((string) ((int) $servico['id_servico']), 6, '0', STR_PAD_LEFT) ?>"
+                                                    data-target-url="<?= app_url('servicos/editar.php?id=' . (int) $servico['id_servico']); ?>"
+                                                >
+                                                    <i class="fas fa-pen me-1"></i>Editar
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    class="btn btn-sm btn-outline-danger js-auth-action"
+                                                    data-action-label="excluir o serviço #<?= str_pad((string) ((int) $servico['id_servico']), 6, '0', STR_PAD_LEFT) ?>"
+                                                    data-target-url="<?= app_url('servicos/excluir.php?id=' . (int) $servico['id_servico']); ?>"
+                                                >
+                                                    <i class="fas fa-trash me-1"></i>Excluir
+                                                </button>
+                                            </div>
+                                        </td>
                                     </tr>
                                 <?php endforeach; ?>
                             </tbody>
@@ -238,19 +260,149 @@ include '../includes/header.php';
     </div>
 </div>
 
+<div class="modal fade" id="confirmacaoSenhaModal" tabindex="-1" aria-labelledby="confirmacaoSenhaModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmacaoSenhaModalLabel">Confirmar senha</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+            </div>
+            <div class="modal-body">
+                <p class="mb-2" id="confirmacaoSenhaDescricao">Digite sua senha para continuar.</p>
+                <div id="confirmacaoSenhaFeedback" class="alert alert-danger d-none py-2" role="alert"></div>
+                <label for="confirmacaoSenhaInput" class="form-label">Senha do usuário</label>
+                <input type="password" id="confirmacaoSenhaInput" class="form-control" autocomplete="current-password" required>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="confirmacaoSenhaConfirmarBtn">
+                    <span class="js-btn-label">Confirmar</span>
+                    <span class="spinner-border spinner-border-sm d-none" aria-hidden="true"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
-    document.querySelectorAll('.js-toggle-section').forEach((botao) => {
-        botao.addEventListener('click', () => {
-            const alvo = document.querySelector(botao.getAttribute('data-target'));
-            if (!alvo) {
+    (function () {
+        document.querySelectorAll('.js-toggle-section').forEach((botao) => {
+            botao.addEventListener('click', () => {
+                const alvo = document.querySelector(botao.getAttribute('data-target'));
+                if (!alvo) {
+                    return;
+                }
+
+                const expandido = botao.getAttribute('aria-expanded') === 'true';
+                botao.setAttribute('aria-expanded', expandido ? 'false' : 'true');
+                alvo.classList.toggle('d-none', expandido);
+            });
+        });
+
+        const modalElement = document.getElementById('confirmacaoSenhaModal');
+        if (!modalElement || typeof bootstrap === 'undefined' || !bootstrap.Modal) {
+            return;
+        }
+
+        const modal = bootstrap.Modal.getOrCreateInstance(modalElement);
+        const senhaInput = document.getElementById('confirmacaoSenhaInput');
+        const feedback = document.getElementById('confirmacaoSenhaFeedback');
+        const descricao = document.getElementById('confirmacaoSenhaDescricao');
+        const confirmarBtn = document.getElementById('confirmacaoSenhaConfirmarBtn');
+        const confirmarLabel = confirmarBtn ? confirmarBtn.querySelector('.js-btn-label') : null;
+        const confirmarSpinner = confirmarBtn ? confirmarBtn.querySelector('.spinner-border') : null;
+        const csrfToken = <?= json_encode(csrf_token(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES); ?>;
+        let targetUrl = '';
+
+        const setLoading = (loading) => {
+            if (!confirmarBtn) {
                 return;
             }
 
-            const expandido = botao.getAttribute('aria-expanded') === 'true';
-            botao.setAttribute('aria-expanded', expandido ? 'false' : 'true');
-            alvo.classList.toggle('d-none', expandido);
+            confirmarBtn.disabled = loading;
+            if (confirmarSpinner) {
+                confirmarSpinner.classList.toggle('d-none', !loading);
+            }
+            if (confirmarLabel) {
+                confirmarLabel.textContent = loading ? 'Validando...' : 'Confirmar';
+            }
+        };
+
+        const resetModal = () => {
+            if (senhaInput) {
+                senhaInput.value = '';
+            }
+            if (feedback) {
+                feedback.classList.add('d-none');
+                feedback.textContent = '';
+            }
+            setLoading(false);
+        };
+
+        document.querySelectorAll('.js-auth-action').forEach((botao) => {
+            botao.addEventListener('click', () => {
+                targetUrl = botao.getAttribute('data-target-url') || '';
+                const actionLabel = botao.getAttribute('data-action-label') || 'executar esta ação';
+                if (descricao) {
+                    descricao.textContent = `Digite sua senha para ${actionLabel}.`;
+                }
+                resetModal();
+                modal.show();
+                window.setTimeout(() => senhaInput && senhaInput.focus(), 200);
+            });
         });
-    });
+
+        modalElement.addEventListener('hidden.bs.modal', resetModal);
+
+        if (!confirmarBtn) {
+            return;
+        }
+
+        confirmarBtn.addEventListener('click', () => {
+            const senha = senhaInput ? senhaInput.value : '';
+            if (!senha) {
+                if (feedback) {
+                    feedback.classList.remove('d-none');
+                    feedback.textContent = 'Informe sua senha para continuar.';
+                }
+                if (senhaInput) {
+                    senhaInput.focus();
+                }
+                return;
+            }
+
+            setLoading(true);
+            fetch('<?= app_url('includes/confirmar_senha.php'); ?>', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Accept': 'application/json'
+                },
+                body: JSON.stringify({
+                    senha,
+                    csrf_token: csrfToken
+                })
+            })
+                .then((response) => response.json().catch(() => ({})))
+                .then((payload) => {
+                    if (!payload || payload.status !== true) {
+                        const mensagem = payload && payload.mensagem ? payload.mensagem : 'Não foi possível validar sua senha.';
+                        throw new Error(mensagem);
+                    }
+
+                    if (targetUrl) {
+                        window.location.href = targetUrl;
+                    }
+                })
+                .catch((error) => {
+                    if (feedback) {
+                        feedback.classList.remove('d-none');
+                        feedback.textContent = error.message || 'Falha ao validar senha.';
+                    }
+                })
+                .finally(() => setLoading(false));
+        });
+    })();
 </script>
 
 <?php include '../includes/footer.php'; ?>
