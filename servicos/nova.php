@@ -309,7 +309,7 @@ const hojeSP = '<?= $hojeSaoPaulo ?>';
 const csrfToken = '<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8') ?>';
 const clientesData = <?= json_encode($clientes, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
 const clienteObrigatorio = <?= $clienteObrigatorio ? 'true' : 'false' ?>;
-const servicoEdicaoData = <?= json_encode($servicoEdicaoPayload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>;
+const servicoEdicaoData = <?= json_encode($servicoEdicaoPayload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE) ?>;
 const tiposPagamento = [
   'PIX', 'Dinheiro', 'Boleto', 'Cheque', 'Pix Pague Seguro',
   'Débito PagSeguro', 'Crédito PagSeguro', 'Débito Stone',
