@@ -285,6 +285,24 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
         feedbackBox.textContent = '';
     }
 
+    function limparFormularioVendaPosSucesso() {
+        clienteSelecionadoId = null;
+        clienteNome.value = '';
+        clienteTelefone.value = '';
+        clienteCpfCnpj.value = '';
+        clienteEmail.value = '';
+        clienteEndereco.value = '';
+
+        document.getElementById('produtoSelect').value = '';
+        document.getElementById('produtoQtd').value = '1';
+        document.getElementById('produtoValorUnitario').value = '0,00';
+
+        composicao.reset();
+        filtrarSugestoesClientes('');
+        limparFeedback();
+        clienteNome.focus();
+    }
+
     function preencherDadosCliente(cliente) {
         if (!cliente) return;
         clienteSelecionadoId = Number(cliente.id_cliente) || null;
@@ -526,7 +544,8 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
                 throw new Error(dados.mensagem || 'Falha ao salvar venda.');
             }
 
-            mostrarFeedback('success', `Venda #${dados.id_venda} salva com sucesso.`);
+            window.alert(`Venda #${dados.id_venda} salva com sucesso.`);
+            limparFormularioVendaPosSucesso();
         } catch (error) {
             mostrarFeedback('danger', error.message || 'Erro inesperado ao salvar venda.');
         } finally {

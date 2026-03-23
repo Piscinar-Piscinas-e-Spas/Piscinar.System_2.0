@@ -468,6 +468,46 @@ function feedback(tipo, msg) {
   box.classList.remove('d-none');
 }
 
+function limparFeedback() {
+  const box = document.getElementById('servicoFeedback');
+  box.className = 'alert d-none';
+  box.textContent = '';
+}
+
+function limparFormularioServicoPosSucesso() {
+  clienteSelecionadoId = null;
+  document.getElementById('clienteNome').value = '';
+  document.getElementById('clienteTelefone').value = '';
+  document.getElementById('clienteCpfCnpj').value = '';
+  document.getElementById('clienteEmail').value = '';
+  document.getElementById('clienteEndereco').value = '';
+
+  document.getElementById('produtoSelect').value = '';
+  document.getElementById('produtoQtd').value = '1';
+  document.getElementById('produtoValorUnitario').value = '0,00';
+
+  document.getElementById('microDescricao').value = '';
+  document.getElementById('microQtd').value = '1';
+  document.getElementById('microValor').value = '0,00';
+
+  document.getElementById('freteTotalInput').value = '0,00';
+  document.getElementById('descontoExtraInput').value = '0,00';
+
+  document.getElementById('condicaoPagamento').value = 'vista';
+  document.getElementById('qtdParcelas').value = '1';
+
+  state.produtos = [];
+  state.microservicos = [];
+  state.parcelas = [{ vencimento: hojeSP, valor: 0, tipo: 'PIX', manual: false }];
+  ultimoTotalParcelado = null;
+
+  renderClientesSugestao('');
+  renderTabelas();
+  aplicarCondicaoPagamento({ redistribuir: false });
+  limparFeedback();
+  document.getElementById('clienteNome').focus();
+}
+
 document.getElementById('clienteNome').addEventListener('input', (e) => renderClientesSugestao(e.target.value));
 document.getElementById('clienteNome').addEventListener('change', (e) => preencherCliente(e.target.value));
 btnSalvarCliente.addEventListener('click', salvarClienteRapido);
@@ -595,7 +635,8 @@ document.getElementById('formServico').addEventListener('submit', async (e) => {
     const resp = await fetch('salvar.php', { method:'POST', headers:{ 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
     const dados = await resp.json();
     if (!resp.ok || !dados.status) throw new Error(dados.mensagem || 'Erro ao salvar serviço.');
-    feedback('success', `Serviço #${dados.id_servico} salvo com sucesso.`);
+    window.alert(`Serviço #${dados.id_servico} salvo com sucesso.`);
+    limparFormularioServicoPosSucesso();
   } catch (err) {
     feedback('danger', err.message || 'Erro ao salvar serviço.');
   } finally { btn.disabled = false; }
