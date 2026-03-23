@@ -14,10 +14,18 @@ if (!is_array($dados)) {
 
 require_valid_csrf(is_string($dados['csrf_token'] ?? null) ? $dados['csrf_token'] : null);
 servicos_ensure_schema($pdo);
+$clienteObrigatorio = servicos_cliente_obrigatorio();
 
 $clienteId = (int) ($dados['cliente_id'] ?? 0);
 if ($clienteId <= 0) {
     $clienteId = null;
+}
+
+if ($clienteObrigatorio && ($clienteId === null || $clienteId <= 0)) {
+    \App\Views\ApiResponse::send(422, [
+        'status' => false,
+        'mensagem' => 'Selecione ou salve um cliente antes de salvar o serviço.',
+    ]);
 }
 
 $itensProduto = is_array($dados['itens_produto'] ?? null) ? $dados['itens_produto'] : [];
