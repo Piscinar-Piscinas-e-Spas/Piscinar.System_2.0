@@ -318,6 +318,7 @@ const tiposPagamento = [
 
 const state = { produtos: [], microservicos: [] };
 const DESCRICAO_MICROSERVICO_FRETE = 'Deslocamento e Frete de equipe, material ou equipamento';
+let sincronizandoComposicao = false;
 
 const moeda = (v) => Number(v || 0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
 const valorNum = window.ComposicaoComercial.valorNum;
@@ -346,8 +347,12 @@ const composicao = window.ComposicaoComercial.init({
     totalGeral: '#totalGeralServico'
   },
   onChange: (snapshot) => {
-    if (!subtotalMicroEl) return;
-    subtotalMicroEl.textContent = moeda(snapshot?.totais?.subtotal_microservicos || 0);
+    if (subtotalMicroEl) {
+      subtotalMicroEl.textContent = moeda(snapshot?.totais?.subtotal_microservicos || 0);
+    }
+    if (sincronizandoComposicao) return;
+    syncStateFromComposicao(snapshot);
+    renderTabelas({ skipComposicaoSync: true });
   }
 });
 
@@ -368,7 +373,40 @@ function syncComposicaoFromState() {
     freteItem: 0
   }));
 
-  composicao.setItens(produtos, microservicos);
+  sincronizandoComposicao = true;
+  try {
+    composicao.setItens(produtos, microservicos);
+  } finally {
+    sincronizandoComposicao = false;
+  }
+}
+
+function syncStateFromComposicao(snapshot) {
+  const itensProduto = Array.isArray(snapshot?.itens_produto) ? snapshot.itens_produto : [];
+  const itensMicroservico = Array.isArray(snapshot?.itens_microservico) ? snapshot.itens_microservico : [];
+
+  state.produtos = state.produtos.map((item, idx) => {
+    const composicaoItem = itensProduto[idx];
+    if (!composicaoItem) return item;
+    return {
+      ...item,
+      quantidade: Number(composicaoItem.quantidade || item.quantidade || 0),
+      valor_unitario: Number(composicaoItem.valorUnitario || 0),
+      desconto_valor: Number(composicaoItem.desconto || 0),
+      frete_valor: Number(composicaoItem.freteItem || 0)
+    };
+  });
+
+  state.microservicos = state.microservicos.map((item, idx) => {
+    const composicaoItem = itensMicroservico[idx];
+    if (!composicaoItem) return item;
+    return {
+      ...item,
+      quantidade: Number(composicaoItem.quantidade || item.quantidade || 0),
+      valor_unitario: Number(composicaoItem.valorUnitario || 0),
+      desconto_valor: Number(composicaoItem.desconto || 0)
+    };
+  });
 }
 
 function obterIndexMicroservicoFrete() {
@@ -515,7 +553,7 @@ function calcItem(item, isProduto) {
   return { ...item, subtotal, total: Math.max(0, subtotal - desconto + frete) };
 }
 
-function renderTabelas() {
+function renderTabelas({ skipComposicaoSync = false } = {}) {
   const b1 = document.querySelector('#itensProdutoTable tbody');
   const b2 = document.querySelector('#itensMicroTable tbody');
   b1.innerHTML = '';
@@ -549,7 +587,9 @@ function renderTabelas() {
     </tr>`);
   });
 
-  syncComposicaoFromState();
+  if (!skipComposicaoSync) {
+    syncComposicaoFromState();
+  }
 }
 
 function feedback(tipo, msg) {
