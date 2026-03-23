@@ -158,6 +158,11 @@ include '../includes/header.php';
                         <div class="table-responsive">
                             <table class="table table-sm table-bordered" id="parcelasTable"><thead class="table-secondary"><tr><th>#</th><th>Vencimento</th><th>Valor</th><th>Tipo</th></tr></thead><tbody></tbody></table>
                         </div>
+                        <div class="d-grid mt-2">
+                            <button type="button" class="btn btn-outline-secondary btn-sm" id="btnRecalcularParcelas">
+                                <i class="fas fa-calculator me-1"></i>Recalcular parcelas
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -177,7 +182,7 @@ const hojeSP = '<?= $hojeSaoPaulo ?>';
 const csrfToken = '<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8') ?>';
 const clientesData = <?= json_encode($clientes, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
 
-const state = { produtos: [], microservicos: [], parcelas: [{ vencimento: hojeSP, valor: 0, tipo: 'PIX' }] };
+const state = { produtos: [], microservicos: [], parcelas: [{ vencimento: hojeSP, valor: 0, tipo: 'PIX', manual: false }] };
 let ultimoTotalParcelado = null;
 
 const moeda = (v) => Number(v || 0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
@@ -293,12 +298,27 @@ function distribuirParcelas() {
     d.setMonth(d.getMonth() + i);
     return {
       vencimento: atual.vencimento || d.toISOString().slice(0,10),
-      valor: Number((total / qtd).toFixed(2)),
-      tipo: atual.tipo || baseTipo
+      valor: Number(atual.valor || 0),
+      tipo: atual.tipo || baseTipo,
+      manual: Boolean(atual.manual)
     };
   });
-  const soma = state.parcelas.slice(0, -1).reduce((acc, p) => acc + p.valor, 0);
-  state.parcelas[state.parcelas.length - 1].valor = Number((total - soma).toFixed(2));
+
+  const manuais = state.parcelas.filter((p) => p.manual);
+  const editaveis = state.parcelas.filter((p) => !p.manual);
+  const somaManuais = manuais.reduce((acc, p) => acc + Number(p.valor || 0), 0);
+  const restante = Math.max(0, Number((total - somaManuais).toFixed(2)));
+  const valorPadrao = editaveis.length ? restante / editaveis.length : 0;
+
+  editaveis.forEach((p, i) => {
+    if (i === editaveis.length - 1) {
+      const somaPrev = editaveis.slice(0, -1).reduce((acc, cur) => acc + Number(cur.valor || 0), 0);
+      p.valor = Number((restante - somaPrev).toFixed(2));
+      return;
+    }
+    p.valor = Number(valorPadrao.toFixed(2));
+  });
+
   ultimoTotalParcelado = Number(total.toFixed(2));
   renderParcelas();
 }
@@ -309,7 +329,8 @@ function forcarParcelaVista() {
   state.parcelas = [{
     vencimento: atual.vencimento || hojeSP,
     valor: Number(total.toFixed(2)),
-    tipo: atual.tipo || 'PIX'
+    tipo: atual.tipo || 'PIX',
+    manual: false
   }];
   ultimoTotalParcelado = Number(total.toFixed(2));
   renderParcelas();
@@ -342,21 +363,25 @@ function sincronizarValoresParcelasComTotal() {
     return;
   }
 
-  if (!state.parcelas.length) {
-    distribuirParcelas();
-    return;
-  }
+  if (!state.parcelas.length) return;
 
   if (Math.abs(diferenca) < 0.01) {
     return;
   }
 
-  const ultima = state.parcelas.length - 1;
-  state.parcelas[ultima].valor = Number((Number(state.parcelas[ultima].valor || 0) + diferenca).toFixed(2));
-  if (state.parcelas[ultima].valor < 0) {
-    distribuirParcelas();
+  const indicesNaoManuais = state.parcelas
+    .map((p, idx) => ({ p, idx }))
+    .filter(({ p }) => !p.manual)
+    .map(({ idx }) => idx);
+
+  if (!indicesNaoManuais.length) {
+    ultimoTotalParcelado = totalAtual;
     return;
   }
+
+  const idxAjuste = indicesNaoManuais[indicesNaoManuais.length - 1];
+  state.parcelas[idxAjuste].valor = Number((Number(state.parcelas[idxAjuste].valor || 0) + diferenca).toFixed(2));
+  if (state.parcelas[idxAjuste].valor < 0) state.parcelas[idxAjuste].valor = 0;
 
   ultimoTotalParcelado = totalAtual;
   renderParcelas();
@@ -453,10 +478,21 @@ document.getElementById('condicaoPagamento').addEventListener('change', () => {
   aplicarCondicaoPagamento({ redistribuir: true });
 });
 
+document.getElementById('btnRecalcularParcelas').addEventListener('click', () => {
+  if (obterCondicaoPagamento() === 'vista') {
+    forcarParcelaVista();
+    return;
+  }
+  distribuirParcelas();
+});
+
 document.querySelector('#parcelasTable tbody').addEventListener('input', (e) => {
   const idx = Number(e.target.dataset.idx); if (!state.parcelas[idx]) return;
   if (e.target.dataset.parcela === 'vencimento') state.parcelas[idx].vencimento = e.target.value || hojeSP;
-  if (e.target.dataset.parcela === 'valor') state.parcelas[idx].valor = valorNum(e.target.value);
+  if (e.target.dataset.parcela === 'valor') {
+    state.parcelas[idx].valor = valorNum(e.target.value);
+    state.parcelas[idx].manual = true;
+  }
   if (e.target.dataset.parcela === 'tipo') state.parcelas[idx].tipo = e.target.value || 'PIX';
 });
 
