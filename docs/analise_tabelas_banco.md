@@ -64,6 +64,17 @@ No `ServicoRepository`, métodos `createServico*` gravam em `servicos`/`servico_
 - A documentação arquitetural já aponta `descontinuar/` como recurso auxiliar não integrado ao fluxo principal.
 
 
+
+## Auditoria do salvamento de serviços (verificação solicitada)
+No fluxo atual (`servicos/nova.php` -> `servicos/salvar.php`), **não há gravação em `auditoria_logs`** durante o save.
+
+Evidências:
+- `servicos/salvar.php` realiza `INSERT/UPDATE` em `servicos_pedidos`, `servicos_itens` e `servicos_parcelas`, mas não instancia `AuditLogger` nem chama `logCreate/logUpdate`.
+- A inserção em `auditoria_logs` existe no `src/Support/AuditLogger.php`.
+- O caminho que chama `logCreate` para serviço está no modelo alternativo (`ServicoService` -> `ServicoRepository::logCreate`), que não é o caminho principal atual da UI.
+
+Conclusão: hoje o registro de quem salvou serviço **não** está sendo persistido em `auditoria_logs` pelo fluxo principal de serviços.
+
 ## Status da pasta `src/` (resposta objetiva)
 A pasta `src/` **não está inteira em desuso**.
 
