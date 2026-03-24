@@ -37,6 +37,7 @@ class VendaService
 
     public function createFromPayload(array $dados)
     {
+        $vendaId = (int) ($dados['id_venda'] ?? 0);
         $clienteId = (int) ($dados['cliente_id'] ?? 0);
         $condicaoPagamento = trim((string) ($dados['condicao_pagamento'] ?? 'vista'));
         $itens = is_array($dados['itens'] ?? null) ? $dados['itens'] : [];
@@ -152,14 +153,20 @@ class VendaService
 
             $clienteId = $resolucaoCliente['cliente_id'];
 
-            $vendaId = $this->vendaRepository->create([
+            $vendaPersistida = [
                 'cliente_id' => $clienteId,
                 'subtotal' => round($subtotalCalculado, 2),
                 'desconto_total' => round($descontoCalculado, 2),
                 'frete_total' => $freteInformado,
                 'total_geral' => $totalCalculado,
                 'condicao_pagamento' => $condicaoPagamento,
-            ], $itensNormalizados, $parcelasNormalizadas);
+            ];
+
+            if ($vendaId > 0) {
+                $vendaId = $this->vendaRepository->update($vendaId, $vendaPersistida, $itensNormalizados, $parcelasNormalizadas);
+            } else {
+                $vendaId = $this->vendaRepository->create($vendaPersistida, $itensNormalizados, $parcelasNormalizadas);
+            }
 
             if ($startedTransaction && $this->pdo->inTransaction()) {
                 $this->pdo->commit();

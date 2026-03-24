@@ -153,6 +153,144 @@ class VendaRepository
         }
     }
 
+    public function update(int $vendaId, array $venda, array $itens, array $parcelas): int
+    {
+        $startedTransaction = !$this->pdo->inTransaction();
+        $before = $this->findCompleteById($vendaId);
+
+        if (!$before) {
+            throw new \RuntimeException('Venda nao encontrada para atualizacao.');
+        }
+
+        try {
+            if ($startedTransaction) {
+                $this->pdo->beginTransaction();
+            }
+
+            $updateVenda = $this->pdo->prepare('UPDATE vendas SET
+                    id_cliente = :id_cliente,
+                    subtotal = :subtotal,
+                    desconto_total = :desconto_total,
+                    frete_total = :frete_total,
+                    total_geral = :total_geral,
+                    condicao_pagamento = :condicao_pagamento,
+                    updated_at = NOW()
+                WHERE id_venda = :id_venda');
+
+            $updateVenda->execute([
+                ':id_venda' => $vendaId,
+                ':id_cliente' => $venda['cliente_id'],
+                ':subtotal' => $venda['subtotal'],
+                ':desconto_total' => $venda['desconto_total'],
+                ':frete_total' => $venda['frete_total'],
+                ':total_geral' => $venda['total_geral'],
+                ':condicao_pagamento' => $venda['condicao_pagamento'],
+            ]);
+
+            $deleteItens = $this->pdo->prepare('DELETE FROM venda_itens WHERE id_venda = :id_venda');
+            $deleteItens->execute([':id_venda' => $vendaId]);
+
+            $deleteParcelas = $this->pdo->prepare('DELETE FROM venda_parcelas WHERE id_venda = :id_venda');
+            $deleteParcelas->execute([':id_venda' => $vendaId]);
+
+            $insertItem = $this->pdo->prepare('INSERT INTO venda_itens (
+                    id_venda,
+                    id_produto,
+                    quantidade,
+                    valor_unitario,
+                    desconto_valor,
+                    frete_valor,
+                    total_item,
+                    created_at,
+                    updated_at
+                ) VALUES (
+                    :id_venda,
+                    :id_produto,
+                    :quantidade,
+                    :valor_unitario,
+                    :desconto_valor,
+                    :frete_valor,
+                    :total_item,
+                    NOW(),
+                    NOW()
+                )');
+
+            foreach ($itens as $item) {
+                $insertItem->execute([
+                    ':id_venda' => $vendaId,
+                    ':id_produto' => $item['produto_id'],
+                    ':quantidade' => $item['quantidade'],
+                    ':valor_unitario' => $item['valor_unitario'],
+                    ':desconto_valor' => $item['desconto_valor'],
+                    ':frete_valor' => $item['frete_valor'],
+                    ':total_item' => $item['total_item'],
+                ]);
+            }
+
+            $insertParcela = $this->pdo->prepare('INSERT INTO venda_parcelas (
+                    id_venda,
+                    numero_parcela,
+                    vencimento,
+                    valor_parcela,
+                    tipo_pagamento,
+                    qtd_parcelas,
+                    total_parcelas,
+                    created_at,
+                    updated_at
+                ) VALUES (
+                    :id_venda,
+                    :numero_parcela,
+                    :vencimento,
+                    :valor_parcela,
+                    :tipo_pagamento,
+                    :qtd_parcelas,
+                    :total_parcelas,
+                    NOW(),
+                    NOW()
+                )');
+
+            foreach ($parcelas as $parcela) {
+                $insertParcela->execute([
+                    ':id_venda' => $vendaId,
+                    ':numero_parcela' => $parcela['numero_parcela'],
+                    ':vencimento' => $parcela['vencimento'],
+                    ':valor_parcela' => $parcela['valor'],
+                    ':tipo_pagamento' => $parcela['tipo_pagamento'],
+                    ':qtd_parcelas' => $parcela['qtd_parcelas'],
+                    ':total_parcelas' => $parcela['total_parcelas'],
+                ]);
+            }
+
+            $after = [
+                'venda' => [
+                    'id_venda' => $vendaId,
+                    'id_cliente' => $venda['cliente_id'],
+                    'subtotal' => $venda['subtotal'],
+                    'desconto_total' => $venda['desconto_total'],
+                    'frete_total' => $venda['frete_total'],
+                    'total_geral' => $venda['total_geral'],
+                    'condicao_pagamento' => $venda['condicao_pagamento'],
+                ],
+                'itens' => $itens,
+                'parcelas' => $parcelas,
+            ];
+
+            $this->auditLogger->logUpdate('venda', 'vendas', $vendaId, $before, $after);
+
+            if ($startedTransaction) {
+                $this->pdo->commit();
+            }
+
+            return $vendaId;
+        } catch (Throwable $e) {
+            if ($startedTransaction && $this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+
+            throw $e;
+        }
+    }
+
     public function listWithCliente(array $filters = [])
     {
         $sql = 'SELECT

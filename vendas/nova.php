@@ -1,19 +1,79 @@
 <?php
 include '../includes/db.php';
 require_login();
-include '../includes/header.php';
 
+$hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->format('Y-m-d');
 $controller = new \App\Controllers\VendaController($pdo);
 $formData = $controller->formData();
 $clientes = $formData['clientes'];
 $produtos = $formData['produtos'];
+$vendaIdEdicao = (int) ($_GET['id'] ?? $_GET['id_venda'] ?? $_GET['venda_id'] ?? 0);
+$vendaEdicaoPayload = null;
 
-$hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->format('Y-m-d');
+if ($vendaIdEdicao > 0) {
+    $repository = new \App\Repositories\VendaRepository($pdo);
+    $detalhes = $repository->findCompleteById($vendaIdEdicao);
+    if (!$detalhes) {
+        header('Location: ' . app_url('vendas/listar.php'));
+        exit;
+    }
+
+    $venda = $detalhes['venda'] ?? [];
+    $itens = is_array($detalhes['itens'] ?? null) ? $detalhes['itens'] : [];
+    $parcelas = is_array($detalhes['parcelas'] ?? null) ? $detalhes['parcelas'] : [];
+
+    $itensEdicao = [];
+    foreach ($itens as $item) {
+        if (!is_array($item)) {
+            continue;
+        }
+
+        $itensEdicao[] = [
+            'produtoId' => (int) ($item['id_produto'] ?? 0),
+            'nome' => (string) ($item['produto_nome'] ?? ''),
+            'quantidade' => (float) ($item['quantidade'] ?? 1),
+            'valorUnitario' => (float) ($item['valor_unitario'] ?? 0),
+            'desconto' => (float) ($item['desconto_valor'] ?? 0),
+            'freteItem' => (float) ($item['frete_valor'] ?? 0),
+        ];
+    }
+
+    $parcelasEdicao = [];
+    foreach ($parcelas as $parcela) {
+        if (!is_array($parcela)) {
+            continue;
+        }
+
+        $parcelasEdicao[] = [
+            'vencimento' => (string) ($parcela['vencimento'] ?? $hojeSaoPaulo),
+            'valor' => (float) ($parcela['valor_parcela'] ?? 0),
+            'tipoPagamento' => (string) ($parcela['tipo_pagamento'] ?? 'PIX'),
+            'manual' => true,
+        ];
+    }
+
+    $vendaEdicaoPayload = [
+        'id_venda' => (int) ($venda['id_venda'] ?? $vendaIdEdicao),
+        'cliente_id' => (int) ($venda['id_cliente'] ?? 0),
+        'cliente' => [
+            'nome_cliente' => (string) ($venda['nome_cliente'] ?? ''),
+            'telefone_contato' => (string) ($venda['telefone_contato'] ?? ''),
+            'cpf_cnpj' => (string) ($venda['cpf_cnpj'] ?? ''),
+            'email_contato' => (string) ($venda['email_contato'] ?? ''),
+            'endereco' => (string) ($venda['endereco'] ?? ''),
+        ],
+        'condicao_pagamento' => (string) ($venda['condicao_pagamento'] ?? 'vista'),
+        'itens' => $itensEdicao,
+        'parcelas' => $parcelasEdicao,
+    ];
+}
+
+include '../includes/header.php';
 ?>
 
 <div class="card">
     <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
-        <h4 class="mb-0"><i class="fas fa-file-invoice-dollar me-2"></i>Tela de Vendas</h4>
+        <h4 class="mb-0"><i class="fas fa-file-invoice-dollar me-2"></i><?= $vendaEdicaoPayload ? 'Editar Venda' : 'Tela de Vendas' ?></h4>
         <span class="badge bg-light text-dark">Orçamento / Pedido</span>
     </div>
 
@@ -239,6 +299,7 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
 <script>
     const hojeSP = '<?= $hojeSaoPaulo ?>';
     const csrfToken = '<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8') ?>';
+    const vendaEdicaoData = <?= json_encode($vendaEdicaoPayload, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
     const tiposPagamento = [
         'PIX', 'Dinheiro', 'Boleto', 'Cheque', 'Pix Pague Seguro',
         'Débito PagSeguro', 'Crédito PagSeguro', 'Débito Stone',
@@ -471,6 +532,7 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
 
         return {
             csrf_token: csrfToken,
+            id_venda: vendaEdicaoData && vendaEdicaoData.id_venda ? Number(vendaEdicaoData.id_venda) : null,
             cliente_id: Number(clienteBase.id_cliente),
             cliente: {
                 nome: clienteNome.value.trim(),
@@ -548,7 +610,15 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
                 throw new Error(dados.mensagem || 'Falha ao salvar venda.');
             }
 
-            window.alert(`Venda #${dados.id_venda} salva com sucesso.`);
+            window.alert(vendaEdicaoData && vendaEdicaoData.id_venda
+                ? `Venda #${dados.id_venda} atualizada com sucesso.`
+                : `Venda #${dados.id_venda} salva com sucesso.`);
+
+            if (vendaEdicaoData && vendaEdicaoData.id_venda) {
+                window.location.href = `<?= app_url('vendas/detalhes.php?id=') ?>${dados.id_venda}`;
+                return;
+            }
+
             limparFormularioVendaPosSucesso();
         } catch (error) {
             mostrarFeedback('danger', error.message || 'Erro inesperado ao salvar venda.');
@@ -672,6 +742,34 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
         limparFormularioVendaPosSucesso();
     });
 
+    function renderClientesSugestao(valorInicial) {
+        filtrarSugestoesClientes(valorInicial || '');
+    }
+
+    function aplicarDadosEdicaoVenda() {
+        if (!vendaEdicaoData || !vendaEdicaoData.id_venda) {
+            return;
+        }
+
+        clienteSelecionadoId = Number(vendaEdicaoData.cliente_id || 0) || null;
+        clienteNome.value = vendaEdicaoData.cliente?.nome_cliente || '';
+        clienteTelefone.value = vendaEdicaoData.cliente?.telefone_contato || '';
+        clienteCpfCnpj.value = vendaEdicaoData.cliente?.cpf_cnpj || '';
+        clienteEmail.value = vendaEdicaoData.cliente?.email_contato || '';
+        clienteEndereco.value = vendaEdicaoData.cliente?.endereco || '';
+
+        const condicaoPagamento = document.getElementById('condicaoPagamento');
+        condicaoPagamento.value = vendaEdicaoData.condicao_pagamento === 'parcelado' ? 'parcelado' : 'vista';
+        condicaoPagamento.dispatchEvent(new Event('change'));
+        composicao.setItens(Array.isArray(vendaEdicaoData.itens) ? vendaEdicaoData.itens : [], []);
+        renderClientesSugestao(vendaEdicaoData.cliente?.nome_cliente || '');
+
+        const parcelas = Array.isArray(vendaEdicaoData.parcelas) ? vendaEdicaoData.parcelas : [];
+        if (parcelas.length) {
+            composicao.setParcelas(parcelas);
+        }
+    }
+
     let liberarSalvarVendaPorMouse = false;
 
     formVenda.addEventListener('submit', (event) => {
@@ -695,6 +793,9 @@ $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->fo
     btnSalvarVenda.addEventListener('blur', () => {
         liberarSalvarVendaPorMouse = false;
     });
+
+    renderClientesSugestao('');
+    aplicarDadosEdicaoVenda();
 </script>
 
 <?php include '../includes/footer.php'; ?>

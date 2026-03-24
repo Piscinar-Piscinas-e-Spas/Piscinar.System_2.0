@@ -280,7 +280,7 @@ include '../includes/header.php';
                                                     type="button"
                                                     class="btn btn-sm btn-outline-warning js-auth-action"
                                                     data-action-label="editar a venda #<?= str_pad((string) ((int) $venda['id_venda']), 6, '0', STR_PAD_LEFT) ?>"
-                                                    data-target-url="<?= app_url('vendas/editar.php'); ?>?id=<?= (int) $venda['id_venda'] ?>"
+                                                    data-target-url="<?= app_url('vendas/nova.php'); ?>?id=<?= (int) $venda['id_venda'] ?>"
                                                 >
                                                     <i class="fas fa-pen me-1"></i>Editar
                                                 </button>

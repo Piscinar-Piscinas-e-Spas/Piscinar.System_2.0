@@ -8,5 +8,5 @@ if ($idVenda <= 0) {
     exit;
 }
 
-header('Location: ' . app_url('vendas/detalhes.php?id=' . $idVenda));
+header('Location: ' . app_url('vendas/nova.php?id=' . $idVenda));
 exit;
