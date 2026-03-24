@@ -16,6 +16,7 @@ require_valid_csrf(is_string($dados['csrf_token'] ?? null) ? $dados['csrf_token'
 servicos_ensure_schema($pdo);
 $clienteObrigatorio = servicos_cliente_obrigatorio();
 $servicoIdEdicao = (int) ($dados['id_servico'] ?? 0);
+$servicoAuditService = new \App\Services\ServicoAuditLogService($pdo);
 
 $clienteId = (int) ($dados['cliente_id'] ?? 0);
 $dataServico = trim((string) ($dados['data_servico'] ?? date('Y-m-d')));
@@ -167,6 +168,21 @@ try {
             $qtdParcelas,
             (float) ($dados['total_geral'] ?? 0),
         ]);
+    }
+
+    try {
+        $servicoAuditService->logSaveFromCurrentFlow(
+            $servicoId,
+            $servicoIdEdicao > 0,
+            $dados,
+            $itensProduto,
+            $itensMicro,
+            $parcelas,
+            $clienteId,
+            $dataServico
+        );
+    } catch (Throwable $logError) {
+        error_log('Falha ao registrar auditoria de servico: ' . $logError->getMessage());
     }
 
     $pdo->commit();
