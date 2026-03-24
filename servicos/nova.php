@@ -3,6 +3,7 @@ include '../includes/db.php';
 require_login();
 require_once __DIR__ . '/_infra.php';
 
+$hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->format('Y-m-d');
 servicos_ensure_schema($pdo);
 $clientes = servicos_obter_clientes($pdo);
 $clienteObrigatorio = servicos_cliente_obrigatorio();
@@ -65,6 +66,7 @@ if ($servicoIdEdicao > 0) {
     $servicoEdicaoPayload = [
         'id_servico' => (int) ($servico['id_servico'] ?? $servicoIdEdicao),
         'cliente_id' => (int) ($servico['cliente_id'] ?? 0),
+        'data_servico' => (string) ($servico['data_servico'] ?? $hojeSaoPaulo),
         'cliente' => [
             'nome_cliente' => (string) ($servico['nome_cliente'] ?? ''),
             'telefone_contato' => (string) ($servico['telefone_contato'] ?? ''),
@@ -82,7 +84,6 @@ if ($servicoIdEdicao > 0) {
 $produtosStmt = $pdo->query("SELECT id, nome, preco1 FROM produtos ORDER BY nome");
 $produtos = $produtosStmt ? $produtosStmt->fetchAll(PDO::FETCH_ASSOC) : [];
 
-$hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->format('Y-m-d');
 include '../includes/header.php';
 ?>
 
@@ -313,6 +314,18 @@ include '../includes/header.php';
                 <div class="card border-primary-subtle h-100">
                     <div class="card-header bg-light sales-block-title">4) Forma e condição de pagamento</div>
                     <div class="card-body">
+                        <div class="row g-2 mb-3 align-items-end">
+                            <div class="col-md-6">
+                                <div class="form-check form-switch mt-2">
+                                    <input class="form-check-input" type="checkbox" id="usarDataRetroativaServico">
+                                    <label class="form-check-label" for="usarDataRetroativaServico">Ativar data retroativa</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Data do serviÃ§o</label>
+                                <input type="date" id="dataRetroativaServico" class="form-control" value="<?= htmlspecialchars($hojeSaoPaulo, ENT_QUOTES, 'UTF-8') ?>" max="<?= htmlspecialchars($hojeSaoPaulo, ENT_QUOTES, 'UTF-8') ?>" disabled>
+                            </div>
+                        </div>
                         <div class="row g-2 mb-2">
                             <div class="col-md-6"><label class="form-label">Condição</label><select id="condicaoPagamento" class="form-select"><option value="vista">À vista</option><option value="parcelado">Parcelado</option></select></div>
                             <div class="col-md-6"><label class="form-label">Qtd. parcelas</label><input type="number" id="qtdParcelas" class="form-control" min="1" max="24" value="1"></div>
@@ -376,6 +389,8 @@ const btnLimparServico = document.getElementById('btnLimparServico');
 const subtotalMicroEl = document.getElementById('subtotalMicro');
 const descontoTotalInput = document.getElementById('descontoTotalInput');
 const descontoPercentInput = document.getElementById('descontoPercentInput');
+const usarDataRetroativaServico = document.getElementById('usarDataRetroativaServico');
+const dataRetroativaServico = document.getElementById('dataRetroativaServico');
 
 const composicao = window.ComposicaoComercial.init({
   hoje: hojeSP,
@@ -773,6 +788,22 @@ function limparFeedback() {
   box.textContent = '';
 }
 
+function obterDataServicoSelecionada() {
+  if (usarDataRetroativaServico.checked && dataRetroativaServico.value) {
+    return dataRetroativaServico.value;
+  }
+
+  return hojeSP;
+}
+
+function sincronizarDataRetroativaServico() {
+  dataRetroativaServico.disabled = !usarDataRetroativaServico.checked;
+  if (!usarDataRetroativaServico.checked) {
+    dataRetroativaServico.value = hojeSP;
+  }
+  composicao.setBaseDate(obterDataServicoSelecionada());
+}
+
 function limparFormularioServicoPosSucesso() {
   clienteSelecionadoId = null;
   document.getElementById('clienteNome').value = '';
@@ -798,6 +829,9 @@ function limparFormularioServicoPosSucesso() {
   document.getElementById('descontoRateioProdutos').checked = true;
   document.getElementById('condicaoPagamento').value = 'vista';
   document.getElementById('qtdParcelas').value = '1';
+  usarDataRetroativaServico.checked = false;
+  dataRetroativaServico.value = hojeSP;
+  dataRetroativaServico.disabled = true;
 
   state.produtos = [];
   state.microservicos = [];
@@ -814,6 +848,12 @@ document.getElementById('clienteNome').addEventListener('input', (e) => renderCl
 document.getElementById('clienteNome').addEventListener('change', (e) => preencherCliente(e.target.value));
 btnSalvarCliente.addEventListener('click', salvarClienteRapido);
 btnLimparServico.addEventListener('click', limparFormularioServicoPosSucesso);
+usarDataRetroativaServico.addEventListener('change', sincronizarDataRetroativaServico);
+dataRetroativaServico.addEventListener('change', () => {
+  if (usarDataRetroativaServico.checked) {
+    composicao.setBaseDate(obterDataServicoSelecionada());
+  }
+});
 prepararCampoDescontoParaDigitacao(descontoTotalInput);
 prepararCampoDescontoParaDigitacao(descontoPercentInput);
 document.getElementById('btnZerarDescontos').addEventListener('click', () => {
@@ -944,6 +984,7 @@ async function salvarServico() {
       email: document.getElementById('clienteEmail').value.trim(),
       endereco: document.getElementById('clienteEndereco').value.trim()
     },
+    data_servico: obterDataServicoSelecionada(),
     condicao_pagamento: document.getElementById('condicaoPagamento').value,
     subtotal_produtos: Number(resumo.subtotal_produtos.toFixed(2)),
     subtotal_microservicos: Number(resumo.subtotal_microservicos.toFixed(2)),
@@ -1015,6 +1056,11 @@ function aplicarDadosEdicaoServico() {
   document.getElementById('clienteCpfCnpj').value = servicoEdicaoData.cliente?.cpf_cnpj || '';
   document.getElementById('clienteEmail').value = servicoEdicaoData.cliente?.email_contato || '';
   document.getElementById('clienteEndereco').value = servicoEdicaoData.cliente?.endereco || '';
+  const dataServicoEdicao = servicoEdicaoData.data_servico || hojeSP;
+  const usarRetroativo = dataServicoEdicao < hojeSP;
+  usarDataRetroativaServico.checked = usarRetroativo;
+  dataRetroativaServico.value = usarRetroativo ? dataServicoEdicao : hojeSP;
+  sincronizarDataRetroativaServico();
 
   state.produtos = Array.isArray(servicoEdicaoData.produtos) ? servicoEdicaoData.produtos : [];
   state.microservicos = Array.isArray(servicoEdicaoData.microservicos) ? servicoEdicaoData.microservicos : [];

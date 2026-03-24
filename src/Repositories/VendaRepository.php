@@ -38,7 +38,7 @@ class VendaRepository
                     updated_at
                 ) VALUES (
                     :id_cliente,
-                    CURDATE(),
+                    :data_venda,
                     :subtotal,
                     :desconto_total,
                     :frete_total,
@@ -50,6 +50,7 @@ class VendaRepository
 
             $insertVenda->execute([
                 ':id_cliente' => $venda['cliente_id'],
+                ':data_venda' => $venda['data_venda'],
                 ':subtotal' => $venda['subtotal'],
                 ':desconto_total' => $venda['desconto_total'],
                 ':frete_total' => $venda['frete_total'],
@@ -129,7 +130,7 @@ class VendaRepository
 
             $this->auditLogger->logCreate('venda', 'vendas', $vendaId, [
                 'id_cliente' => $venda['cliente_id'],
-                'data_venda' => date('Y-m-d'),
+                'data_venda' => $venda['data_venda'],
                 'subtotal' => $venda['subtotal'],
                 'desconto_total' => $venda['desconto_total'],
                 'frete_total' => $venda['frete_total'],
@@ -169,6 +170,7 @@ class VendaRepository
 
             $updateVenda = $this->pdo->prepare('UPDATE vendas SET
                     id_cliente = :id_cliente,
+                    data_venda = :data_venda,
                     subtotal = :subtotal,
                     desconto_total = :desconto_total,
                     frete_total = :frete_total,
@@ -180,6 +182,7 @@ class VendaRepository
             $updateVenda->execute([
                 ':id_venda' => $vendaId,
                 ':id_cliente' => $venda['cliente_id'],
+                ':data_venda' => $venda['data_venda'],
                 ':subtotal' => $venda['subtotal'],
                 ':desconto_total' => $venda['desconto_total'],
                 ':frete_total' => $venda['frete_total'],
@@ -265,6 +268,7 @@ class VendaRepository
                 'venda' => [
                     'id_venda' => $vendaId,
                     'id_cliente' => $venda['cliente_id'],
+                    'data_venda' => $venda['data_venda'],
                     'subtotal' => $venda['subtotal'],
                     'desconto_total' => $venda['desconto_total'],
                     'frete_total' => $venda['frete_total'],

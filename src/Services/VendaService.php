@@ -39,6 +39,7 @@ class VendaService
     {
         $vendaId = (int) ($dados['id_venda'] ?? 0);
         $clienteId = (int) ($dados['cliente_id'] ?? 0);
+        $dataVenda = trim((string) ($dados['data_venda'] ?? date('Y-m-d')));
         $condicaoPagamento = trim((string) ($dados['condicao_pagamento'] ?? 'vista'));
         $itens = is_array($dados['itens'] ?? null) ? $dados['itens'] : [];
         $parcelas = is_array($dados['parcelas'] ?? null) ? $dados['parcelas'] : [];
@@ -52,6 +53,10 @@ class VendaService
 
         if (!in_array($condicaoPagamento, ['vista', 'parcelado'], true)) {
             return $this->error(422, 'Condição de pagamento inválida.');
+        }
+
+        if (!$this->isValidDate($dataVenda)) {
+            return $this->error(422, 'Data da venda invÃ¡lida.');
         }
 
         if (!$itens) {
@@ -155,6 +160,7 @@ class VendaService
 
             $vendaPersistida = [
                 'cliente_id' => $clienteId,
+                'data_venda' => $dataVenda,
                 'subtotal' => round($subtotalCalculado, 2),
                 'desconto_total' => round($descontoCalculado, 2),
                 'frete_total' => $freteInformado,
@@ -338,6 +344,12 @@ class VendaService
     private function almostEquals($a, $b, $tolerance = 0.02)
     {
         return abs($a - $b) <= $tolerance;
+    }
+
+    private function isValidDate($date)
+    {
+        $data = \DateTime::createFromFormat('Y-m-d', (string) $date);
+        return $data && $data->format('Y-m-d') === $date;
     }
 
     private function nullableDigits($valor)

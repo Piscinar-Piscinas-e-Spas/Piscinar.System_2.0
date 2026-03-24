@@ -18,8 +18,17 @@ $clienteObrigatorio = servicos_cliente_obrigatorio();
 $servicoIdEdicao = (int) ($dados['id_servico'] ?? 0);
 
 $clienteId = (int) ($dados['cliente_id'] ?? 0);
+$dataServico = trim((string) ($dados['data_servico'] ?? date('Y-m-d')));
 if ($clienteId <= 0) {
     $clienteId = null;
+}
+
+$dataServicoObj = DateTime::createFromFormat('Y-m-d', $dataServico);
+if (!$dataServicoObj || $dataServicoObj->format('Y-m-d') !== $dataServico) {
+    \App\Views\ApiResponse::send(422, [
+        'status' => false,
+        'mensagem' => 'Data do serviço inválida.',
+    ]);
 }
 
 if ($clienteObrigatorio && ($clienteId === null || $clienteId <= 0)) {
@@ -44,6 +53,7 @@ try {
         $stmt = $pdo->prepare(
             'UPDATE servicos_pedidos
              SET cliente_id = ?,
+                 data_servico = ?,
                  condicao_pagamento = ?,
                  subtotal_produtos = ?,
                  subtotal_microservicos = ?,
@@ -55,6 +65,7 @@ try {
 
         $stmt->execute([
             $clienteId,
+            $dataServico,
             (string) ($dados['condicao_pagamento'] ?? 'vista'),
             (float) ($dados['subtotal_produtos'] ?? 0),
             (float) ($dados['subtotal_microservicos'] ?? 0),
@@ -74,11 +85,12 @@ try {
                 cliente_id, data_servico, condicao_pagamento,
                 subtotal_produtos, subtotal_microservicos, desconto_total,
                 frete_total, total_geral
-            ) VALUES (?, CURDATE(), ?, ?, ?, ?, ?, ?)'
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
         );
 
         $stmt->execute([
             $clienteId,
+            $dataServico,
             (string) ($dados['condicao_pagamento'] ?? 'vista'),
             (float) ($dados['subtotal_produtos'] ?? 0),
             (float) ($dados['subtotal_microservicos'] ?? 0),
@@ -137,7 +149,7 @@ try {
 
     if (!$parcelas) {
         $parcelas = [[
-            'vencimento' => date('Y-m-d'),
+            'vencimento' => $dataServico,
             'valor' => (float) ($dados['total_geral'] ?? 0),
             'tipo' => 'PIX'
         ]];
@@ -149,7 +161,7 @@ try {
         $stmtParcela->execute([
             $servicoId,
             $index + 1,
-            (string) ($parcela['vencimento'] ?? date('Y-m-d')),
+            (string) ($parcela['vencimento'] ?? $dataServico),
             (string) ($parcela['tipo'] ?? 'PIX'),
             (float) ($parcela['valor'] ?? 0),
             $qtdParcelas,

@@ -20,6 +20,7 @@
             itens_produto: [],
             itens_microservico: [],
             parcelas: [],
+            baseDate: config.hoje,
             totais: {
                 subtotal_produtos: 0,
                 subtotal_microservicos: 0,
@@ -174,8 +175,18 @@
             atualizarResumo();
         }
 
-        function criarParcela(vencimento = hoje, valor = 0, tipoPagamento = 'PIX', manual = false) {
-            return { vencimento, valor, tipoPagamento, manual };
+        function getBaseDate() {
+            return state.baseDate || hoje;
+        }
+
+        function criarDataParcelamento(baseDate, offsetMeses) {
+            const d = new Date(`${baseDate}T12:00:00`);
+            d.setMonth(d.getMonth() + offsetMeses);
+            return d.toISOString().slice(0, 10);
+        }
+
+        function criarParcela(vencimento = hoje, valor = 0, tipoPagamento = 'PIX', manual = false, manualVencimento = false) {
+            return { vencimento, valor, tipoPagamento, manual, manualVencimento };
         }
 
         function renderParcelas() {
@@ -211,12 +222,33 @@
         function montarParcelas(qtd) {
             const quantidade = Math.max(1, qtd);
             state.parcelas = Array.from({ length: quantidade }, (_, i) => {
-                const d = new Date(hoje + 'T12:00:00');
-                d.setMonth(d.getMonth() + i);
-                const dataISO = d.toISOString().slice(0, 10);
-                return criarParcela(dataISO, 0, 'PIX', false);
+                const dataISO = criarDataParcelamento(getBaseDate(), i);
+                return criarParcela(dataISO, 0, 'PIX', false, false);
             });
             recalcularParcelas();
+        }
+
+        function atualizarVencimentosPorDataBase() {
+            if (!state.parcelas.length) {
+                return;
+            }
+
+            state.parcelas = state.parcelas.map((parcela, index) => {
+                if (parcela.manualVencimento) {
+                    return parcela;
+                }
+
+                return {
+                    ...parcela,
+                    vencimento: criarDataParcelamento(getBaseDate(), index),
+                };
+            });
+
+            if (dom.condicaoPagamento.value === 'vista' && state.parcelas[0]) {
+                state.parcelas[0].vencimento = getBaseDate();
+            }
+
+            renderParcelas();
         }
 
         function recalcularParcelas() {
@@ -442,7 +474,7 @@
                 if (isVista) {
                     dom.qtdParcelas.value = 1;
                     dom.qtdParcelas.setAttribute('readonly', 'readonly');
-                    state.parcelas = [criarParcela(hoje, totalVenda(), 'PIX', false)];
+                    state.parcelas = [criarParcela(getBaseDate(), totalVenda(), 'PIX', false, false)];
                     renderParcelas();
                     return;
                 }
@@ -459,7 +491,9 @@
             dom.parcelasBody.addEventListener('input', (event) => {
                 const idx = Number(event.target.dataset.index);
                 if (!Number.isInteger(idx) || !state.parcelas[idx]) return;
-                if (event.target.classList.contains('parcela-venc')) state.parcelas[idx].vencimento = event.target.value || hoje;
+                if (event.target.classList.contains('parcela-venc')) {
+                    state.parcelas[idx].vencimento = event.target.value || getBaseDate();
+                }
                 if (event.target.classList.contains('parcela-valor')) {
                     state.parcelas[idx].valor = Math.max(0, valorNum(event.target.value));
                     state.parcelas[idx].manual = true;
@@ -472,7 +506,8 @@
                 if (!Number.isInteger(idx) || !state.parcelas[idx]) return;
 
                 if (event.target.classList.contains('parcela-venc')) {
-                    state.parcelas[idx].vencimento = event.target.value || hoje;
+                    state.parcelas[idx].vencimento = event.target.value || getBaseDate();
+                    state.parcelas[idx].manualVencimento = true;
                     return;
                 }
 
@@ -504,7 +539,7 @@
                     recalcularParcelas();
                     return;
                 }
-                state.parcelas.push(criarParcela(hoje, 0, 'PIX', false));
+                state.parcelas.push(criarParcela(criarDataParcelamento(getBaseDate(), state.parcelas.length), 0, 'PIX', false, false));
                 recalcularParcelas();
             });
         }
@@ -532,8 +567,15 @@
         }
 
         function setParcelas(parcelas) {
-            state.parcelas = Array.isArray(parcelas) ? parcelas.map((p) => ({ ...p })) : [];
+            state.parcelas = Array.isArray(parcelas)
+                ? parcelas.map((p) => ({ manualVencimento: true, ...p }))
+                : [];
             recalcularParcelas();
+        }
+
+        function setBaseDate(date) {
+            state.baseDate = date || hoje;
+            atualizarVencimentosPorDataBase();
         }
 
         function zerarDescontosProdutos() {
@@ -545,7 +587,8 @@
         function reset() {
             state.itens_produto = [];
             state.itens_microservico = [];
-            state.parcelas = [criarParcela(hoje, 0, 'PIX', false)];
+            state.baseDate = hoje;
+            state.parcelas = [criarParcela(hoje, 0, 'PIX', false, false)];
             state.flags.descontoPercentControlando = false;
             state.flags.descontoTotalEditando = false;
             state.flags.freteTotalEditando = false;
@@ -574,6 +617,8 @@
             getResumo: obterResumo,
             totalVenda,
             setParcelas,
+            setBaseDate,
+            getBaseDate,
             zerarDescontosProdutos,
             reset,
             valorNum,

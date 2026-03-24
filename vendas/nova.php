@@ -55,6 +55,7 @@ if ($vendaIdEdicao > 0) {
     $vendaEdicaoPayload = [
         'id_venda' => (int) ($venda['id_venda'] ?? $vendaIdEdicao),
         'cliente_id' => (int) ($venda['id_cliente'] ?? 0),
+        'data_venda' => (string) ($venda['data_venda'] ?? $hojeSaoPaulo),
         'cliente' => [
             'nome_cliente' => (string) ($venda['nome_cliente'] ?? ''),
             'telefone_contato' => (string) ($venda['telefone_contato'] ?? ''),
@@ -246,6 +247,18 @@ include '../includes/header.php';
                 <div class="card border-primary-subtle h-100">
                     <div class="card-header bg-light sales-block-title">Forma e condição de pagamento</div>
                     <div class="card-body">
+                        <div class="row g-2 mb-3 align-items-end">
+                            <div class="col-md-6">
+                                <div class="form-check form-switch mt-2">
+                                    <input class="form-check-input" type="checkbox" id="usarDataRetroativaVenda">
+                                    <label class="form-check-label" for="usarDataRetroativaVenda">Ativar data retroativa</label>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Data da venda</label>
+                                <input type="date" id="dataRetroativaVenda" class="form-control" value="<?= htmlspecialchars($hojeSaoPaulo, ENT_QUOTES, 'UTF-8') ?>" max="<?= htmlspecialchars($hojeSaoPaulo, ENT_QUOTES, 'UTF-8') ?>" disabled>
+                            </div>
+                        </div>
                         <div class="row g-2 mb-2">
                             <div class="col-md-6">
                                 <label class="form-label">Condição</label>
@@ -318,6 +331,8 @@ include '../includes/header.php';
     const clienteEmail = document.getElementById('clienteEmail');
     const clienteEndereco = document.getElementById('clienteEndereco');
     const clientesSugestoes = document.getElementById('clientesSugestoes');
+    const usarDataRetroativaVenda = document.getElementById('usarDataRetroativaVenda');
+    const dataRetroativaVenda = document.getElementById('dataRetroativaVenda');
     let clienteSelecionadoId = null;
 
     const composicao = window.ComposicaoComercial.init({
@@ -350,6 +365,22 @@ include '../includes/header.php';
         feedbackBox.textContent = '';
     }
 
+    function obterDataVendaSelecionada() {
+        if (usarDataRetroativaVenda.checked && dataRetroativaVenda.value) {
+            return dataRetroativaVenda.value;
+        }
+
+        return hojeSP;
+    }
+
+    function sincronizarDataRetroativaVenda() {
+        dataRetroativaVenda.disabled = !usarDataRetroativaVenda.checked;
+        if (!usarDataRetroativaVenda.checked) {
+            dataRetroativaVenda.value = hojeSP;
+        }
+        composicao.setBaseDate(obterDataVendaSelecionada());
+    }
+
     function limparFormularioVendaPosSucesso() {
         clienteSelecionadoId = null;
         clienteNome.value = '';
@@ -362,6 +393,9 @@ include '../includes/header.php';
         document.getElementById('produtoQtd').value = '1';
         document.getElementById('produtoValorUnitario').value = '0,00';
 
+        usarDataRetroativaVenda.checked = false;
+        dataRetroativaVenda.value = hojeSP;
+        dataRetroativaVenda.disabled = true;
         composicao.reset();
         filtrarSugestoesClientes('');
         limparFeedback();
@@ -543,6 +577,7 @@ include '../includes/header.php';
             },
             cliente_resolucao: 'manter',
             validar_cliente_consistencia: true,
+            data_venda: obterDataVendaSelecionada(),
             condicao_pagamento: document.getElementById('condicaoPagamento').value,
             subtotal: Number((resumo.subtotal_produtos + resumo.subtotal_microservicos).toFixed(2)),
             desconto_total: Number(resumo.desconto_total.toFixed(2)),
@@ -742,6 +777,13 @@ include '../includes/header.php';
         limparFormularioVendaPosSucesso();
     });
 
+    usarDataRetroativaVenda.addEventListener('change', sincronizarDataRetroativaVenda);
+    dataRetroativaVenda.addEventListener('change', () => {
+        if (usarDataRetroativaVenda.checked) {
+            composicao.setBaseDate(obterDataVendaSelecionada());
+        }
+    });
+
     function renderClientesSugestao(valorInicial) {
         filtrarSugestoesClientes(valorInicial || '');
     }
@@ -757,6 +799,11 @@ include '../includes/header.php';
         clienteCpfCnpj.value = vendaEdicaoData.cliente?.cpf_cnpj || '';
         clienteEmail.value = vendaEdicaoData.cliente?.email_contato || '';
         clienteEndereco.value = vendaEdicaoData.cliente?.endereco || '';
+        const dataVendaEdicao = vendaEdicaoData.data_venda || hojeSP;
+        const usarRetroativo = dataVendaEdicao < hojeSP;
+        usarDataRetroativaVenda.checked = usarRetroativo;
+        dataRetroativaVenda.value = usarRetroativo ? dataVendaEdicao : hojeSP;
+        sincronizarDataRetroativaVenda();
 
         const condicaoPagamento = document.getElementById('condicaoPagamento');
         condicaoPagamento.value = vendaEdicaoData.condicao_pagamento === 'parcelado' ? 'parcelado' : 'vista';
