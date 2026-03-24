@@ -6,7 +6,10 @@ require_once __DIR__ . '/_infra.php';
 $hojeSaoPaulo = (new DateTime('now', new DateTimeZone('America/Sao_Paulo')))->format('Y-m-d');
 servicos_ensure_schema($pdo);
 $clientes = servicos_obter_clientes($pdo);
+$vendedores = servicos_obter_vendedores($pdo);
 $clienteObrigatorio = servicos_cliente_obrigatorio();
+$vendedorLogadoId = (int) (auth_user_id() ?? 0);
+$vendedorLogadoNome = auth_user_display_name();
 $servicoIdEdicao = (int) ($_GET['id'] ?? $_GET['id_servico'] ?? $_GET['servico_id'] ?? 0);
 $servicoEdicaoPayload = null;
 
@@ -66,6 +69,8 @@ if ($servicoIdEdicao > 0) {
     $servicoEdicaoPayload = [
         'id_servico' => (int) ($servico['id_servico'] ?? $servicoIdEdicao),
         'cliente_id' => (int) ($servico['cliente_id'] ?? 0),
+        'vendedor_id' => (int) ($servico['vendedor_id'] ?? $vendedorLogadoId),
+        'vendedor_nome' => (string) ($servico['vendedor_nome'] ?? $vendedorLogadoNome),
         'data_servico' => (string) ($servico['data_servico'] ?? $hojeSaoPaulo),
         'cliente' => [
             'nome_cliente' => (string) ($servico['nome_cliente'] ?? ''),
@@ -346,6 +351,21 @@ include '../includes/header.php';
                                 <tbody></tbody>
                             </table>
                         </div>
+                        <div class="mt-3">
+                            <label class="form-label">Vendedor responsavel</label>
+                            <select id="vendedorSelect" class="form-select">
+                                <option value="">Selecione um vendedor...</option>
+                                <?php foreach ($vendedores as $vendedor): ?>
+                                    <option
+                                        value="<?= (int) $vendedor['id_usuario'] ?>"
+                                        data-nome="<?= htmlspecialchars((string) $vendedor['nome_exibicao'], ENT_QUOTES, 'UTF-8') ?>"
+                                        <?= (int) $vendedor['id_usuario'] === $vendedorLogadoId ? 'selected' : '' ?>
+                                    >
+                                        <?= htmlspecialchars((string) $vendedor['nome_exibicao']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -368,6 +388,10 @@ const csrfToken = '<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8') ?>';
 const clientesData = <?= json_encode($clientes, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
 const clienteObrigatorio = <?= $clienteObrigatorio ? 'true' : 'false' ?>;
 const servicoEdicaoData = <?= json_encode($servicoEdicaoPayload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE) ?>;
+const vendedorLogadoPadrao = {
+  id: <?= json_encode($vendedorLogadoId, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
+  nome: <?= json_encode($vendedorLogadoNome, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
+};
 const tiposPagamento = [
   'PIX', 'Dinheiro', 'Boleto', 'Cheque', 'Pix Pague Seguro',
   'Débito PagSeguro', 'Crédito PagSeguro', 'Débito Stone',
@@ -384,6 +408,7 @@ const valorNum = window.ComposicaoComercial.valorNum;
 
 let clienteSelecionadoId = null;
 const clientesSugestoes = document.getElementById('clientesSugestoes');
+const vendedorSelect = document.getElementById('vendedorSelect');
 const btnSalvarCliente = document.getElementById('btnSalvarCliente');
 const btnLimparServico = document.getElementById('btnLimparServico');
 const subtotalMicroEl = document.getElementById('subtotalMicro');
@@ -829,6 +854,7 @@ function limparFormularioServicoPosSucesso() {
   document.getElementById('descontoRateioProdutos').checked = true;
   document.getElementById('condicaoPagamento').value = 'vista';
   document.getElementById('qtdParcelas').value = '1';
+  vendedorSelect.value = vendedorLogadoPadrao.id ? String(vendedorLogadoPadrao.id) : '';
   usarDataRetroativaServico.checked = false;
   dataRetroativaServico.value = hojeSP;
   dataRetroativaServico.disabled = true;
@@ -970,6 +996,14 @@ async function salvarServico() {
     return feedback('warning', 'Selecione um cliente existente ou use o botão "Salvar cliente rápido" antes de salvar o serviço.');
   }
 
+  const vendedorSelecionado = {
+    id: Number(vendedorSelect.value || vendedorLogadoPadrao.id || 0),
+    nome: vendedorSelect.selectedOptions[0]?.dataset?.nome || vendedorLogadoPadrao.nome || ''
+  };
+  if (!vendedorSelecionado.id || !vendedorSelecionado.nome) {
+    return feedback('warning', 'Selecione um vendedor antes de salvar o serviço.');
+  }
+
   const resumo = composicao.getResumo();
   const composicaoState = composicao.getState();
 
@@ -977,6 +1011,8 @@ async function salvarServico() {
     csrf_token: csrfToken,
     id_servico: servicoEdicaoData && servicoEdicaoData.id_servico ? Number(servicoEdicaoData.id_servico) : null,
     cliente_id: clienteSelecionadoId,
+    vendedor_id: vendedorSelecionado.id,
+    vendedor_nome: vendedorSelecionado.nome,
     cliente: {
       nome: document.getElementById('clienteNome').value.trim(),
       telefone: document.getElementById('clienteTelefone').value.trim(),
@@ -1056,6 +1092,7 @@ function aplicarDadosEdicaoServico() {
   document.getElementById('clienteCpfCnpj').value = servicoEdicaoData.cliente?.cpf_cnpj || '';
   document.getElementById('clienteEmail').value = servicoEdicaoData.cliente?.email_contato || '';
   document.getElementById('clienteEndereco').value = servicoEdicaoData.cliente?.endereco || '';
+  vendedorSelect.value = String(servicoEdicaoData.vendedor_id || vendedorLogadoPadrao.id || '');
   const dataServicoEdicao = servicoEdicaoData.data_servico || hojeSP;
   const usarRetroativo = dataServicoEdicao < hojeSP;
   usarDataRetroativaServico.checked = usarRetroativo;

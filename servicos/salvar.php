@@ -15,14 +15,41 @@ if (!is_array($dados)) {
 require_valid_csrf(is_string($dados['csrf_token'] ?? null) ? $dados['csrf_token'] : null);
 servicos_ensure_schema($pdo);
 $clienteObrigatorio = servicos_cliente_obrigatorio();
+$vendedores = servicos_obter_vendedores($pdo);
 $servicoIdEdicao = (int) ($dados['id_servico'] ?? 0);
 $servicoAuditService = new \App\Services\ServicoAuditLogService($pdo);
 
 $clienteId = (int) ($dados['cliente_id'] ?? 0);
 $dataServico = trim((string) ($dados['data_servico'] ?? date('Y-m-d')));
+$vendedorId = (int) ($dados['vendedor_id'] ?? auth_user_id() ?? 0);
+$vendedorNome = trim((string) ($dados['vendedor_nome'] ?? auth_user_display_name()));
 if ($clienteId <= 0) {
     $clienteId = null;
 }
+
+$vendedorSelecionado = null;
+foreach ($vendedores as $vendedor) {
+    if ((int) ($vendedor['id_usuario'] ?? 0) !== $vendedorId) {
+        continue;
+    }
+
+    $vendedorSelecionado = $vendedor;
+    break;
+}
+
+if (!$vendedorSelecionado) {
+    \App\Views\ApiResponse::send(422, [
+        'status' => false,
+        'mensagem' => 'Vendedor invalido para o servico.',
+    ]);
+}
+
+if ($vendedorNome === '') {
+    $vendedorNome = (string) ($vendedorSelecionado['nome_exibicao'] ?? '');
+}
+
+$dados['vendedor_id'] = (int) ($vendedorSelecionado['id_usuario'] ?? 0);
+$dados['vendedor_nome'] = $vendedorNome;
 
 $dataServicoObj = DateTime::createFromFormat('Y-m-d', $dataServico);
 if (!$dataServicoObj || $dataServicoObj->format('Y-m-d') !== $dataServico) {
@@ -54,6 +81,8 @@ try {
         $stmt = $pdo->prepare(
             'UPDATE servicos_pedidos
              SET cliente_id = ?,
+                 vendedor_id = ?,
+                 vendedor_nome = ?,
                  data_servico = ?,
                  condicao_pagamento = ?,
                  subtotal_produtos = ?,
@@ -66,6 +95,8 @@ try {
 
         $stmt->execute([
             $clienteId,
+            (int) $vendedorSelecionado['id_usuario'],
+            $vendedorNome,
             $dataServico,
             (string) ($dados['condicao_pagamento'] ?? 'vista'),
             (float) ($dados['subtotal_produtos'] ?? 0),
@@ -83,14 +114,16 @@ try {
     } else {
         $stmt = $pdo->prepare(
             'INSERT INTO servicos_pedidos (
-                cliente_id, data_servico, condicao_pagamento,
+                cliente_id, vendedor_id, vendedor_nome, data_servico, condicao_pagamento,
                 subtotal_produtos, subtotal_microservicos, desconto_total,
                 frete_total, total_geral
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)'
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
 
         $stmt->execute([
             $clienteId,
+            (int) $vendedorSelecionado['id_usuario'],
+            $vendedorNome,
             $dataServico,
             (string) ($dados['condicao_pagamento'] ?? 'vista'),
             (float) ($dados['subtotal_produtos'] ?? 0),

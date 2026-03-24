@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Repositories\ClienteRepository;
 use App\Repositories\ProdutoRepository;
+use App\Repositories\UsuarioRepository;
 use App\Repositories\VendaRepository;
 use PDO;
 use Throwable;
@@ -13,18 +14,21 @@ class VendaService
     private $vendaRepository;
     private $clienteRepository;
     private $produtoRepository;
+    private $usuarioRepository;
     private $pdo;
 
     public function __construct(
         PDO $pdo,
         VendaRepository $vendaRepository,
         ClienteRepository $clienteRepository,
-        ProdutoRepository $produtoRepository
+        ProdutoRepository $produtoRepository,
+        UsuarioRepository $usuarioRepository
     ) {
         $this->pdo = $pdo;
         $this->vendaRepository = $vendaRepository;
         $this->clienteRepository = $clienteRepository;
         $this->produtoRepository = $produtoRepository;
+        $this->usuarioRepository = $usuarioRepository;
     }
 
     public function buildFormData()
@@ -32,6 +36,7 @@ class VendaService
         return [
             'clientes' => $this->clienteRepository->listForSales(),
             'produtos' => $this->produtoRepository->listForSales(),
+            'vendedores' => $this->usuarioRepository->listActiveForSellerAssignment(),
         ];
     }
 
@@ -46,6 +51,8 @@ class VendaService
         $clienteResolucao = trim((string) ($dados['cliente_resolucao'] ?? 'manter'));
         $clientePayload = is_array($dados['cliente'] ?? null) ? $dados['cliente'] : null;
         $validarConsistenciaCliente = (bool) ($dados['validar_cliente_consistencia'] ?? false);
+        $vendedorId = (int) ($dados['vendedor_id'] ?? 0);
+        $vendedorNome = trim((string) ($dados['vendedor_nome'] ?? ''));
 
         if ($clienteId <= 0) {
             return $this->error(422, 'Cliente inválido para a venda.');
@@ -65,6 +72,29 @@ class VendaService
 
         if (!$parcelas) {
             return $this->error(422, 'A venda deve ter pelo menos uma parcela.');
+        }
+
+        if ($vendedorId <= 0) {
+            $authUserId = (int) (auth_user_id() ?? 0);
+            if ($authUserId > 0) {
+                $vendedorId = $authUserId;
+            }
+        }
+
+        if ($vendedorNome === '') {
+            $vendedorNome = auth_user_display_name();
+        }
+
+        $vendedorSelecionado = $vendedorId > 0
+            ? $this->usuarioRepository->findActiveById($vendedorId)
+            : null;
+
+        if (!$vendedorSelecionado) {
+            return $this->error(422, 'Vendedor invalido para a venda.');
+        }
+
+        if ($vendedorNome === '') {
+            $vendedorNome = (string) ($vendedorSelecionado['nome_exibicao'] ?? '');
         }
 
         $itensNormalizados = [];
@@ -160,6 +190,8 @@ class VendaService
 
             $vendaPersistida = [
                 'cliente_id' => $clienteId,
+                'vendedor_id' => (int) $vendedorSelecionado['id_usuario'],
+                'vendedor_nome' => $vendedorNome,
                 'data_venda' => $dataVenda,
                 'subtotal' => round($subtotalCalculado, 2),
                 'desconto_total' => round($descontoCalculado, 2),

@@ -178,6 +178,8 @@ class ServicoRepository
         $sql = 'SELECT
                 s.id_servico,
                 s.data_servico,
+                s.vendedor_id,
+                s.vendedor_nome,
                 s.condicao_pagamento,
                 s.subtotal_produtos,
                 s.subtotal_microservicos,
@@ -204,6 +206,8 @@ class ServicoRepository
         $stmtServico = $this->pdo->prepare('SELECT
                 s.id_servico,
                 s.cliente_id,
+                s.vendedor_id,
+                s.vendedor_nome,
                 s.data_servico,
                 s.condicao_pagamento,
                 s.subtotal_produtos,

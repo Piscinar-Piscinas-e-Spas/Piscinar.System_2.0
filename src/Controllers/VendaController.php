@@ -4,6 +4,7 @@ namespace App\Controllers;
 
 use App\Repositories\ClienteRepository;
 use App\Repositories\ProdutoRepository;
+use App\Repositories\UsuarioRepository;
 use App\Repositories\VendaRepository;
 use App\Services\VendaService;
 use PDO;
@@ -18,7 +19,8 @@ class VendaController
             $pdo,
             new VendaRepository($pdo),
             new ClienteRepository($pdo),
-            new ProdutoRepository($pdo)
+            new ProdutoRepository($pdo),
+            new UsuarioRepository($pdo)
         );
     }
 

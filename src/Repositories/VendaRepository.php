@@ -14,6 +14,7 @@ class VendaRepository
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
+        $this->ensureSchema();
         $this->auditLogger = new AuditLogger($pdo);
     }
 
@@ -28,6 +29,8 @@ class VendaRepository
 
             $insertVenda = $this->pdo->prepare('INSERT INTO vendas (
                     id_cliente,
+                    vendedor_id,
+                    vendedor_nome,
                     data_venda,
                     subtotal,
                     desconto_total,
@@ -38,6 +41,8 @@ class VendaRepository
                     updated_at
                 ) VALUES (
                     :id_cliente,
+                    :vendedor_id,
+                    :vendedor_nome,
                     :data_venda,
                     :subtotal,
                     :desconto_total,
@@ -50,6 +55,8 @@ class VendaRepository
 
             $insertVenda->execute([
                 ':id_cliente' => $venda['cliente_id'],
+                ':vendedor_id' => $venda['vendedor_id'],
+                ':vendedor_nome' => $venda['vendedor_nome'],
                 ':data_venda' => $venda['data_venda'],
                 ':subtotal' => $venda['subtotal'],
                 ':desconto_total' => $venda['desconto_total'],
@@ -130,6 +137,8 @@ class VendaRepository
 
             $this->auditLogger->logCreate('venda', 'vendas', $vendaId, [
                 'id_cliente' => $venda['cliente_id'],
+                'vendedor_id' => $venda['vendedor_id'],
+                'vendedor_nome' => $venda['vendedor_nome'],
                 'data_venda' => $venda['data_venda'],
                 'subtotal' => $venda['subtotal'],
                 'desconto_total' => $venda['desconto_total'],
@@ -170,6 +179,8 @@ class VendaRepository
 
             $updateVenda = $this->pdo->prepare('UPDATE vendas SET
                     id_cliente = :id_cliente,
+                    vendedor_id = :vendedor_id,
+                    vendedor_nome = :vendedor_nome,
                     data_venda = :data_venda,
                     subtotal = :subtotal,
                     desconto_total = :desconto_total,
@@ -182,6 +193,8 @@ class VendaRepository
             $updateVenda->execute([
                 ':id_venda' => $vendaId,
                 ':id_cliente' => $venda['cliente_id'],
+                ':vendedor_id' => $venda['vendedor_id'],
+                ':vendedor_nome' => $venda['vendedor_nome'],
                 ':data_venda' => $venda['data_venda'],
                 ':subtotal' => $venda['subtotal'],
                 ':desconto_total' => $venda['desconto_total'],
@@ -268,6 +281,8 @@ class VendaRepository
                 'venda' => [
                     'id_venda' => $vendaId,
                     'id_cliente' => $venda['cliente_id'],
+                    'vendedor_id' => $venda['vendedor_id'],
+                    'vendedor_nome' => $venda['vendedor_nome'],
                     'data_venda' => $venda['data_venda'],
                     'subtotal' => $venda['subtotal'],
                     'desconto_total' => $venda['desconto_total'],
@@ -300,6 +315,8 @@ class VendaRepository
         $sql = 'SELECT
                 v.id_venda,
                 v.data_venda,
+                v.vendedor_id,
+                v.vendedor_nome,
                 c.nome_cliente AS cliente,
                 v.condicao_pagamento,
                 v.subtotal,
@@ -324,6 +341,8 @@ class VendaRepository
     {
         $stmtVenda = $this->pdo->prepare('SELECT
                 v.id_venda,
+                v.vendedor_id,
+                v.vendedor_nome,
                 v.data_venda,
                 v.subtotal,
                 v.desconto_total,
@@ -442,6 +461,31 @@ class VendaRepository
             'total_vista' => $totalVista,
             'total_parcelado' => $totalParcelado,
         ];
+    }
+
+    private function ensureSchema(): void
+    {
+        $stmt = $this->pdo->query("SHOW COLUMNS FROM vendas LIKE 'vendedor_id'");
+        $hasVendedorId = $stmt && $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$hasVendedorId) {
+            $this->pdo->exec(
+                "ALTER TABLE vendas
+                    ADD COLUMN vendedor_id INT UNSIGNED NULL AFTER id_cliente,
+                    ADD COLUMN vendedor_nome VARCHAR(120) NULL AFTER vendedor_id,
+                    ADD INDEX idx_vendas_vendedor_id (vendedor_id)"
+            );
+        }
+
+        $stmt = $this->pdo->query("SHOW COLUMNS FROM vendas LIKE 'vendedor_nome'");
+        $hasVendedorNome = $stmt && $stmt->fetch(PDO::FETCH_ASSOC);
+
+        if (!$hasVendedorNome) {
+            $this->pdo->exec(
+                "ALTER TABLE vendas
+                    ADD COLUMN vendedor_nome VARCHAR(120) NULL AFTER vendedor_id"
+            );
+        }
     }
 
     private function buildFilterClause(array $filters): array

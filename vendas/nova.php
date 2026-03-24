@@ -7,6 +7,9 @@ $controller = new \App\Controllers\VendaController($pdo);
 $formData = $controller->formData();
 $clientes = $formData['clientes'];
 $produtos = $formData['produtos'];
+$vendedores = $formData['vendedores'];
+$vendedorLogadoId = (int) (auth_user_id() ?? 0);
+$vendedorLogadoNome = auth_user_display_name();
 $vendaIdEdicao = (int) ($_GET['id'] ?? $_GET['id_venda'] ?? $_GET['venda_id'] ?? 0);
 $vendaEdicaoPayload = null;
 
@@ -55,6 +58,8 @@ if ($vendaIdEdicao > 0) {
     $vendaEdicaoPayload = [
         'id_venda' => (int) ($venda['id_venda'] ?? $vendaIdEdicao),
         'cliente_id' => (int) ($venda['id_cliente'] ?? 0),
+        'vendedor_id' => (int) ($venda['vendedor_id'] ?? $vendedorLogadoId),
+        'vendedor_nome' => (string) ($venda['vendedor_nome'] ?? $vendedorLogadoNome),
         'data_venda' => (string) ($venda['data_venda'] ?? $hojeSaoPaulo),
         'cliente' => [
             'nome_cliente' => (string) ($venda['nome_cliente'] ?? ''),
@@ -289,6 +294,21 @@ include '../includes/header.php';
                                 <tbody></tbody>
                             </table>
                         </div>
+                        <div class="mt-3">
+                            <label class="form-label">Vendedor responsavel</label>
+                            <select id="vendedorSelect" class="form-select">
+                                <option value="">Selecione um vendedor...</option>
+                                <?php foreach ($vendedores as $vendedor): ?>
+                                    <option
+                                        value="<?= (int) $vendedor['id_usuario'] ?>"
+                                        data-nome="<?= htmlspecialchars((string) $vendedor['nome_exibicao'], ENT_QUOTES, 'UTF-8') ?>"
+                                        <?= (int) $vendedor['id_usuario'] === $vendedorLogadoId ? 'selected' : '' ?>
+                                    >
+                                        <?= htmlspecialchars((string) $vendedor['nome_exibicao']) ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -313,6 +333,10 @@ include '../includes/header.php';
     const hojeSP = '<?= $hojeSaoPaulo ?>';
     const csrfToken = '<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8') ?>';
     const vendaEdicaoData = <?= json_encode($vendaEdicaoPayload, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+    const vendedorLogadoPadrao = {
+        id: <?= json_encode($vendedorLogadoId, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>,
+        nome: <?= json_encode($vendedorLogadoNome, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>
+    };
     const tiposPagamento = [
         'PIX', 'Dinheiro', 'Boleto', 'Cheque', 'Pix Pague Seguro',
         'Débito PagSeguro', 'Crédito PagSeguro', 'Débito Stone',
@@ -331,6 +355,7 @@ include '../includes/header.php';
     const clienteEmail = document.getElementById('clienteEmail');
     const clienteEndereco = document.getElementById('clienteEndereco');
     const clientesSugestoes = document.getElementById('clientesSugestoes');
+    const vendedorSelect = document.getElementById('vendedorSelect');
     const usarDataRetroativaVenda = document.getElementById('usarDataRetroativaVenda');
     const dataRetroativaVenda = document.getElementById('dataRetroativaVenda');
     let clienteSelecionadoId = null;
@@ -388,6 +413,7 @@ include '../includes/header.php';
         clienteCpfCnpj.value = '';
         clienteEmail.value = '';
         clienteEndereco.value = '';
+        vendedorSelect.value = vendedorLogadoPadrao.id ? String(vendedorLogadoPadrao.id) : '';
 
         document.getElementById('produtoSelect').value = '';
         document.getElementById('produtoQtd').value = '1';
@@ -539,10 +565,24 @@ include '../includes/header.php';
         }
     }
 
+    function obterVendedorSelecionado() {
+        const selectedOption = vendedorSelect.selectedOptions[0] || null;
+
+        return {
+            id: Number(vendedorSelect.value || vendedorLogadoPadrao.id || 0),
+            nome: selectedOption?.dataset?.nome || vendedorLogadoPadrao.nome || ''
+        };
+    }
+
     function montarPayloadVenda() {
         const clienteBase = obterClienteSelecionadoPorId(clienteSelecionadoId);
         if (!clienteBase) {
             throw new Error('Selecione ou salve um cliente antes de salvar a venda.');
+        }
+
+        const vendedor = obterVendedorSelecionado();
+        if (!vendedor.id || !vendedor.nome) {
+            throw new Error('Selecione um vendedor antes de salvar a venda.');
         }
 
         const estado = composicao.getState();
@@ -568,6 +608,8 @@ include '../includes/header.php';
             csrf_token: csrfToken,
             id_venda: vendaEdicaoData && vendaEdicaoData.id_venda ? Number(vendaEdicaoData.id_venda) : null,
             cliente_id: Number(clienteBase.id_cliente),
+            vendedor_id: vendedor.id,
+            vendedor_nome: vendedor.nome,
             cliente: {
                 nome: clienteNome.value.trim(),
                 telefone: clienteTelefone.value.trim(),
@@ -799,6 +841,7 @@ include '../includes/header.php';
         clienteCpfCnpj.value = vendaEdicaoData.cliente?.cpf_cnpj || '';
         clienteEmail.value = vendaEdicaoData.cliente?.email_contato || '';
         clienteEndereco.value = vendaEdicaoData.cliente?.endereco || '';
+        vendedorSelect.value = String(vendaEdicaoData.vendedor_id || vendedorLogadoPadrao.id || '');
         const dataVendaEdicao = vendaEdicaoData.data_venda || hojeSP;
         const usarRetroativo = dataVendaEdicao < hojeSP;
         usarDataRetroativaVenda.checked = usarRetroativo;

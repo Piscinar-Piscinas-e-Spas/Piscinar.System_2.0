@@ -240,6 +240,7 @@ include '../includes/header.php';
                                     <th>ID</th>
                                     <th>Data</th>
                                     <th>Cliente</th>
+                                    <th>Vendedor</th>
                                     <th>Condição</th>
                                     <th>Subtotal produtos</th>
                                     <th>Subtotal micro</th>
@@ -251,13 +252,14 @@ include '../includes/header.php';
                             </thead>
                             <tbody>
                                 <?php if (!$servicos): ?>
-                                    <tr><td colspan="10" class="text-center text-muted">Nenhum serviço encontrado.</td></tr>
+                                    <tr><td colspan="11" class="text-center text-muted">Nenhum serviço encontrado.</td></tr>
                                 <?php endif; ?>
                                 <?php foreach ($servicos as $servico): ?>
                                     <tr data-row-item>
                                         <td><?= str_pad((string) ((int) $servico['id_servico']), 6, '0', STR_PAD_LEFT) ?></td>
                                         <td><?= htmlspecialchars(format_dashboard_date((string) $servico['data_servico'])) ?></td>
                                         <td><?= htmlspecialchars((string) ($servico['nome_cliente'] ?: 'Cliente não vinculado')) ?></td>
+                                        <td><?= htmlspecialchars((string) ($servico['vendedor_nome'] ?? '-')) ?></td>
                                         <td><?= htmlspecialchars((string) $servico['condicao_pagamento']) ?></td>
                                         <td>R$ <?= number_format((float) $servico['subtotal_produtos'], 2, ',', '.') ?></td>
                                         <td>R$ <?= number_format((float) $servico['subtotal_microservicos'], 2, ',', '.') ?></td>

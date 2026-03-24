@@ -8,6 +8,8 @@ function servicos_ensure_schema(PDO $pdo): void
         "CREATE TABLE IF NOT EXISTS servicos_pedidos (
             id_servico INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
             cliente_id INT UNSIGNED NULL,
+            vendedor_id INT UNSIGNED NULL,
+            vendedor_nome VARCHAR(120) NULL,
             data_servico DATE NOT NULL,
             condicao_pagamento VARCHAR(20) NOT NULL DEFAULT 'vista',
             subtotal_produtos DECIMAL(12,2) NOT NULL DEFAULT 0,
@@ -18,9 +20,30 @@ function servicos_ensure_schema(PDO $pdo): void
             created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
             updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
             INDEX idx_servico_data (data_servico),
-            INDEX idx_servico_cliente (cliente_id)
+            INDEX idx_servico_cliente (cliente_id),
+            INDEX idx_servico_vendedor (vendedor_id)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
     );
+
+    $stmt = $pdo->query("SHOW COLUMNS FROM servicos_pedidos LIKE 'vendedor_id'");
+    $hasVendedorId = $stmt && $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$hasVendedorId) {
+        $pdo->exec(
+            "ALTER TABLE servicos_pedidos
+                ADD COLUMN vendedor_id INT UNSIGNED NULL AFTER cliente_id,
+                ADD COLUMN vendedor_nome VARCHAR(120) NULL AFTER vendedor_id,
+                ADD INDEX idx_servico_vendedor (vendedor_id)"
+        );
+    }
+
+    $stmt = $pdo->query("SHOW COLUMNS FROM servicos_pedidos LIKE 'vendedor_nome'");
+    $hasVendedorNome = $stmt && $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$hasVendedorNome) {
+        $pdo->exec(
+            "ALTER TABLE servicos_pedidos
+                ADD COLUMN vendedor_nome VARCHAR(120) NULL AFTER vendedor_id"
+        );
+    }
 
     $pdo->exec(
         "CREATE TABLE IF NOT EXISTS servicos_itens (
@@ -60,6 +83,21 @@ function servicos_ensure_schema(PDO $pdo): void
 function servicos_obter_clientes(PDO $pdo): array
 {
     $stmt = $pdo->query("SELECT id_cliente, nome_cliente, telefone_contato, cpf_cnpj, email_contato, endereco FROM clientes ORDER BY nome_cliente");
+    return $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
+}
+
+function servicos_obter_vendedores(PDO $pdo): array
+{
+    $stmt = $pdo->query(
+        "SELECT
+            id_usuario,
+            usuario,
+            COALESCE(NULLIF(TRIM(nome_exibicao), ''), usuario) AS nome_exibicao
+         FROM usuarios
+         WHERE ativo = 1
+         ORDER BY nome_exibicao, usuario"
+    );
+
     return $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
 }
 

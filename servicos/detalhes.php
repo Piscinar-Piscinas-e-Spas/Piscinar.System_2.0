@@ -44,6 +44,7 @@ include '../includes/header.php';
                 <div class="col-md-3"><small class="text-uppercase text-muted">Data</small><div class="fw-semibold"><?= htmlspecialchars((string) $servico['data_servico']) ?></div></div>
                 <div class="col-md-3"><small class="text-uppercase text-muted">Condição</small><div class="fw-semibold"><?= htmlspecialchars((string) $servico['condicao_pagamento']) ?></div></div>
                 <div class="col-md-3"><small class="text-uppercase text-muted">Total</small><div class="fw-semibold text-success">R$ <?= number_format((float) $servico['total_geral'], 2, ',', '.') ?></div></div>
+                <div class="col-md-3"><small class="text-uppercase text-muted">Vendedor</small><div class="fw-semibold"><?= htmlspecialchars((string) ($servico['vendedor_nome'] ?? '-')) ?></div></div>
             </div>
             <hr>
             <div class="row g-3">

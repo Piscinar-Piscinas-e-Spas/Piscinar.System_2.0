@@ -280,6 +280,7 @@ include '../includes/header.php';
                                     <th>ID Venda</th>
                                     <th>Data da Venda</th>
                                     <th>Cliente</th>
+                                    <th>Vendedor</th>
                                     <th>Condi&ccedil;&atilde;o de Pagamento</th>
                                     <th>Subtotal</th>
                                     <th>Desconto Total</th>
@@ -291,7 +292,7 @@ include '../includes/header.php';
                             <tbody>
                                 <?php if (empty($vendas)): ?>
                                     <tr>
-                                        <td colspan="9" class="text-center text-muted">Nenhuma venda encontrada.</td>
+                                        <td colspan="10" class="text-center text-muted">Nenhuma venda encontrada.</td>
                                     </tr>
                                 <?php endif; ?>
 
@@ -300,6 +301,7 @@ include '../includes/header.php';
                                         <td><?= str_pad((string) ((int) $venda['id_venda']), 6, '0', STR_PAD_LEFT) ?></td>
                                         <td><?= htmlspecialchars(format_dashboard_date((string) ($venda['data_venda'] ?? '-'))) ?></td>
                                         <td><?= htmlspecialchars((string) ($venda['cliente'] ?? '-')) ?></td>
+                                        <td><?= htmlspecialchars((string) ($venda['vendedor_nome'] ?? '-')) ?></td>
                                         <td><?= htmlspecialchars((string) ($venda['condicao_pagamento'] ?? '-')) ?></td>
                                         <td>R$ <?= number_format((float) $venda['subtotal'], 2, ',', '.') ?></td>
                                         <td>R$ <?= number_format((float) $venda['desconto_total'], 2, ',', '.') ?></td>

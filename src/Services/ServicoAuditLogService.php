@@ -28,6 +28,8 @@ class ServicoAuditLogService
             'servico' => [
                 'id_servico' => $servicoId,
                 'cliente_id' => $clienteId,
+                'vendedor_id' => (int) ($dados['vendedor_id'] ?? 0),
+                'vendedor_nome' => (string) ($dados['vendedor_nome'] ?? ''),
                 'data_servico' => $dataServico,
                 'condicao_pagamento' => (string) ($dados['condicao_pagamento'] ?? 'vista'),
                 'subtotal_produtos' => (float) ($dados['subtotal_produtos'] ?? 0),

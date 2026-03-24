@@ -68,6 +68,10 @@ include '../includes/header.php';
                     <small class="text-uppercase text-muted">Total Geral</small>
                     <div class="fw-semibold text-success">R$ <?= number_format((float) ($venda['total_geral'] ?? 0), 2, ',', '.') ?></div>
                 </div>
+                <div class="col-md-3">
+                    <small class="text-uppercase text-muted">Vendedor</small>
+                    <div class="fw-semibold"><?= htmlspecialchars((string) ($venda['vendedor_nome'] ?? '-')) ?></div>
+                </div>
             </div>
 
             <hr>

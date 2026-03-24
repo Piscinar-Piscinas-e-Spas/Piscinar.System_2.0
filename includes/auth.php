@@ -80,6 +80,17 @@ function auth_user_id()
     return null;
 }
 
+function auth_user_display_name()
+{
+    $user = auth_user();
+    if (!is_array($user)) {
+        return '';
+    }
+
+    $displayName = trim((string) ($user['nome'] ?? $user['nome_exibicao'] ?? $user['usuario'] ?? ''));
+    return $displayName;
+}
+
 function is_authenticated()
 {
     return auth_user_id() !== null;
