@@ -5,9 +5,47 @@ require_once __DIR__ . '/_infra.php';
 
 servicos_ensure_schema($pdo);
 
+if (!function_exists('normalize_dashboard_date')) {
+    function normalize_dashboard_date(?string $value): string
+    {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return '';
+        }
+
+        foreach (['d/m/Y', 'Y-m-d'] as $format) {
+            $date = \DateTime::createFromFormat($format, $value);
+            if ($date instanceof \DateTime && $date->format($format) === $value) {
+                return $date->format('Y-m-d');
+            }
+        }
+
+        return '';
+    }
+}
+
+if (!function_exists('format_dashboard_date')) {
+    function format_dashboard_date(?string $value): string
+    {
+        $value = trim((string) $value);
+        if ($value === '') {
+            return '';
+        }
+
+        foreach (['Y-m-d', 'd/m/Y'] as $format) {
+            $date = \DateTime::createFromFormat($format, $value);
+            if ($date instanceof \DateTime && $date->format($format) === $value) {
+                return $date->format('d/m/Y');
+            }
+        }
+
+        return $value;
+    }
+}
+
 $filtrosDashboard = [
-    'data_inicial' => trim((string) ($_GET['dash_data_inicial'] ?? '')),
-    'data_final' => trim((string) ($_GET['dash_data_final'] ?? '')),
+    'data_inicial' => normalize_dashboard_date($_GET['dash_data_inicial'] ?? ''),
+    'data_final' => normalize_dashboard_date($_GET['dash_data_final'] ?? ''),
     'nome_cliente' => trim((string) ($_GET['dash_nome_cliente'] ?? '')),
     'condicao_pagamento' => trim((string) ($_GET['dash_condicao_pagamento'] ?? '')),
     'valor_minimo' => trim((string) ($_GET['dash_valor_minimo'] ?? '')),
@@ -15,8 +53,8 @@ $filtrosDashboard = [
 ];
 
 $filtrosLista = [
-    'data_inicial' => trim((string) ($_GET['lista_data_inicial'] ?? '')),
-    'data_final' => trim((string) ($_GET['lista_data_final'] ?? '')),
+    'data_inicial' => normalize_dashboard_date($_GET['lista_data_inicial'] ?? ''),
+    'data_final' => normalize_dashboard_date($_GET['lista_data_final'] ?? ''),
     'nome_cliente' => trim((string) ($_GET['lista_nome_cliente'] ?? '')),
     'condicao_pagamento' => trim((string) ($_GET['lista_condicao_pagamento'] ?? '')),
     'valor_minimo' => trim((string) ($_GET['lista_valor_minimo'] ?? '')),
@@ -60,11 +98,11 @@ include '../includes/header.php';
                             <div class="row g-2">
                                 <div class="col-md-3">
                                     <label for="dash_data_inicial" class="form-label">Data inicial (Dashboard)</label>
-                                    <input type="date" id="dash_data_inicial" name="dash_data_inicial" class="form-control" value="<?= htmlspecialchars($filtrosDashboard['data_inicial']) ?>">
+                                    <input type="text" id="dash_data_inicial" name="dash_data_inicial" class="form-control js-date-br" inputmode="numeric" maxlength="10" placeholder="dd/mm/aaaa" value="<?= htmlspecialchars(format_dashboard_date($filtrosDashboard['data_inicial'])) ?>">
                                 </div>
                                 <div class="col-md-3">
                                     <label for="dash_data_final" class="form-label">Data final (Dashboard)</label>
-                                    <input type="date" id="dash_data_final" name="dash_data_final" class="form-control" value="<?= htmlspecialchars($filtrosDashboard['data_final']) ?>">
+                                    <input type="text" id="dash_data_final" name="dash_data_final" class="form-control js-date-br" inputmode="numeric" maxlength="10" placeholder="dd/mm/aaaa" value="<?= htmlspecialchars(format_dashboard_date($filtrosDashboard['data_final'])) ?>">
                                 </div>
                                 <div class="col-md-3">
                                     <label for="dash_condicao_pagamento" class="form-label">Condição de pagamento</label>
@@ -155,11 +193,11 @@ include '../includes/header.php';
                         <div class="row g-3">
                             <div class="col-md-3">
                                 <label for="lista_data_inicial" class="form-label">Data inicial</label>
-                                <input type="date" id="lista_data_inicial" name="lista_data_inicial" class="form-control" value="<?= htmlspecialchars($filtrosLista['data_inicial']) ?>">
+                                <input type="text" id="lista_data_inicial" name="lista_data_inicial" class="form-control js-date-br" inputmode="numeric" maxlength="10" placeholder="dd/mm/aaaa" value="<?= htmlspecialchars(format_dashboard_date($filtrosLista['data_inicial'])) ?>">
                             </div>
                             <div class="col-md-3">
                                 <label for="lista_data_final" class="form-label">Data final</label>
-                                <input type="date" id="lista_data_final" name="lista_data_final" class="form-control" value="<?= htmlspecialchars($filtrosLista['data_final']) ?>">
+                                <input type="text" id="lista_data_final" name="lista_data_final" class="form-control js-date-br" inputmode="numeric" maxlength="10" placeholder="dd/mm/aaaa" value="<?= htmlspecialchars(format_dashboard_date($filtrosLista['data_final'])) ?>">
                             </div>
                             <div class="col-md-3">
                                 <label for="lista_condicao_pagamento" class="form-label">Condição de pagamento</label>
@@ -196,7 +234,7 @@ include '../includes/header.php';
                     </form>
 
                     <div class="table-responsive">
-                        <table class="table table-striped table-hover align-middle">
+                        <table class="table table-striped table-hover align-middle js-lista-paginada" data-page-size="10">
                             <thead class="table-dark">
                                 <tr>
                                     <th>ID</th>
@@ -216,9 +254,9 @@ include '../includes/header.php';
                                     <tr><td colspan="10" class="text-center text-muted">Nenhum serviço encontrado.</td></tr>
                                 <?php endif; ?>
                                 <?php foreach ($servicos as $servico): ?>
-                                    <tr>
+                                    <tr data-row-item>
                                         <td><?= str_pad((string) ((int) $servico['id_servico']), 6, '0', STR_PAD_LEFT) ?></td>
-                                        <td><?= htmlspecialchars((string) $servico['data_servico']) ?></td>
+                                        <td><?= htmlspecialchars(format_dashboard_date((string) $servico['data_servico'])) ?></td>
                                         <td><?= htmlspecialchars((string) ($servico['nome_cliente'] ?: 'Cliente não vinculado')) ?></td>
                                         <td><?= htmlspecialchars((string) $servico['condicao_pagamento']) ?></td>
                                         <td>R$ <?= number_format((float) $servico['subtotal_produtos'], 2, ',', '.') ?></td>
@@ -256,6 +294,15 @@ include '../includes/header.php';
                             </tbody>
                         </table>
                     </div>
+                    <?php if (!empty($servicos)): ?>
+                        <div class="lista-paginacao mt-3" data-pagination-controls>
+                            <span class="text-muted small" data-pagination-status></span>
+                            <div class="d-flex flex-wrap gap-2">
+                                <button type="button" class="btn btn-outline-primary btn-sm" data-action="more">Exibir mais 10</button>
+                                <button type="button" class="btn btn-outline-secondary btn-sm" data-action="all">Exibir todos</button>
+                            </div>
+                        </div>
+                    <?php endif; ?>
                 </div>
             </div>
         </div>
@@ -299,6 +346,58 @@ include '../includes/header.php';
                 botao.setAttribute('aria-expanded', expandido ? 'false' : 'true');
                 alvo.classList.toggle('d-none', expandido);
             });
+        });
+
+        document.querySelectorAll('.js-date-br').forEach((input) => {
+            input.addEventListener('input', () => {
+                const digits = input.value.replace(/\D/g, '').slice(0, 8);
+                let formatted = digits;
+
+                if (digits.length > 4) {
+                    formatted = `${digits.slice(0, 2)}/${digits.slice(2, 4)}/${digits.slice(4)}`;
+                } else if (digits.length > 2) {
+                    formatted = `${digits.slice(0, 2)}/${digits.slice(2)}`;
+                }
+
+                input.value = formatted;
+            });
+        });
+
+        document.querySelectorAll('.js-lista-paginada').forEach((table) => {
+            const pageSize = Number.parseInt(table.getAttribute('data-page-size') || '10', 10);
+            const rows = Array.from(table.querySelectorAll('tbody tr[data-row-item]'));
+            const controls = table.closest('.card-body')?.querySelector('[data-pagination-controls]');
+            const status = controls?.querySelector('[data-pagination-status]');
+            const moreButton = controls?.querySelector('[data-action="more"]');
+            const allButton = controls?.querySelector('[data-action="all"]');
+
+            if (!rows.length || !controls || !status || !moreButton || !allButton) {
+                return;
+            }
+
+            let visibleCount = Math.min(pageSize, rows.length);
+
+            const renderRows = () => {
+                rows.forEach((row, index) => {
+                    row.classList.toggle('d-none', index >= visibleCount);
+                });
+
+                status.textContent = `Exibindo ${Math.min(visibleCount, rows.length)} de ${rows.length} serviÃ§os filtrados`;
+                moreButton.classList.toggle('d-none', visibleCount >= rows.length);
+                allButton.classList.toggle('d-none', visibleCount >= rows.length);
+            };
+
+            moreButton.addEventListener('click', () => {
+                visibleCount = Math.min(visibleCount + pageSize, rows.length);
+                renderRows();
+            });
+
+            allButton.addEventListener('click', () => {
+                visibleCount = rows.length;
+                renderRows();
+            });
+
+            renderRows();
         });
 
         const modalElement = document.getElementById('confirmacaoSenhaModal');
