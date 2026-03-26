@@ -86,7 +86,7 @@ if ($servicoIdEdicao > 0) {
     ];
 }
 
-$produtosStmt = $pdo->query("SELECT id, nome, preco1 FROM produtos ORDER BY nome");
+$produtosStmt = $pdo->query("SELECT id, nome, preco1 FROM produtos WHERE COALESCE(preco1, 0) > 0 ORDER BY nome");
 $produtos = $produtosStmt ? $produtosStmt->fetchAll(PDO::FETCH_ASSOC) : [];
 
 include '../includes/header.php';
@@ -335,7 +335,7 @@ include '../includes/header.php';
                             <div class="col-md-6"><label class="form-label">Condição</label><select id="condicaoPagamento" class="form-select"><option value="vista">À vista</option><option value="parcelado">Parcelado</option></select></div>
                             <div class="col-md-6"><label class="form-label">Qtd. parcelas</label><input type="number" id="qtdParcelas" class="form-control" min="1" max="24" value="1"></div>
                         </div>
-                        <p class="context-tip mb-2">No modo parcelado, clique com o botão direito na tabela para adicionar parcela; botão direito em uma linha remove.</p>
+                        <p class="context-tip mb-2">No modo parcelado, clique com o botão direito na tabela para adicionar parcela; clique duplo com o botão esquerdo em uma linha remove.</p>
                         <div class="table-responsive">
                             <table class="table table-sm table-bordered" id="parcelasTable">
                                 <thead class="table-secondary">
@@ -343,6 +343,7 @@ include '../includes/header.php';
                                         <th>#</th>
                                         <th>Vencimento</th>
                                         <th>Valor</th>
+                                        <th>%</th>
                                         <th>Tipo Pagamento</th>
                                         <th>Qtd. Parcelas</th>
                                         <th>Total Parcelas</th>

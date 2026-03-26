@@ -185,8 +185,49 @@
             return d.toISOString().slice(0, 10);
         }
 
-        function criarParcela(vencimento = hoje, valor = 0, tipoPagamento = 'PIX', manual = false, manualVencimento = false) {
-            return { vencimento, valor, tipoPagamento, manual, manualVencimento };
+        function percentualParcela(parcela, total) {
+            if (parcela && parcela.manualPercentual) {
+                return Math.max(0, Math.min(100, valorNum(parcela.percentual)));
+            }
+
+            if (total <= 0) {
+                return 0;
+            }
+
+            return Math.max(0, (valorNum(parcela?.valor) / total) * 100);
+        }
+
+        function formatarPercentual(percentual) {
+            return `${Math.max(0, Math.min(100, valorNum(percentual))).toFixed(2).replace('.', ',')}%`;
+        }
+
+        function percentualMaximoDisponivel(idx) {
+            const total = totalVenda();
+            if (total <= 0) {
+                return 0;
+            }
+
+            const percentualComprometido = state.parcelas.reduce((acc, parcela, index) => {
+                if (index === idx) {
+                    return acc;
+                }
+
+                if (parcela.manualPercentual) {
+                    return acc + Math.max(0, Math.min(100, valorNum(parcela.percentual)));
+                }
+
+                if (parcela.manual) {
+                    return acc + ((Math.max(0, valorNum(parcela.valor)) / total) * 100);
+                }
+
+                return acc;
+            }, 0);
+
+            return Math.max(0, 100 - percentualComprometido);
+        }
+
+        function criarParcela(vencimento = hoje, valor = 0, tipoPagamento = 'PIX', manual = false, manualVencimento = false, percentual = 0, manualPercentual = false) {
+            return { vencimento, valor, tipoPagamento, manual, manualVencimento, percentual, manualPercentual };
         }
 
         function renderParcelas() {
@@ -194,6 +235,7 @@
             dom.parcelasBody.innerHTML = '';
             const condicao = dom.condicaoPagamento.value;
             const qtdTotal = state.parcelas.length;
+            const total = totalVenda();
 
             state.parcelas.forEach((parcela, index) => {
                 const tr = document.createElement('tr');
@@ -201,11 +243,13 @@
                 const tipoOptions = tiposPagamento
                     .map(tipo => `<option value="${tipo}" ${parcela.tipoPagamento === tipo ? 'selected' : ''}>${tipo}</option>`)
                     .join('');
+                const percentual = percentualParcela(parcela, total);
 
                 tr.innerHTML = `
                     <td>${index + 1}</td>
                     <td><input type="date" class="form-control form-control-sm parcela-venc" data-index="${index}" value="${parcela.vencimento}" ${condicao === 'vista' ? 'readonly' : ''}></td>
                     <td><input type="text" inputmode="decimal" class="form-control form-control-sm parcela-valor" data-index="${index}" value="${valorNum(parcela.valor).toFixed(2).replace('.', ',')}"></td>
+                    <td><input type="text" inputmode="decimal" class="form-control form-control-sm parcela-percentual" data-index="${index}" value="${formatarPercentual(percentual)}" ${condicao === 'vista' ? 'readonly' : ''} style="width: 4.4em; min-width: 4.4em; font-size: 0.78rem;"></td>
                     <td><select class="form-select form-select-sm parcela-tipo" data-index="${index}">${tipoOptions}</select></td>
                     <td>${index + 1}</td>
                     <td>${qtdTotal}</td>
@@ -255,10 +299,18 @@
             if (!state.parcelas.length) montarParcelas(1);
 
             const total = totalVenda();
-            const manuais = state.parcelas.filter(p => p.manual);
+            const percentualizadas = state.parcelas.filter(p => p.manualPercentual);
+            percentualizadas.forEach((parcela) => {
+                const percentual = Math.max(0, Math.min(100, valorNum(parcela.percentual)));
+                parcela.percentual = percentual;
+                parcela.valor = Number((total * (percentual / 100)).toFixed(2));
+            });
+
+            const manuais = state.parcelas.filter(p => p.manual && !p.manualPercentual);
             const somaManuais = manuais.reduce((acc, p) => acc + valorNum(p.valor), 0);
-            const editaveis = state.parcelas.filter(p => !p.manual);
-            const restante = Math.max(0, total - somaManuais);
+            const somaPercentuais = percentualizadas.reduce((acc, p) => acc + valorNum(p.valor), 0);
+            const editaveis = state.parcelas.filter(p => !p.manual && !p.manualPercentual);
+            const restante = Math.max(0, total - somaManuais - somaPercentuais);
             const valorPadrao = editaveis.length ? restante / editaveis.length : 0;
 
             editaveis.forEach((p, i) => {
@@ -497,6 +549,16 @@
                 if (event.target.classList.contains('parcela-valor')) {
                     state.parcelas[idx].valor = Math.max(0, valorNum(event.target.value));
                     state.parcelas[idx].manual = true;
+                    state.parcelas[idx].manualPercentual = false;
+                    state.parcelas[idx].percentual = 0;
+                }
+                if (event.target.classList.contains('parcela-percentual')) {
+                    state.parcelas[idx].percentual = Math.min(
+                        percentualMaximoDisponivel(idx),
+                        Math.max(0, Math.min(100, valorNum(event.target.value)))
+                    );
+                    state.parcelas[idx].manualPercentual = true;
+                    state.parcelas[idx].manual = false;
                 }
                 if (event.target.classList.contains('parcela-tipo')) state.parcelas[idx].tipoPagamento = event.target.value;
             });
@@ -514,6 +576,19 @@
                 if (event.target.classList.contains('parcela-valor')) {
                     state.parcelas[idx].valor = Math.max(0, valorNum(event.target.value));
                     state.parcelas[idx].manual = true;
+                    state.parcelas[idx].manualPercentual = false;
+                    state.parcelas[idx].percentual = 0;
+                    recalcularParcelas();
+                    return;
+                }
+
+                if (event.target.classList.contains('parcela-percentual')) {
+                    state.parcelas[idx].percentual = Math.min(
+                        percentualMaximoDisponivel(idx),
+                        Math.max(0, Math.min(100, valorNum(event.target.value)))
+                    );
+                    state.parcelas[idx].manualPercentual = true;
+                    state.parcelas[idx].manual = false;
                     recalcularParcelas();
                     return;
                 }
@@ -521,7 +596,7 @@
                 if (event.target.classList.contains('parcela-tipo')) {
                     state.parcelas[idx].tipoPagamento = event.target.value;
                     const tipoNormalizado = (event.target.value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-                    if (tipoNormalizado.includes('credito') || tipoNormalizado.includes('cheque')) {
+                    if (tipoNormalizado.includes('credito') || tipoNormalizado.includes('cheque') || tipoNormalizado.includes('boleto')) {
                         for (let i = idx + 1; i < state.parcelas.length; i += 1) {
                             state.parcelas[i].tipoPagamento = event.target.value;
                         }
@@ -533,14 +608,34 @@
             dom.parcelasBody.addEventListener('contextmenu', (event) => {
                 if (dom.condicaoPagamento.value !== 'parcelado') return;
                 event.preventDefault();
-                const row = event.target.closest('tr');
-                if (row && state.parcelas.length > 1) {
-                    state.parcelas.splice(Number(row.dataset.index), 1);
-                    recalcularParcelas();
-                    return;
-                }
                 state.parcelas.push(criarParcela(criarDataParcelamento(getBaseDate(), state.parcelas.length), 0, 'PIX', false, false));
                 recalcularParcelas();
+            });
+
+            dom.parcelasBody.addEventListener('dblclick', (event) => {
+                if (dom.condicaoPagamento.value !== 'parcelado') return;
+                const row = event.target.closest('tr');
+                if (!row || state.parcelas.length <= 1) return;
+                state.parcelas.splice(Number(row.dataset.index), 1);
+                recalcularParcelas();
+            });
+
+            dom.parcelasBody.addEventListener('focusin', (event) => {
+                if (!event.target.classList.contains('parcela-percentual')) return;
+                event.target.value = valorNum(event.target.value).toFixed(2).replace('.', ',');
+                event.target.select();
+            });
+
+            dom.parcelasBody.addEventListener('focusout', (event) => {
+                if (!event.target.classList.contains('parcela-percentual')) return;
+                event.target.value = formatarPercentual(event.target.value);
+            });
+
+            dom.parcelasBody.addEventListener('keydown', (event) => {
+                if (!event.target.classList.contains('parcela-percentual')) return;
+                if (event.key !== 'Enter') return;
+                event.preventDefault();
+                event.target.blur();
             });
         }
 

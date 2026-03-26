@@ -74,7 +74,7 @@ class ProdutoRepository
 
     public function listForSales($limit = 500)
     {
-        $stmt = $this->pdo->query('SELECT id, nome, preco1 FROM produtos ORDER BY nome LIMIT ' . (int) $limit);
+        $stmt = $this->pdo->query('SELECT id, nome, preco1 FROM produtos WHERE COALESCE(preco1, 0) > 0 ORDER BY nome LIMIT ' . (int) $limit);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

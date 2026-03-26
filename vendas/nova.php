@@ -278,7 +278,7 @@ include '../includes/header.php';
                             </div>
                         </div>
 
-                        <p class="context-tip mb-2">No modo parcelado, clique com o botão direito na tabela para adicionar parcela; botão direito em uma linha remove.</p>
+                        <p class="context-tip mb-2">No modo parcelado, clique com o botão direito na tabela para adicionar parcela; clique duplo com o botão esquerdo em uma linha remove.</p>
                         <div class="table-responsive">
                             <table class="table table-sm table-bordered" id="parcelasTable">
                                 <thead class="table-secondary">
@@ -286,6 +286,7 @@ include '../includes/header.php';
                                         <th>#</th>
                                         <th>Vencimento</th>
                                         <th>Valor</th>
+                                        <th>%</th>
                                         <th>Tipo Pagamento</th>
                                         <th>Qtd. Parcelas</th>
                                         <th>Total Parcelas</th>
