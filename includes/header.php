@@ -19,7 +19,6 @@
     $vendasActive = strpos($currentRoute, '/vendas/') !== false ? ' active' : '';
     $servicosActive = strpos($currentRoute, '/servicos/') !== false ? ' active' : '';
     $styleActive = strpos($currentRoute, '/assets/css/') !== false ? ' active' : '';
-    $logisticaActive = strpos($currentRoute, '/logistica/') !== false ? ' active' : '';
 ?>
 
 <!DOCTYPE html>
@@ -68,9 +67,6 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link<?php echo $servicosActive; ?>" href="<?php echo app_url('servicos/nova.php'); ?>"><i class="fas fa-tools"></i> Serviços</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link<?php echo $logisticaActive; ?>" href="<?php echo app_url('logistica/inventario.php'); ?>"><i class="bi bi-truck"></i> Logistica</a>
                         </li>
                     </ul>
 

@@ -19,7 +19,6 @@
             <li><a href="<?= htmlspecialchars(app_url('clientes/listar.php'), ENT_QUOTES, 'UTF-8') ?>">Clientes</a></li>
             <li><a href="<?= htmlspecialchars(app_url('vendas/nova.php'), ENT_QUOTES, 'UTF-8') ?>">Vendas</a></li>
             <li><a href="<?= htmlspecialchars(app_url('servicos/nova.php'), ENT_QUOTES, 'UTF-8') ?>">Servico</a></li>
-            <li><a href="<?= htmlspecialchars(app_url('logistica/inventario.php'), ENT_QUOTES, 'UTF-8') ?>">Logistica</a></li>
           </ul>
 
           <div class="footer-map-divider" aria-hidden="true"></div>
@@ -29,6 +28,7 @@
             <li><a href="<?= htmlspecialchars(app_url('logs/listar.php'), ENT_QUOTES, 'UTF-8') ?>">Logs</a></li>
             <li><a href="<?= htmlspecialchars(app_url('vendas/listar.php'), ENT_QUOTES, 'UTF-8') ?>">Dashboard de vendas</a></li>
             <li><a href="<?= htmlspecialchars(app_url('servicos/listar.php'), ENT_QUOTES, 'UTF-8') ?>">Dashboard de Servicos</a></li>
+            <li><a href="<?= htmlspecialchars(app_url('logistica/inventario.php'), ENT_QUOTES, 'UTF-8') ?>">Gestao de Estoque</a></li>
             <li><a href="<?= htmlspecialchars(app_url('logistica/transferencia.php'), ENT_QUOTES, 'UTF-8') ?>">Transferencias</a></li>
           </ul>
         </div>

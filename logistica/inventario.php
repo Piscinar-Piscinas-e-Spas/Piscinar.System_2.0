@@ -5,15 +5,15 @@ require_login();
 $modo = (string) ($_GET['local'] ?? 'loja');
 $modo = $modo === 'barracao' ? 'barracao' : 'loja';
 $colunaSistema = $modo === 'barracao' ? 'qtdEstoque' : 'qtdLoja';
-$tituloLocal = $modo === 'barracao' ? 'Barracao' : 'Loja';
+$tituloLocal = $modo === 'barracao' ? 'Estoque Auxiliar' : 'Loja';
 
 $busca = trim((string) ($_GET['busca'] ?? ''));
 $grupoFiltro = trim((string) ($_GET['grupo'] ?? ''));
 $pagina = max(1, (int) ($_GET['pagina'] ?? 1));
-$porPagina = (int) ($_GET['por_pagina'] ?? 50);
+$porPagina = (int) ($_GET['por_pagina'] ?? 25);
 $porPaginaPermitidos = [25, 50, 100, 200];
 if (!in_array($porPagina, $porPaginaPermitidos, true)) {
-    $porPagina = 50;
+    $porPagina = 25;
 }
 
 $where = [];
@@ -82,7 +82,7 @@ include '../includes/header.php';
                 </a>
                 <a href="<?= htmlspecialchars(app_url('logistica/inventario.php?' . http_build_query(['local' => 'barracao', 'busca' => $busca, 'grupo' => $grupoFiltro, 'por_pagina' => $porPagina])), ENT_QUOTES, 'UTF-8') ?>"
                     class="btn <?= $modo === 'barracao' ? 'btn-primary' : 'btn-outline-primary' ?>">
-                    <i class="bi bi-box-seam me-1"></i>Contar Barracao
+                    <i class="bi bi-box-seam me-1"></i>Contar Estoque Auxiliar
                 </a>
             </div>
         </div>
