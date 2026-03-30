@@ -37,7 +37,7 @@ class ProdutoRepository
             $params[':nome'] = '%' . $filters['nome'] . '%';
         }
 
-        $sql = 'SELECT id, nome, preco1, preco2, grupo, subgrupo, marca, qtdLoja, qtdEstoque,
+        $sql = 'SELECT id, nome, custo, preco1, preco2, grupo, subgrupo, marca, qtdLoja, qtdEstoque,
                        COALESCE(controle_estoque, 0) AS controle_estoque,
                        estoque_minimo,
                        (COALESCE(qtdLoja, 0) + COALESCE(qtdEstoque, 0)) AS estoque_total

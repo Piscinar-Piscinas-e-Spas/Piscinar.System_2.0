@@ -72,6 +72,9 @@ include '../includes/header.php';
             <p class="text-muted mb-0">Conte os itens por local e atualize somente a coluna selecionada.</p>
         </div>
         <div class="d-flex flex-wrap gap-2 justify-content-end">
+            <a href="<?= htmlspecialchars(app_url('logistica/logs_inventario.php'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-outline-primary">
+                <i class="bi bi-journal-richtext me-1"></i>Ver Relatorios
+            </a>
             <a href="<?= htmlspecialchars(app_url('logistica/transferencia.php'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-outline-secondary">
                 <i class="bi bi-arrow-left-right me-1"></i>Ir para Transferencias
             </a>

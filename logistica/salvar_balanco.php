@@ -11,6 +11,7 @@ if (strtoupper((string) ($_SERVER['REQUEST_METHOD'] ?? 'GET')) !== 'POST') {
 $modo = (string) ($_POST['local'] ?? 'loja');
 $modo = $modo === 'barracao' ? 'barracao' : 'loja';
 $coluna = $modo === 'barracao' ? 'qtdEstoque' : 'qtdLoja';
+$tituloLocal = $modo === 'barracao' ? 'Estoque Auxiliar' : 'Loja';
 
 $itens = $_POST['itens'] ?? [];
 $busca = trim((string) ($_POST['busca'] ?? ''));
@@ -43,19 +44,76 @@ if ($updates === []) {
     exit;
 }
 
-try {
-    $stmtAtual = $pdo->prepare("UPDATE produtos SET {$coluna} = :quantidade WHERE id = :id");
+$inventarioLogRepository = new \App\Repositories\InventarioLogRepository($pdo);
+$inventarioLogService = new \App\Services\InventarioLogService($inventarioLogRepository);
+$logFilePath = null;
 
-    foreach ($updates as $produtoId => $quantidade) {
+try {
+    $pdo->beginTransaction();
+
+    $ids = array_keys($updates);
+    $placeholders = implode(', ', array_fill(0, count($ids), '?'));
+    $stmtProdutos = $pdo->prepare("SELECT id, nome, {$coluna} AS saldo_anterior FROM produtos WHERE id IN ({$placeholders}) FOR UPDATE");
+    $stmtProdutos->execute($ids);
+
+    $produtos = [];
+    foreach ($stmtProdutos->fetchAll(PDO::FETCH_ASSOC) as $produto) {
+        $produtos[(int) $produto['id']] = $produto;
+    }
+
+    $stmtAtual = $pdo->prepare("UPDATE produtos SET {$coluna} = :quantidade WHERE id = :id");
+    $itensRelatorio = [];
+
+    foreach ($updates as $produtoId => $quantidadeInformada) {
+        $produto = $produtos[$produtoId] ?? null;
+        if (!$produto) {
+            throw new RuntimeException('Produto nao encontrado para o balanco.');
+        }
+
+        $saldoAnterior = (int) ($produto['saldo_anterior'] ?? 0);
+        $diferenca = $quantidadeInformada - $saldoAnterior;
+
         $stmtAtual->execute([
-            ':quantidade' => $quantidade,
+            ':quantidade' => $quantidadeInformada,
             ':id' => $produtoId,
         ]);
+
+        $itensRelatorio[] = [
+            'id_produto' => $produtoId,
+            'produto_nome' => (string) ($produto['nome'] ?? ''),
+            'saldo_anterior' => $saldoAnterior,
+            'saldo_informado' => $quantidadeInformada,
+            'diferenca' => $diferenca,
+            'coluna_afetada' => $coluna,
+            'local_inventario' => $tituloLocal,
+        ];
     }
+
+    $logResult = $inventarioLogService->recordBalanceEvent([
+        'local' => $modo,
+        'coluna' => $coluna,
+        'busca' => $busca,
+        'grupo' => $grupo,
+        'pagina' => $pagina,
+        'por_pagina' => $porPagina,
+        'usuario_id' => (int) (auth_user_id() ?? 0),
+        'usuario_nome' => auth_user_display_name(),
+    ], $itensRelatorio);
+    $logFilePath = (string) ($logResult['path'] ?? '');
+
+    $pdo->commit();
 
     header('Location: ' . app_url('logistica/inventario.php?' . http_build_query($redirectParams + ['status' => 'balanco_salvo'])));
     exit;
 } catch (Throwable $e) {
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
+
+    if ($logFilePath !== '' && is_file($logFilePath)) {
+        @unlink($logFilePath);
+    }
+
     header('Location: ' . app_url('logistica/inventario.php?' . http_build_query($redirectParams + ['status' => 'balanco_erro'])));
     exit;
 }

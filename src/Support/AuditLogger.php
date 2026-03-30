@@ -15,13 +15,7 @@ class AuditLogger
 
     public function logCreate($entity, $table, $recordId, array $data)
     {
-        $lines = [];
-
-        foreach ($data as $field => $value) {
-            $lines[] = $this->formatFieldLine((string) $field, $value);
-        }
-
-        $this->insertLog('create', $entity, $table, $recordId, $lines);
+        $this->insertSnapshotLog('create', $entity, $table, $recordId, $data);
     }
 
     public function logUpdate($entity, $table, $recordId, array $before, array $after)
@@ -52,13 +46,15 @@ class AuditLogger
 
     public function logDelete($entity, $table, $recordId, array $before)
     {
-        $lines = [];
+        $this->insertSnapshotLog('delete', $entity, $table, $recordId, $before);
+    }
 
-        foreach ($before as $field => $value) {
-            $lines[] = $this->formatFieldLine((string) $field, $value);
-        }
+    public function logSnapshot($action, $entity, $table, $recordId, array $data)
+    {
+        $allowedActions = ['create', 'update', 'delete'];
+        $action = in_array($action, $allowedActions, true) ? $action : 'create';
 
-        $this->insertLog('delete', $entity, $table, $recordId, $lines);
+        $this->insertSnapshotLog($action, $entity, $table, $recordId, $data);
     }
 
     private function insertLog($action, $entity, $table, $recordId, array $lines)
@@ -122,6 +118,17 @@ class AuditLogger
     private function formatFieldLine($field, $value)
     {
         return sprintf('%s: %s', $field, $this->stringifyValue($value));
+    }
+
+    private function insertSnapshotLog($action, $entity, $table, $recordId, array $data)
+    {
+        $lines = [];
+
+        foreach ($data as $field => $value) {
+            $lines[] = $this->formatFieldLine((string) $field, $value);
+        }
+
+        $this->insertLog($action, $entity, $table, $recordId, $lines);
     }
 
     private function stringifyValue($value)

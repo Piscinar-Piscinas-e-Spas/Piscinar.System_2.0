@@ -45,7 +45,7 @@ class ServicoAuditLogService
         ];
 
         if ($isUpdate) {
-            $this->auditLogger->logUpdate('servico', 'servicos_pedidos', $servicoId, [], $snapshot);
+            $this->auditLogger->logSnapshot('update', 'servico', 'servicos_pedidos', $servicoId, $snapshot);
             return;
         }
 

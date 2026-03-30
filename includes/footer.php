@@ -17,6 +17,7 @@
             <li><a href="<?= htmlspecialchars(app_url('index.php'), ENT_QUOTES, 'UTF-8') ?>">Inicio</a></li>
             <li><a href="<?= htmlspecialchars(app_url('produtos/listar.php'), ENT_QUOTES, 'UTF-8') ?>">Produtos</a></li>
             <li><a href="<?= htmlspecialchars(app_url('clientes/listar.php'), ENT_QUOTES, 'UTF-8') ?>">Clientes</a></li>
+            <li><a href="<?= htmlspecialchars(app_url('fornecedores/listar.php'), ENT_QUOTES, 'UTF-8') ?>">Fornecedor</a></li>
             <li><a href="<?= htmlspecialchars(app_url('vendas/nova.php'), ENT_QUOTES, 'UTF-8') ?>">Vendas</a></li>
             <li><a href="<?= htmlspecialchars(app_url('servicos/nova.php'), ENT_QUOTES, 'UTF-8') ?>">Servico</a></li>
           </ul>
@@ -29,6 +30,7 @@
             <li><a href="<?= htmlspecialchars(app_url('vendas/listar.php'), ENT_QUOTES, 'UTF-8') ?>">Dashboard de vendas</a></li>
             <li><a href="<?= htmlspecialchars(app_url('servicos/listar.php'), ENT_QUOTES, 'UTF-8') ?>">Dashboard de Servicos</a></li>
             <li><a href="<?= htmlspecialchars(app_url('logistica/inventario.php'), ENT_QUOTES, 'UTF-8') ?>">Gestao de Estoque</a></li>
+            <li><a href="<?= htmlspecialchars(app_url('compras/entrada.php'), ENT_QUOTES, 'UTF-8') ?>">Entrada de Mercadoria</a></li>
             <li><a href="<?= htmlspecialchars(app_url('logistica/transferencia.php'), ENT_QUOTES, 'UTF-8') ?>">Transferencias Entre Estoques</a></li>
           </ul>
         </div>
