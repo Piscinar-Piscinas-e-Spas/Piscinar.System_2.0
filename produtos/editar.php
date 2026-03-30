@@ -38,28 +38,28 @@ include '../includes/header.php';
             <div class="row">
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label class="form-label">Nome do Produto</label>
-                        <input type="text" class="form-control" name="nome" value="<?= htmlspecialchars((string) ($produto['nome'] ?? '')) ?>" required>
+                        <label class="form-label" for="produto-form-nome">Nome do Produto</label>
+                        <input type="text" class="form-control" id="produto-form-nome" name="nome" value="<?= htmlspecialchars((string) ($produto['nome'] ?? '')) ?>" required>
                     </div>
 
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Pre&ccedil;o 1 (Varejo)</label>
-                                <input type="number" step="0.01" class="form-control" name="preco1" value="<?= htmlspecialchars((string) ($produto['preco1'] ?? '')) ?>" required>
+                                <label class="form-label" for="produto-form-preco1">Pre&ccedil;o 1 (Varejo)</label>
+                                <input type="number" step="0.01" class="form-control" id="produto-form-preco1" name="preco1" value="<?= htmlspecialchars((string) ($produto['preco1'] ?? '')) ?>" required>
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Pre&ccedil;o 2 (Atacado)</label>
-                                <input type="number" step="0.01" class="form-control" name="preco2" value="<?= htmlspecialchars((string) ($produto['preco2'] ?? '')) ?>">
+                                <label class="form-label" for="produto-form-preco2">Pre&ccedil;o 2 (Atacado)</label>
+                                <input type="number" step="0.01" class="form-control" id="produto-form-preco2" name="preco2" value="<?= htmlspecialchars((string) ($produto['preco2'] ?? '')) ?>">
                             </div>
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Custo</label>
-                        <input type="number" step="0.01" class="form-control" name="custo" value="<?= htmlspecialchars((string) ($produto['custo'] ?? '')) ?>">
+                        <label class="form-label" for="produto-form-custo">Custo</label>
+                        <input type="number" step="0.01" class="form-control" id="produto-form-custo" name="custo" value="<?= htmlspecialchars((string) ($produto['custo'] ?? '')) ?>">
                     </div>
                 </div>
 
@@ -67,26 +67,26 @@ include '../includes/header.php';
                     <div class="row">
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Quantidade na Loja</label>
-                                <input type="number" class="form-control" name="qtdLoja" value="<?= htmlspecialchars((string) ($produto['qtdLoja'] ?? 0)) ?>">
+                                <label class="form-label" for="produto-form-qtd-loja">Quantidade na Loja</label>
+                                <input type="number" class="form-control" id="produto-form-qtd-loja" name="qtdLoja" value="<?= htmlspecialchars((string) ($produto['qtdLoja'] ?? 0)) ?>">
                             </div>
                         </div>
                         <div class="col-md-6">
                             <div class="mb-3">
-                                <label class="form-label">Quantidade em Estoque</label>
-                                <input type="number" class="form-control" name="qtdEstoque" value="<?= htmlspecialchars((string) ($produto['qtdEstoque'] ?? 0)) ?>">
+                                <label class="form-label" for="produto-form-qtd-estoque">Quantidade em Estoque</label>
+                                <input type="number" class="form-control" id="produto-form-qtd-estoque" name="qtdEstoque" value="<?= htmlspecialchars((string) ($produto['qtdEstoque'] ?? 0)) ?>">
                             </div>
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Grupo</label>
-                        <input type="text" class="form-control" name="grupo" value="<?= htmlspecialchars((string) ($produto['grupo'] ?? '')) ?>">
+                        <label class="form-label" for="produto-form-grupo">Grupo</label>
+                        <input type="text" class="form-control" id="produto-form-grupo" name="grupo" value="<?= htmlspecialchars((string) ($produto['grupo'] ?? '')) ?>">
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">Subgrupo</label>
-                        <input type="text" class="form-control" name="subgrupo" value="<?= htmlspecialchars((string) ($produto['subgrupo'] ?? '')) ?>">
+                        <label class="form-label" for="produto-form-subgrupo">Subgrupo</label>
+                        <input type="text" class="form-control" id="produto-form-subgrupo" name="subgrupo" value="<?= htmlspecialchars((string) ($produto['subgrupo'] ?? '')) ?>">
                     </div>
 
                     <div class="form-check form-switch mb-3 mt-4">
@@ -97,7 +97,7 @@ include '../includes/header.php';
 
                     <div id="campos-controle-estoque" class="border rounded p-3 <?= !empty($produto['controle_estoque']) ? '' : 'd-none' ?>">
                         <div class="mb-3">
-                            <label class="form-label">Estoque m&iacute;nimo</label>
+                            <label class="form-label" for="estoque_minimo">Estoque m&iacute;nimo</label>
                             <input type="number" min="0" class="form-control" id="estoque_minimo" name="estoque_minimo"
                                 value="<?= htmlspecialchars((string) ($produto['estoque_minimo'] ?? '')) ?>"
                                 <?= !empty($produto['controle_estoque']) ? 'required' : '' ?>>
@@ -105,8 +105,8 @@ include '../includes/header.php';
                         </div>
 
                         <div class="mb-0">
-                            <label class="form-label">Ponto de compra</label>
-                            <input type="number" min="0" class="form-control" name="ponto_compra"
+                            <label class="form-label" for="produto-form-ponto-compra">Ponto de compra</label>
+                            <input type="number" min="0" class="form-control" id="produto-form-ponto-compra" name="ponto_compra"
                                 value="<?= htmlspecialchars((string) ($produto['ponto_compra'] ?? '')) ?>">
                             <small class="text-muted">Opcional.</small>
                         </div>
@@ -115,13 +115,13 @@ include '../includes/header.php';
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Marca</label>
-                <input type="text" class="form-control" name="marca" value="<?= htmlspecialchars((string) ($produto['marca'] ?? '')) ?>">
+                <label class="form-label" for="produto-form-marca">Marca</label>
+                <input type="text" class="form-control" id="produto-form-marca" name="marca" value="<?= htmlspecialchars((string) ($produto['marca'] ?? '')) ?>">
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Observa&ccedil;&otilde;es</label>
-                <textarea class="form-control" name="observacoes" rows="3"><?= htmlspecialchars((string) ($produto['observacoes'] ?? '')) ?></textarea>
+                <label class="form-label" for="produto-form-observacoes">Observa&ccedil;&otilde;es</label>
+                <textarea class="form-control" id="produto-form-observacoes" name="observacoes" rows="3"><?= htmlspecialchars((string) ($produto['observacoes'] ?? '')) ?></textarea>
             </div>
 
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">

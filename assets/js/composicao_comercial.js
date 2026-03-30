@@ -159,15 +159,15 @@
                 tr.innerHTML = `
                     <td>${index + 1}</td>
                     <td>${item.nome}</td>
-                    <td><input type="number" min="1" step="1" class="form-control form-control-sm item-qtd" data-tipo="produto" data-index="${index}" value="${item.quantidade}"></td>
-                    <td><input type="text" inputmode="decimal" class="form-control form-control-sm item-unit" data-tipo="produto" data-index="${index}" value="${item.valorUnitario.toFixed(2).replace('.', ',')}"></td>
+                    <td><input type="number" min="1" step="1" class="form-control form-control-sm item-qtd" data-tipo="produto" data-index="${index}" value="${item.quantidade}" aria-label="Quantidade do item ${index + 1}"></td>
+                    <td><input type="text" inputmode="decimal" class="form-control form-control-sm item-unit" data-tipo="produto" data-index="${index}" value="${item.valorUnitario.toFixed(2).replace('.', ',')}" aria-label="Valor unitario do item ${index + 1}"></td>
                     <td>${moeda(item.subtotal)}</td>
-                    <td><input type="text" inputmode="decimal" class="form-control form-control-sm item-desc" data-tipo="produto" data-index="${index}" value="${item.desconto.toFixed(2).replace('.', ',')}"></td>
+                    <td><input type="text" inputmode="decimal" class="form-control form-control-sm item-desc" data-tipo="produto" data-index="${index}" value="${item.desconto.toFixed(2).replace('.', ',')}" aria-label="Desconto do item ${index + 1}"></td>
                     <td>${moeda(item.unitComDesconto)}</td>
                     <td>${moeda(item.totalComDesconto)}</td>
-                    <td><input type="text" inputmode="decimal" class="form-control form-control-sm item-frete" data-tipo="produto" data-index="${index}" value="${item.freteItem.toFixed(2).replace('.', ',')}"></td>
+                    <td><input type="text" inputmode="decimal" class="form-control form-control-sm item-frete" data-tipo="produto" data-index="${index}" value="${item.freteItem.toFixed(2).replace('.', ',')}" aria-label="Frete do item ${index + 1}"></td>
                     <td>${moeda(item.total)}</td>
-                    <td><button type="button" class="btn btn-sm btn-outline-danger item-remove" data-tipo="produto" data-index="${index}"><i class="fas fa-trash"></i></button></td>
+                    <td><button type="button" class="btn btn-sm btn-outline-danger item-remove" data-tipo="produto" data-index="${index}" aria-label="Remover item ${index + 1}"><i class="fas fa-trash"></i></button></td>
                 `;
                 dom.itensBody.appendChild(tr);
             });
@@ -247,10 +247,10 @@
 
                 tr.innerHTML = `
                     <td>${index + 1}</td>
-                    <td><input type="date" class="form-control form-control-sm parcela-venc" data-index="${index}" value="${parcela.vencimento}" ${condicao === 'vista' ? 'readonly' : ''}></td>
-                    <td><input type="text" inputmode="decimal" class="form-control form-control-sm parcela-valor" data-index="${index}" value="${valorNum(parcela.valor).toFixed(2).replace('.', ',')}"></td>
-                    <td><input type="text" inputmode="decimal" class="form-control form-control-sm parcela-percentual" data-index="${index}" value="${formatarPercentual(percentual)}" ${condicao === 'vista' ? 'readonly' : ''} style="width: 4.4em; min-width: 4.4em; font-size: 0.78rem;"></td>
-                    <td><select class="form-select form-select-sm parcela-tipo" data-index="${index}">${tipoOptions}</select></td>
+                    <td><input type="date" class="form-control form-control-sm parcela-venc" data-index="${index}" value="${parcela.vencimento}" ${condicao === 'vista' ? 'readonly' : ''} aria-label="Vencimento da parcela ${index + 1}"></td>
+                    <td><input type="text" inputmode="decimal" class="form-control form-control-sm parcela-valor" data-index="${index}" value="${valorNum(parcela.valor).toFixed(2).replace('.', ',')}" aria-label="Valor da parcela ${index + 1}"></td>
+                    <td><input type="text" inputmode="decimal" class="form-control form-control-sm parcela-percentual" data-index="${index}" value="${formatarPercentual(percentual)}" ${condicao === 'vista' ? 'readonly' : ''} style="width: 4.4em; min-width: 4.4em; font-size: 0.78rem;" aria-label="Percentual da parcela ${index + 1}"></td>
+                    <td><select class="form-select form-select-sm parcela-tipo" data-index="${index}" aria-label="Tipo de pagamento da parcela ${index + 1}">${tipoOptions}</select></td>
                     <td>${index + 1}</td>
                     <td>${qtdTotal}</td>
                 `;

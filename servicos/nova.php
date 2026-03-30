@@ -132,7 +132,7 @@ include '../includes/header.php';
                     <div class="card-body">
                         <div class="row g-3 align-items-end">
                             <div class="col-md-6">
-                                <label class="form-label">Nome cliente</label>
+                                <label class="form-label" for="clienteNome">Nome cliente</label>
                                 <input type="text" class="form-control" id="clienteNome" list="clientesSugestoes" placeholder="Digite para buscar ou preencher manualmente...">
                                 <datalist id="clientesSugestoes">
                                     <?php foreach ($clientes as $cliente): ?>
@@ -141,21 +141,21 @@ include '../includes/header.php';
                                 </datalist>
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label">Telefone</label>
+                                <label class="form-label" for="clienteTelefone">Telefone</label>
                                 <input type="text" class="form-control" id="clienteTelefone">
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label">CPF/CNPJ</label>
+                                <label class="form-label" for="clienteCpfCnpj">CPF/CNPJ</label>
                                 <input type="text" class="form-control" id="clienteCpfCnpj">
                             </div>
                         </div>
                         <div class="row g-3 align-items-end mt-1">
                             <div class="col-md-4">
-                                <label class="form-label">E-mail</label>
+                                <label class="form-label" for="clienteEmail">E-mail</label>
                                 <input type="email" class="form-control" id="clienteEmail">
                             </div>
                             <div class="col-md-8">
-                                <label class="form-label">Endereço</label>
+                                <label class="form-label" for="clienteEndereco">Endereço</label>
                                 <input type="text" class="form-control" id="clienteEndereco">
                             </div>
                         </div>
@@ -176,7 +176,7 @@ include '../includes/header.php';
                     <div class="card-body">
                         <div class="row g-2 align-items-end mb-3">
                             <div class="col-md-6">
-                                <label class="form-label">Produto</label>
+                                <label class="form-label" for="produtoSelect">Produto</label>
                                 <select class="form-select" id="produtoSelect">
                                     <option value="">Selecione um produto...</option>
                                     <?php foreach ($produtos as $produto): ?>
@@ -187,11 +187,11 @@ include '../includes/header.php';
                                 </select>
                             </div>
                             <div class="col-md-2">
-                                <label class="form-label">Qtd.</label>
+                                <label class="form-label" for="produtoQtd">Qtd.</label>
                                 <input type="number" min="1" class="form-control" id="produtoQtd" value="1">
                             </div>
                             <div class="col-md-2">
-                                <label class="form-label">Vlr. unitário</label>
+                                <label class="form-label" for="produtoValorUnitario">Vlr. unitário</label>
                                 <input type="text" class="form-control" id="produtoValorUnitario" value="0,00">
                             </div>
                             <div class="col-md-2 d-grid">
@@ -211,15 +211,15 @@ include '../includes/header.php';
                         <div class="border rounded p-3" style="background:#fff7e6;border-color:#ffb84d !important;">
                             <div class="row g-2 align-items-end">
                                 <div class="col-md-5">
-                                    <label class="form-label">Micro-serviço</label>
+                                    <label class="form-label" for="microDescricao">Micro-serviço</label>
                                     <input type="text" id="microDescricao" class="form-control" placeholder="Ex.: Instalação de bomba">
                                 </div>
                                 <div class="col-md-2">
-                                    <label class="form-label">Qtd.</label>
+                                    <label class="form-label" for="microQtd">Qtd.</label>
                                     <input type="number" id="microQtd" min="1" class="form-control" value="1">
                                 </div>
                                 <div class="col-md-3">
-                                    <label class="form-label">Vlr. unitário</label>
+                                    <label class="form-label" for="microValor">Vlr. unitário</label>
                                     <input type="text" id="microValor" class="form-control" value="0,00">
                                 </div>
                                 <div class="col-md-2 d-grid">
@@ -247,7 +247,7 @@ include '../includes/header.php';
                         <div class="resumo-card">
                             <div class="row g-2 align-items-end">
                                 <div class="col-md-6">
-                                    <label class="form-label">Frete total</label>
+                                    <label class="form-label" for="freteTotalInput">Frete total</label>
                                     <input type="text" inputmode="decimal" class="form-control" id="freteTotalInput" value="0,00">
                                     <div class="form-check mt-2">
                                         <input class="form-check-input" type="checkbox" id="freteComoMicroservicoCheck">
@@ -268,11 +268,11 @@ include '../includes/header.php';
                         <div class="resumo-card servico-desconto-card">
                             <div class="row g-2 align-items-end">
                                 <div class="col-md-4">
-                                    <label class="form-label">Desconto total (R$)</label>
+                                    <label class="form-label" for="descontoTotalInput">Desconto total (R$)</label>
                                     <input type="text" inputmode="decimal" class="form-control form-control-sm" id="descontoTotalInput" value="0,00">
                                 </div>
                                 <div class="col-md-4">
-                                    <label class="form-label">ou Desconto (%)</label>
+                                    <label class="form-label" for="descontoPercentInput">ou Desconto (%)</label>
                                     <input type="text" inputmode="decimal" class="form-control form-control-sm" id="descontoPercentInput" value="0,00">
                                 </div>
                                 <div class="col-md-4 d-grid">
@@ -327,13 +327,13 @@ include '../includes/header.php';
                                 </div>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Data do serviÃ§o</label>
+                                <label class="form-label" for="dataRetroativaServico">Data do serviÃ§o</label>
                                 <input type="date" id="dataRetroativaServico" class="form-control" value="<?= htmlspecialchars($hojeSaoPaulo, ENT_QUOTES, 'UTF-8') ?>" max="<?= htmlspecialchars($hojeSaoPaulo, ENT_QUOTES, 'UTF-8') ?>" disabled>
                             </div>
                         </div>
                         <div class="row g-2 mb-2">
-                            <div class="col-md-6"><label class="form-label">Condição</label><select id="condicaoPagamento" class="form-select"><option value="vista">À vista</option><option value="parcelado">Parcelado</option></select></div>
-                            <div class="col-md-6"><label class="form-label">Qtd. parcelas</label><input type="number" id="qtdParcelas" class="form-control" min="1" max="24" value="1"></div>
+                            <div class="col-md-6"><label class="form-label" for="condicaoPagamento">Condição</label><select id="condicaoPagamento" class="form-select"><option value="vista">À vista</option><option value="parcelado">Parcelado</option></select></div>
+                            <div class="col-md-6"><label class="form-label" for="qtdParcelas">Qtd. parcelas</label><input type="number" id="qtdParcelas" class="form-control" min="1" max="24" value="1"></div>
                         </div>
                         <p class="context-tip mb-2">No modo parcelado, clique com o botão direito na tabela para adicionar parcela; clique duplo com o botão esquerdo em uma linha remove.</p>
                         <div class="table-responsive">
@@ -353,7 +353,7 @@ include '../includes/header.php';
                             </table>
                         </div>
                         <div class="mt-3">
-                            <label class="form-label">Vendedor responsavel</label>
+                            <label class="form-label" for="vendedorSelect">Vendedor responsavel</label>
                             <select id="vendedorSelect" class="form-select">
                                 <option value="">Selecione um vendedor...</option>
                                 <?php foreach ($vendedores as $vendedor): ?>

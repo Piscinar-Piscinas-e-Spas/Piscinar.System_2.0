@@ -56,7 +56,7 @@ include '../includes/header.php';
                 <div class="transfer-layout mb-4">
                     <div class="transfer-side">
                         <div class="text-uppercase small text-muted mb-2">Lado A</div>
-                        <label class="form-label fw-semibold">Origem</label>
+                        <label class="form-label fw-semibold" for="origemSelect">Origem</label>
                         <select name="origem" id="origemSelect" class="form-select">
                             <option value="qtdEstoque" selected>Estoque Auxiliar</option>
                             <option value="qtdLoja">Loja</option>
@@ -70,7 +70,7 @@ include '../includes/header.php';
 
                     <div class="transfer-side">
                         <div class="text-uppercase small text-muted mb-2">Lado B</div>
-                        <label class="form-label fw-semibold">Destino</label>
+                        <label class="form-label fw-semibold" for="destinoSelect">Destino</label>
                         <select name="destino" id="destinoSelect" class="form-select">
                             <option value="qtdLoja" selected>Loja</option>
                             <option value="qtdEstoque">Estoque Auxiliar</option>

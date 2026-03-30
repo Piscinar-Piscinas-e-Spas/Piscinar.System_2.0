@@ -21,7 +21,8 @@ include '../includes/header.php';
             <form method="GET" class="mb-4">
                 <div class="row g-3">
                     <div class="col-md-2">
-                        <select name="entidade" class="form-select">
+                        <label class="form-label visually-hidden" for="logs-filtro-entidade">Entidade</label>
+                        <select id="logs-filtro-entidade" name="entidade" class="form-select">
                             <option value="">Todas as entidades</option>
                             <?php foreach ($entidades as $entidade): ?>
                                 <option value="<?= htmlspecialchars((string) $entidade, ENT_QUOTES, 'UTF-8') ?>" <?= (($entidade ?? '') === ($_GET['entidade'] ?? '')) ? 'selected' : '' ?>>
@@ -32,7 +33,8 @@ include '../includes/header.php';
                     </div>
 
                     <div class="col-md-2">
-                        <select name="acao" class="form-select">
+                        <label class="form-label visually-hidden" for="logs-filtro-acao">Ação</label>
+                        <select id="logs-filtro-acao" name="acao" class="form-select">
                             <option value="">Todas as ações</option>
                             <?php foreach (['create' => 'Cadastro', 'update' => 'Atualização', 'delete' => 'Exclusão'] as $value => $label): ?>
                                 <option value="<?= $value ?>" <?= (($value ?? '') === ($_GET['acao'] ?? '')) ? 'selected' : '' ?>>
@@ -43,19 +45,23 @@ include '../includes/header.php';
                     </div>
 
                     <div class="col-md-2">
-                        <input type="text" name="usuario" class="form-control" placeholder="Usuário" value="<?= htmlspecialchars((string) ($_GET['usuario'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                        <label class="form-label visually-hidden" for="logs-filtro-usuario">Usuário</label>
+                        <input type="text" id="logs-filtro-usuario" name="usuario" class="form-control" placeholder="Usuário" value="<?= htmlspecialchars((string) ($_GET['usuario'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                     </div>
 
                     <div class="col-md-2">
-                        <input type="text" name="id_registro" class="form-control" placeholder="ID do registro" value="<?= htmlspecialchars((string) ($_GET['id_registro'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                        <label class="form-label visually-hidden" for="logs-filtro-id-registro">ID do registro</label>
+                        <input type="text" id="logs-filtro-id-registro" name="id_registro" class="form-control" placeholder="ID do registro" value="<?= htmlspecialchars((string) ($_GET['id_registro'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                     </div>
 
                     <div class="col-md-2">
-                        <input type="date" name="data_inicial" class="form-control" value="<?= htmlspecialchars((string) ($_GET['data_inicial'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                        <label class="form-label visually-hidden" for="logs-filtro-data-inicial">Data inicial</label>
+                        <input type="date" id="logs-filtro-data-inicial" name="data_inicial" class="form-control" value="<?= htmlspecialchars((string) ($_GET['data_inicial'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                     </div>
 
                     <div class="col-md-2">
-                        <input type="date" name="data_final" class="form-control" value="<?= htmlspecialchars((string) ($_GET['data_final'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
+                        <label class="form-label visually-hidden" for="logs-filtro-data-final">Data final</label>
+                        <input type="date" id="logs-filtro-data-final" name="data_final" class="form-control" value="<?= htmlspecialchars((string) ($_GET['data_final'] ?? ''), ENT_QUOTES, 'UTF-8') ?>">
                     </div>
 
                     <div class="col-12 text-end">

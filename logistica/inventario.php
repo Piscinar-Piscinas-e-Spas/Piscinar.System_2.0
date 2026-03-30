@@ -93,13 +93,13 @@ include '../includes/header.php';
             <form method="get" class="row g-3 align-items-end mb-4">
                 <input type="hidden" name="local" value="<?= htmlspecialchars($modo, ENT_QUOTES, 'UTF-8') ?>">
                 <div class="col-lg-5">
-                    <label class="form-label">Buscar produto</label>
-                    <input type="text" name="busca" class="form-control" placeholder="Nome ou ID"
+                    <label class="form-label" for="inventario-filtro-busca">Buscar produto</label>
+                    <input type="text" id="inventario-filtro-busca" name="busca" class="form-control" placeholder="Nome ou ID"
                         value="<?= htmlspecialchars($busca, ENT_QUOTES, 'UTF-8') ?>">
                 </div>
                 <div class="col-lg-3">
-                    <label class="form-label">Grupo</label>
-                    <input type="text" name="grupo" class="form-control" list="gruposLogistica"
+                    <label class="form-label" for="inventario-filtro-grupo">Grupo</label>
+                    <input type="text" id="inventario-filtro-grupo" name="grupo" class="form-control" list="gruposLogistica"
                         value="<?= htmlspecialchars($grupoFiltro, ENT_QUOTES, 'UTF-8') ?>" placeholder="Todos os grupos">
                     <datalist id="gruposLogistica">
                         <?php foreach ($grupos as $grupo): ?>
@@ -108,8 +108,8 @@ include '../includes/header.php';
                     </datalist>
                 </div>
                 <div class="col-lg-2">
-                    <label class="form-label">Itens por pagina</label>
-                    <select name="por_pagina" class="form-select">
+                    <label class="form-label" for="inventario-filtro-por-pagina">Itens por pagina</label>
+                    <select id="inventario-filtro-por-pagina" name="por_pagina" class="form-select">
                         <?php foreach ($porPaginaPermitidos as $opcao): ?>
                             <option value="<?= $opcao ?>" <?= $porPagina === $opcao ? 'selected' : '' ?>><?= $opcao ?></option>
                         <?php endforeach; ?>

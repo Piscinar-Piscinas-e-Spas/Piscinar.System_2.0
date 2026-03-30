@@ -24,6 +24,7 @@ include '../includes/header.php';
             <form method="get" class="mb-4">
                 <div class="row g-3">
                     <div class="col-md-3">
+                        <label class="form-label visually-hidden" for="grupoInput">Grupo</label>
                         <input type="text" name="grupo" class="form-control" placeholder="Grupo"
                             value="<?= htmlspecialchars($_GET['grupo'] ?? '') ?>" id="grupoInput" list="gruposList">
                         <datalist id="gruposList">
@@ -34,6 +35,7 @@ include '../includes/header.php';
                     </div>
 
                     <div class="col-md-3">
+                        <label class="form-label visually-hidden" for="subgrupoInput">Subgrupo</label>
                         <input type="text" name="subgrupo" class="form-control" placeholder="Subgrupo"
                             value="<?= htmlspecialchars($_GET['subgrupo'] ?? '') ?>" id="subgrupoInput"
                             list="subgruposList" <?= empty($_GET['grupo']) ? 'disabled' : '' ?>>
@@ -41,7 +43,8 @@ include '../includes/header.php';
                     </div>
 
                     <div class="col-md-6">
-                        <input type="text" name="nome" class="form-control" placeholder="Nome do produto"
+                        <label class="form-label visually-hidden" for="produto-lista-nome">Nome do produto</label>
+                        <input type="text" id="produto-lista-nome" name="nome" class="form-control" placeholder="Nome do produto"
                             value="<?= htmlspecialchars($_GET['nome'] ?? '') ?>">
                     </div>
 

@@ -38,14 +38,14 @@ include '../includes/header.php';
             <div class="row">
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label class="form-label">Nome do Cliente</label>
-                        <input type="text" class="form-control" name="nome_cliente" value="<?= htmlspecialchars((string) ($cliente['nome_cliente'] ?? '')) ?>" required>
+                        <label class="form-label" for="cliente-form-nome">Nome do Cliente</label>
+                        <input type="text" class="form-control" id="cliente-form-nome" name="nome_cliente" value="<?= htmlspecialchars((string) ($cliente['nome_cliente'] ?? '')) ?>" required>
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label class="form-label">Contato (Fone)</label>
-                        <input type="text" class="form-control" name="telefone_contato" value="<?= htmlspecialchars((string) ($cliente['telefone_contato'] ?? '')) ?>" required>
+                        <label class="form-label" for="cliente-form-telefone">Contato (Fone)</label>
+                        <input type="text" class="form-control" id="cliente-form-telefone" name="telefone_contato" value="<?= htmlspecialchars((string) ($cliente['telefone_contato'] ?? '')) ?>" required>
                     </div>
                 </div>
             </div>
@@ -53,21 +53,21 @@ include '../includes/header.php';
             <div class="row">
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label class="form-label">CPF/CNPJ (opcional)</label>
-                        <input type="text" class="form-control" name="cpf_cnpj" value="<?= htmlspecialchars((string) ($cliente['cpf_cnpj'] ?? '')) ?>">
+                        <label class="form-label" for="cliente-form-cpf-cnpj">CPF/CNPJ (opcional)</label>
+                        <input type="text" class="form-control" id="cliente-form-cpf-cnpj" name="cpf_cnpj" value="<?= htmlspecialchars((string) ($cliente['cpf_cnpj'] ?? '')) ?>">
                     </div>
                 </div>
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label class="form-label">Contato (E-mail) (opcional)</label>
-                        <input type="email" class="form-control" name="email_contato" value="<?= htmlspecialchars((string) ($cliente['email_contato'] ?? '')) ?>">
+                        <label class="form-label" for="cliente-form-email">Contato (E-mail) (opcional)</label>
+                        <input type="email" class="form-control" id="cliente-form-email" name="email_contato" value="<?= htmlspecialchars((string) ($cliente['email_contato'] ?? '')) ?>">
                     </div>
                 </div>
             </div>
 
             <div class="mb-3">
-                <label class="form-label">EndereÃ§o</label>
-                <textarea class="form-control" name="endereco" rows="3"><?= htmlspecialchars((string) ($cliente['endereco'] ?? '')) ?></textarea>
+                <label class="form-label" for="cliente-form-endereco">EndereÃ§o</label>
+                <textarea class="form-control" id="cliente-form-endereco" name="endereco" rows="3"><?= htmlspecialchars((string) ($cliente['endereco'] ?? '')) ?></textarea>
             </div>
 
             <div class="d-grid gap-2 d-md-flex justify-content-md-end">

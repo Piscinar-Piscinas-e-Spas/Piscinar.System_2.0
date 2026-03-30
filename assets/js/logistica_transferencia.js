@@ -107,20 +107,22 @@ document.addEventListener('DOMContentLoaded', function () {
 
   function criarLinha(item) {
     var index = nextIndex++;
+    var produtoInputId = 'transfer-item-produto-' + index;
+    var quantidadeInputId = 'transfer-item-quantidade-' + index;
     var row = document.createElement('div');
     row.className = 'transfer-item-row border rounded-3 p-3';
     row.innerHTML = [
       '<div class="row g-3 align-items-end">',
       '  <div class="col-lg-6">',
-      '    <label class="form-label">Produto</label>',
-      '    <select class="form-select transfer-product-select" name="itens[' + index + '][produto_id]" required>',
+      '    <label class="form-label" for="' + produtoInputId + '">Produto</label>',
+      '    <select id="' + produtoInputId + '" class="form-select transfer-product-select" name="itens[' + index + '][produto_id]" required>',
       '      <option value=""></option>',
              opcoesProdutos(),
       '    </select>',
       '  </div>',
       '  <div class="col-lg-3">',
-      '    <label class="form-label">Quantidade</label>',
-      '    <input type="number" min="1" step="1" class="form-control transfer-qty-input" name="itens[' + index + '][quantidade]" required>',
+      '    <label class="form-label" for="' + quantidadeInputId + '">Quantidade</label>',
+      '    <input type="number" id="' + quantidadeInputId + '" min="1" step="1" class="form-control transfer-qty-input" name="itens[' + index + '][quantidade]" required>',
       '    <div class="invalid-feedback">Saldo indisponivel para este local.</div>',
       '  </div>',
       '  <div class="col-lg-2">',

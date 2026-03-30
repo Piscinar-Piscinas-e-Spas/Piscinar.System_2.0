@@ -23,7 +23,9 @@ $alert = $viewData['alert'];
 
             <form method="GET" class="mb-3">
                 <div class="input-group">
+                    <label class="form-label visually-hidden" for="cliente-lista-termo">Buscar cliente</label>
                     <input
+                        id="cliente-lista-termo"
                         type="text"
                         name="termo"
                         class="form-control"
