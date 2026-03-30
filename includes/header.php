@@ -19,6 +19,7 @@
     $vendasActive = strpos($currentRoute, '/vendas/') !== false ? ' active' : '';
     $servicosActive = strpos($currentRoute, '/servicos/') !== false ? ' active' : '';
     $styleActive = strpos($currentRoute, '/assets/css/') !== false ? ' active' : '';
+    $logisticaActive = strpos($currentRoute, '/logistica/') !== false ? ' active' : '';
 ?>
 
 <!DOCTYPE html>
@@ -29,9 +30,13 @@
     <title>Sistema de Piscinas</title>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" class="<?php echo $styleActive; ?>" href="<?php echo app_url('assets/css/styles.css'); ?>">
     <link rel="icon" type="image/x-icon" href="<?php echo app_url('assets/img/favicon.ico'); ?>">
+    <?php if (!empty($extraHeadContent ?? '')): ?>
+        <?= $extraHeadContent ?>
+    <?php endif; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
 </head>
@@ -63,6 +68,9 @@
                         </li>
                         <li class="nav-item">
                             <a class="nav-link<?php echo $servicosActive; ?>" href="<?php echo app_url('servicos/nova.php'); ?>"><i class="fas fa-tools"></i> Serviços</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link<?php echo $logisticaActive; ?>" href="<?php echo app_url('logistica/inventario.php'); ?>"><i class="bi bi-truck"></i> Logistica</a>
                         </li>
                     </ul>
 
