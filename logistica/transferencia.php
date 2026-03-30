@@ -58,7 +58,7 @@ include '../includes/header.php';
                         <div class="text-uppercase small text-muted mb-2">Lado A</div>
                         <label class="form-label fw-semibold">Origem</label>
                         <select name="origem" id="origemSelect" class="form-select">
-                            <option value="qtdEstoque" selected>Barracao</option>
+                            <option value="qtdEstoque" selected>Estoque Auxiliar</option>
                             <option value="qtdLoja">Loja</option>
                         </select>
                         <p class="text-muted small mt-3 mb-0">O saldo disponivel sera lido deste local.</p>
@@ -73,7 +73,7 @@ include '../includes/header.php';
                         <label class="form-label fw-semibold">Destino</label>
                         <select name="destino" id="destinoSelect" class="form-select">
                             <option value="qtdLoja" selected>Loja</option>
-                            <option value="qtdEstoque">Barracao</option>
+                            <option value="qtdEstoque">Estoque Auxiliar</option>
                         </select>
                         <p class="text-muted small mt-3 mb-0">A quantidade confirmada sera somada aqui.</p>
                     </div>

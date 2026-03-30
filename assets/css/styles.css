@@ -160,6 +160,10 @@ tr.estoque-critico > td {
   margin-top: 0.45rem;
 }
 
+.footer-map {
+  justify-self: start;
+}
+
 .footer-map-columns {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 1px minmax(0, 1fr);

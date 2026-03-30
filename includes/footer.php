@@ -29,7 +29,7 @@
             <li><a href="<?= htmlspecialchars(app_url('vendas/listar.php'), ENT_QUOTES, 'UTF-8') ?>">Dashboard de vendas</a></li>
             <li><a href="<?= htmlspecialchars(app_url('servicos/listar.php'), ENT_QUOTES, 'UTF-8') ?>">Dashboard de Servicos</a></li>
             <li><a href="<?= htmlspecialchars(app_url('logistica/inventario.php'), ENT_QUOTES, 'UTF-8') ?>">Gestao de Estoque</a></li>
-            <li><a href="<?= htmlspecialchars(app_url('logistica/transferencia.php'), ENT_QUOTES, 'UTF-8') ?>">Transferencias</a></li>
+            <li><a href="<?= htmlspecialchars(app_url('logistica/transferencia.php'), ENT_QUOTES, 'UTF-8') ?>">Transferencias Entre Estoques</a></li>
           </ul>
         </div>
       </div>

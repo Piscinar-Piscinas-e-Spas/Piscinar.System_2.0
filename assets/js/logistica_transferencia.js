@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', function () {
   }));
 
   function nomeLocal(coluna) {
-    return coluna === 'qtdEstoque' ? 'Barracao' : 'Loja';
+    return coluna === 'qtdEstoque' ? 'Estoque Auxiliar' : 'Loja';
   }
 
   function saldoDisponivel(produto) {

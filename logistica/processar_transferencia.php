@@ -12,7 +12,7 @@ $origem = (string) ($_POST['origem'] ?? '');
 $destino = (string) ($_POST['destino'] ?? '');
 $colunasPermitidas = [
     'qtdLoja' => 'Loja',
-    'qtdEstoque' => 'Barracao',
+    'qtdEstoque' => 'Estoque Auxiliar',
 ];
 
 if (!isset($colunasPermitidas[$origem], $colunasPermitidas[$destino]) || $origem === $destino) {
