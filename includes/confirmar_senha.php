@@ -8,12 +8,15 @@ header('Content-Type: application/json; charset=utf-8');
 $userId = (int) (auth_user_id() ?? 0);
 $payload = read_json_input() ?? [];
 $senha = isset($payload['senha']) ? (string) $payload['senha'] : (string) ($_POST['senha'] ?? '');
+$entity = action_firewall_normalize_entity($payload['entity'] ?? ($_POST['entity'] ?? ''));
+$intent = action_firewall_normalize_intent($payload['intent'] ?? ($_POST['intent'] ?? ''));
+$recordId = (int) ($payload['record_id'] ?? ($_POST['record_id'] ?? 0));
 
 if ($userId <= 0) {
     http_response_code(401);
     echo json_encode([
         'status' => false,
-        'mensagem' => 'Usuário não autenticado.',
+        'mensagem' => 'Usuario nao autenticado.',
     ], JSON_UNESCAPED_UNICODE);
     exit;
 }
@@ -27,23 +30,31 @@ if ($senha === '') {
     exit;
 }
 
-$stmt = $pdo->prepare('SELECT senha_hash, ativo FROM usuarios WHERE id_usuario = :id LIMIT 1');
-$stmt->execute([':id' => $userId]);
-$user = $stmt->fetch();
-
-$valida = is_array($user)
-    && ((int) ($user['ativo'] ?? 0) === 1)
-    && password_verify($senha, (string) ($user['senha_hash'] ?? ''));
-
-if (!$valida) {
+if (!action_firewall_password_is_valid($pdo, $senha)) {
     http_response_code(401);
     echo json_encode([
         'status' => false,
-        'mensagem' => 'Senha inválida.',
+        'mensagem' => 'Senha invalida.',
     ], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
-echo json_encode([
+$response = [
     'status' => true,
-], JSON_UNESCAPED_UNICODE);
+];
+
+$requestedGrant = $entity !== '' || $intent !== '' || $recordId > 0;
+if ($requestedGrant) {
+    if ($entity === '' || $intent === '' || $recordId <= 0) {
+        http_response_code(422);
+        echo json_encode([
+            'status' => false,
+            'mensagem' => 'Dados da acao protegida sao invalidos.',
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    $response['fw_token'] = action_firewall_issue_grant($entity, $intent, $recordId);
+}
+
+echo json_encode($response, JSON_UNESCAPED_UNICODE);

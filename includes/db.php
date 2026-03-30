@@ -1,6 +1,7 @@
 <?php
 require_once dirname(__DIR__) . '/src/bootstrap.php';
 require_once __DIR__ . '/auth.php';
+require_once __DIR__ . '/action_firewall.php';
 
 $host = getenv('DB_HOST') ?: '127.0.0.1';
 $db   = getenv('DB_NAME') ?: 'piscinar_db';

@@ -37,6 +37,8 @@ try {
         'id_fornecedor' => $fornecedorId,
         'fornecedor' => [
             'id_fornecedor' => $fornecedorId,
+            'razao_social' => $fornecedor['razao_social'],
+            'nome_fantasia' => $fornecedor['nome_fantasia'],
             'nome_fornecedor' => $fornecedor['nome_fornecedor'],
             'documento' => $fornecedor['documento'],
             'telefone' => $fornecedor['telefone'],

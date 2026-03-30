@@ -16,6 +16,8 @@ if ($idServico <= 0) {
     exit;
 }
 
+action_firewall_require_grant('servico', 'delete', $idServico, app_url('servicos/listar.php?status=firewall'));
+
 servicos_ensure_schema($pdo);
 
 try {

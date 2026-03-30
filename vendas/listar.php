@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 include '../includes/db.php';
 require_login();
 
@@ -112,10 +112,10 @@ include '../includes/header.php';
                             </div>
 
                             <div class="col-md-3">
-                                <label for="dash_condicao_pagamento" class="form-label">Condição de pagamento</label>
+                                <label for="dash_condicao_pagamento" class="form-label">CondiÃ§Ã£o de pagamento</label>
                                 <select id="dash_condicao_pagamento" name="dash_condicao_pagamento" class="form-select">
                                     <option value="">Todas</option>
-                                    <option value="vista" <?= $filtrosDashboard['condicao_pagamento'] === 'vista' ? 'selected' : '' ?>>À vista</option>
+                                    <option value="vista" <?= $filtrosDashboard['condicao_pagamento'] === 'vista' ? 'selected' : '' ?>>Ã€ vista</option>
                                     <option value="parcelado" <?= $filtrosDashboard['condicao_pagamento'] === 'parcelado' ? 'selected' : '' ?>>Parcelado</option>
                                 </select>
                             </div>
@@ -126,12 +126,12 @@ include '../includes/header.php';
                             </div>
 
                             <div class="col-md-3">
-                                <label for="dash_valor_minimo" class="form-label">Valor mínimo</label>
+                                <label for="dash_valor_minimo" class="form-label">Valor mÃ­nimo</label>
                                 <input type="number" step="0.01" min="0" id="dash_valor_minimo" name="dash_valor_minimo" class="form-control" value="<?= htmlspecialchars($filtrosDashboard['valor_minimo']) ?>">
                             </div>
 
                             <div class="col-md-3">
-                                <label for="dash_valor_maximo" class="form-label">Valor máximo</label>
+                                <label for="dash_valor_maximo" class="form-label">Valor mÃ¡ximo</label>
                                 <input type="number" step="0.01" min="0" id="dash_valor_maximo" name="dash_valor_maximo" class="form-control" value="<?= htmlspecialchars($filtrosDashboard['valor_maximo']) ?>">
                             </div>
 
@@ -173,7 +173,7 @@ include '../includes/header.php';
                         <div class="col-md-6 col-lg-3">
                             <div class="card border-0 bg-white h-100">
                                 <div class="card-body p-3">
-                                    <small class="text-uppercase text-muted">Ticket médio</small>
+                                    <small class="text-uppercase text-muted">Ticket mÃ©dio</small>
                                     <h5 class="mb-0 fw-bold">R$ <?= number_format((float) $resumoKpis['ticket_medio'], 2, ',', '.') ?></h5>
                                 </div>
                             </div>
@@ -182,9 +182,9 @@ include '../includes/header.php';
                         <div class="col-md-6 col-lg-3">
                             <div class="card border-0 bg-white h-100">
                                 <div class="card-body p-3">
-                                    <small class="text-uppercase text-muted">Total parcelado vs à vista</small>
+                                    <small class="text-uppercase text-muted">Total parcelado vs Ã  vista</small>
                                     <div class="fw-semibold">Parcelado: R$ <?= number_format($totalParcelado, 2, ',', '.') ?> (<?= number_format($percentualParcelado, 1, ',', '.') ?>%)</div>
-                                    <div class="fw-semibold">À vista: R$ <?= number_format($totalVista, 2, ',', '.') ?> (<?= number_format($percentualVista, 1, ',', '.') ?>%)</div>
+                                    <div class="fw-semibold">Ã€ vista: R$ <?= number_format($totalVista, 2, ',', '.') ?> (<?= number_format($percentualVista, 1, ',', '.') ?>%)</div>
                                 </div>
                             </div>
                         </div>
@@ -193,7 +193,7 @@ include '../includes/header.php';
                     <div class="card border-0 bg-white mb-0 mt-3 d-none d-lg-block">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h6 class="mb-0">Evolução do faturamento</h6>
+                                <h6 class="mb-0">EvoluÃ§Ã£o do faturamento</h6>
                                 <small id="graficoAgrupamentoInfo" class="text-muted"></small>
                             </div>
                             <div class="grafico-faturamento-wrapper">
@@ -234,10 +234,10 @@ include '../includes/header.php';
                             </div>
 
                             <div class="col-md-3">
-                                <label for="lista_condicao_pagamento" class="form-label">Condição de pagamento</label>
+                                <label for="lista_condicao_pagamento" class="form-label">CondiÃ§Ã£o de pagamento</label>
                                 <select id="lista_condicao_pagamento" name="lista_condicao_pagamento" class="form-select">
                                     <option value="">Todas</option>
-                                    <option value="vista" <?= $filtrosLista['condicao_pagamento'] === 'vista' ? 'selected' : '' ?>>À vista</option>
+                                    <option value="vista" <?= $filtrosLista['condicao_pagamento'] === 'vista' ? 'selected' : '' ?>>Ã€ vista</option>
                                     <option value="parcelado" <?= $filtrosLista['condicao_pagamento'] === 'parcelado' ? 'selected' : '' ?>>Parcelado</option>
                                 </select>
                             </div>
@@ -248,12 +248,12 @@ include '../includes/header.php';
                             </div>
 
                             <div class="col-md-3">
-                                <label for="lista_valor_minimo" class="form-label">Valor mínimo</label>
+                                <label for="lista_valor_minimo" class="form-label">Valor mÃ­nimo</label>
                                 <input type="number" step="0.01" min="0" id="lista_valor_minimo" name="lista_valor_minimo" class="form-control" value="<?= htmlspecialchars($filtrosLista['valor_minimo']) ?>">
                             </div>
 
                             <div class="col-md-3">
-                                <label for="lista_valor_maximo" class="form-label">Valor máximo</label>
+                                <label for="lista_valor_maximo" class="form-label">Valor mÃ¡ximo</label>
                                 <input type="number" step="0.01" min="0" id="lista_valor_maximo" name="lista_valor_maximo" class="form-control" value="<?= htmlspecialchars($filtrosLista['valor_maximo']) ?>">
                             </div>
 
@@ -286,7 +286,7 @@ include '../includes/header.php';
                                     <th>Desconto Total</th>
                                     <th>Frete Total</th>
                                     <th>Total Geral</th>
-                                    <th>Ações</th>
+                                    <th>AÃ§Ãµes</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -318,13 +318,24 @@ include '../includes/header.php';
                                                 </a>
                                                 <button
                                                     type="button"
-                                                    class="btn btn-sm btn-outline-warning js-auth-action"
-                                                    data-action-label="editar a venda #<?= str_pad((string) ((int) $venda['id_venda']), 6, '0', STR_PAD_LEFT) ?>"
-                                                    data-target-url="<?= app_url('vendas/nova.php'); ?>?id=<?= (int) $venda['id_venda'] ?>"
+                                                    class="btn btn-sm btn-outline-warning js-firewall-link"
+                                                    data-firewall-entity="venda"
+                                                    data-firewall-intent="edit"
+                                                    data-firewall-record-id="<?= (int) $venda['id_venda'] ?>"
+                                                    data-firewall-label="editar a venda #<?= str_pad((string) ((int) $venda['id_venda']), 6, '0', STR_PAD_LEFT) ?>"
+                                                    data-firewall-target-url="<?= app_url('vendas/nova.php'); ?>?id=<?= (int) $venda['id_venda'] ?>"
                                                 >
                                                     <i class="fas fa-pen me-1"></i>Editar
                                                 </button>
-                                                <form method="POST" action="<?= app_url('vendas/excluir.php'); ?>" class="d-inline-block m-0">
+                                                <form
+                                                    method="POST"
+                                                    action="<?= app_url('vendas/excluir.php'); ?>"
+                                                    class="d-inline-block m-0 js-firewall-form"
+                                                    data-firewall-entity="venda"
+                                                    data-firewall-intent="delete"
+                                                    data-firewall-record-id="<?= (int) $venda['id_venda'] ?>"
+                                                    data-firewall-label="excluir a venda #<?= str_pad((string) ((int) $venda['id_venda']), 6, '0', STR_PAD_LEFT) ?>"
+                                                >
                                                     <?= csrf_input() ?>
                                                     <input type="hidden" name="id" value="<?= (int) $venda['id_venda'] ?>">
                                                     <button
@@ -356,31 +367,10 @@ include '../includes/header.php';
     </div>
 </div>
 
-<div class="modal fade" id="confirmacaoSenhaModal" tabindex="-1" aria-labelledby="confirmacaoSenhaModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="confirmacaoSenhaModalLabel">Confirmar senha</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-            </div>
-            <div class="modal-body">
-                <p class="mb-2" id="confirmacaoSenhaDescricao">Digite sua senha para continuar.</p>
-                <div id="confirmacaoSenhaFeedback" class="alert alert-danger d-none py-2" role="alert"></div>
-                <label for="confirmacaoSenhaInput" class="form-label">Senha do usuário</label>
-                <input type="password" id="confirmacaoSenhaInput" class="form-control" autocomplete="current-password" required>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" id="confirmacaoSenhaConfirmarBtn">
-                    <span class="js-btn-label">Confirmar</span>
-                    <span class="spinner-border spinner-border-sm d-none" aria-hidden="true"></span>
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+<?php render_action_firewall_modal(); ?>
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="<?= app_url('assets/js/action_firewall.js'); ?>"></script>
 <script>
     (function () {
         const graficoCanvas = document.getElementById('graficoFaturamentoVendas');
@@ -491,16 +481,16 @@ include '../includes/header.php';
             })
                 .then((response) => {
                     if (!response.ok) {
-                        throw new Error('Falha ao carregar dados do gráfico.');
+                        throw new Error('Falha ao carregar dados do grÃ¡fico.');
                     }
                     return response.json();
                 })
                 .then((payload) => {
                     if (!payload || payload.status !== true || !Array.isArray(payload.labels)) {
-                        throw new Error('Resposta inválida do servidor.');
+                        throw new Error('Resposta invÃ¡lida do servidor.');
                     }
 
-                    const agrupamento = payload.agrupamento === 'mes' ? 'mensal' : 'diário';
+                    const agrupamento = payload.agrupamento === 'mes' ? 'mensal' : 'diÃ¡rio';
                     agrupamentoInfo.textContent = `Agrupamento ${agrupamento}`;
 
                     const tipoGrafico = payload.agrupamento === 'mes' ? 'bar' : 'line';
@@ -577,7 +567,7 @@ include '../includes/header.php';
                 })
                 .catch((error) => {
                     console.error(error);
-                    agrupamentoInfo.textContent = 'Não foi possível carregar o gráfico.';
+                    agrupamentoInfo.textContent = 'NÃ£o foi possÃ­vel carregar o grÃ¡fico.';
                 });
         };
 
@@ -628,7 +618,7 @@ include '../includes/header.php';
         document.querySelectorAll('.js-auth-action').forEach((botao) => {
             botao.addEventListener('click', () => {
                 targetUrl = botao.getAttribute('data-target-url') || '';
-                const actionLabel = botao.getAttribute('data-action-label') || 'executar esta ação';
+                const actionLabel = botao.getAttribute('data-action-label') || 'executar esta aÃ§Ã£o';
                 if (descricao) {
                     descricao.textContent = `Digite sua senha para ${actionLabel}.`;
                 }
@@ -672,7 +662,7 @@ include '../includes/header.php';
                 .then((response) => response.json().catch(() => ({})))
                 .then((payload) => {
                     if (!payload || payload.status !== true) {
-                        const mensagem = payload && payload.mensagem ? payload.mensagem : 'Não foi possível validar sua senha.';
+                        const mensagem = payload && payload.mensagem ? payload.mensagem : 'NÃ£o foi possÃ­vel validar sua senha.';
                         throw new Error(mensagem);
                     }
 
@@ -689,6 +679,14 @@ include '../includes/header.php';
                 .finally(() => setLoading(false));
         });
     })();
+
+    window.ActionFirewall && window.ActionFirewall.init({
+        endpoint: <?= json_encode(app_url('includes/confirmar_senha.php'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        csrfToken: <?= json_encode(csrf_token(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
+    });
 </script>
 
 <?php include '../includes/footer.php'; ?>
+
+
+

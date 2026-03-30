@@ -12,7 +12,8 @@
     }
 
     const feedback = document.getElementById('compraEntradaFeedback');
-    const fornecedorNome = document.getElementById('fornecedorNome');
+    const fornecedorNomeFantasia = document.getElementById('fornecedorNomeFantasia');
+    const fornecedorRazaoSocial = document.getElementById('fornecedorRazaoSocial');
     const fornecedorDocumento = document.getElementById('fornecedorDocumento');
     const fornecedorTelefone = document.getElementById('fornecedorTelefone');
     const fornecedorEmail = document.getElementById('fornecedorEmail');
@@ -92,9 +93,9 @@
         feedback.textContent = '';
     }
 
-    function findFornecedorByName(name) {
+    function findFornecedorByFantasyName(name) {
         const normalized = normalizeText(name);
-        return fornecedores.find((item) => normalizeText(item.nome_fornecedor) === normalized) || null;
+        return fornecedores.find((item) => normalizeText(item.nome_fantasia || item.nome_fornecedor) === normalized) || null;
     }
 
     function findProdutoByName(name) {
@@ -108,7 +109,7 @@
         }
 
         fornecedoresDatalist.innerHTML = fornecedores
-            .map((item) => `<option value="${escapeAttribute(item.nome_fornecedor)}"></option>`)
+            .map((item) => `<option value="${escapeAttribute(item.nome_fantasia || item.nome_fornecedor)}"></option>`)
             .join('');
     }
 
@@ -284,13 +285,14 @@
     }
 
     function syncFornecedor() {
-        const fornecedor = findFornecedorByName(fornecedorNome.value);
+        const fornecedor = findFornecedorByFantasyName(fornecedorNomeFantasia.value);
         if (!fornecedor) {
             state.fornecedorId = 0;
             return;
         }
 
         state.fornecedorId = Number(fornecedor.id_fornecedor);
+        fornecedorRazaoSocial.value = fornecedor.razao_social || fornecedor.nome_fornecedor || '';
         fornecedorDocumento.value = fornecedor.documento || '';
         fornecedorTelefone.value = fornecedor.telefone || '';
         fornecedorEmail.value = fornecedor.email || '';
@@ -300,7 +302,8 @@
         hideFeedback();
         const payload = {
             csrf_token: csrfToken,
-            nome_fornecedor: fornecedorNome.value,
+            razao_social: fornecedorRazaoSocial.value,
+            nome_fantasia: fornecedorNomeFantasia.value,
             documento: fornecedorDocumento.value,
             telefone: fornecedorTelefone.value,
             email: fornecedorEmail.value
@@ -322,6 +325,8 @@
 
         fornecedores.push(data.fornecedor);
         state.fornecedorId = Number(data.id_fornecedor);
+        fornecedorRazaoSocial.value = data.fornecedor.razao_social || '';
+        fornecedorNomeFantasia.value = data.fornecedor.nome_fantasia || '';
         refreshFornecedorDatalist();
         showFeedback('success', data.mensagem || 'Fornecedor salvo com sucesso.');
     }
@@ -491,8 +496,8 @@
         renderParcelas();
     }
 
-    fornecedorNome.addEventListener('change', syncFornecedor);
-    fornecedorNome.addEventListener('blur', syncFornecedor);
+    fornecedorNomeFantasia.addEventListener('change', syncFornecedor);
+    fornecedorNomeFantasia.addEventListener('blur', syncFornecedor);
 
     produtoBusca.addEventListener('change', () => {
         const produto = findProdutoByName(produtoBusca.value);

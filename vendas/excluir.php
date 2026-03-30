@@ -15,6 +15,8 @@ if ($idVenda <= 0) {
     exit;
 }
 
+action_firewall_require_grant('venda', 'delete', $idVenda, app_url('vendas/listar.php?status=firewall'));
+
 try {
     $pdo->beginTransaction();
 

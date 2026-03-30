@@ -14,6 +14,8 @@ $vendaIdEdicao = (int) ($_GET['id'] ?? $_GET['id_venda'] ?? $_GET['venda_id'] ??
 $vendaEdicaoPayload = null;
 
 if ($vendaIdEdicao > 0) {
+    action_firewall_require_grant('venda', 'edit', $vendaIdEdicao, app_url('vendas/listar.php?status=firewall'));
+
     $repository = new \App\Repositories\VendaRepository($pdo);
     $detalhes = $repository->findCompleteById($vendaIdEdicao);
     if (!$detalhes) {

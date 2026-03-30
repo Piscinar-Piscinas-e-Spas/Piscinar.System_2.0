@@ -19,6 +19,7 @@
             <li><a href="<?= htmlspecialchars(app_url('clientes/listar.php'), ENT_QUOTES, 'UTF-8') ?>">Clientes</a></li>
             <li><a href="<?= htmlspecialchars(app_url('fornecedores/listar.php'), ENT_QUOTES, 'UTF-8') ?>">Fornecedor</a></li>
             <li><a href="<?= htmlspecialchars(app_url('vendas/nova.php'), ENT_QUOTES, 'UTF-8') ?>">Vendas</a></li>
+            <li><a href="<?= htmlspecialchars(app_url('compras/listar.php'), ENT_QUOTES, 'UTF-8') ?>">Compras</a></li>
             <li><a href="<?= htmlspecialchars(app_url('servicos/nova.php'), ENT_QUOTES, 'UTF-8') ?>">Servico</a></li>
           </ul>
 

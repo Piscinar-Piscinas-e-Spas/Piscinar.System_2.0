@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 include '../includes/db.php';
 require_login();
 require_once __DIR__ . '/_infra.php';
@@ -77,13 +77,13 @@ include '../includes/header.php';
 <div class="container mt-4">
     <div class="card">
         <div class="card-header d-flex justify-content-between align-items-center">
-            <h4><i class="fas fa-tools me-2"></i>Lista de Serviços</h4>
+            <h4><i class="fas fa-tools me-2"></i>Lista de ServiÃ§os</h4>
             <a href="<?= app_url('servicos/nova.php'); ?>" class="btn btn-success btn-sm"><i class="fas fa-plus me-1"></i>Novo</a>
         </div>
         <div class="card-body">
             <div class="card border-0 bg-light mb-4">
                 <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Dashboard de serviços</h5>
+                    <h5 class="mb-0"><i class="fas fa-chart-line me-2"></i>Dashboard de serviÃ§os</h5>
                     <button class="btn btn-outline-primary btn-sm js-toggle-section" type="button" data-target="#dashboardServicosCollapse" aria-expanded="false">
                         <i class="fas fa-caret-down me-1"></i> Exibir / Recolher
                     </button>
@@ -105,10 +105,10 @@ include '../includes/header.php';
                                     <input type="text" id="dash_data_final" name="dash_data_final" class="form-control js-date-br" inputmode="numeric" maxlength="10" placeholder="dd/mm/aaaa" value="<?= htmlspecialchars(format_dashboard_date($filtrosDashboard['data_final'])) ?>">
                                 </div>
                                 <div class="col-md-3">
-                                    <label for="dash_condicao_pagamento" class="form-label">Condição de pagamento</label>
+                                    <label for="dash_condicao_pagamento" class="form-label">CondiÃ§Ã£o de pagamento</label>
                                     <select id="dash_condicao_pagamento" name="dash_condicao_pagamento" class="form-select">
                                         <option value="">Todas</option>
-                                        <option value="vista" <?= $filtrosDashboard['condicao_pagamento'] === 'vista' ? 'selected' : '' ?>>À vista</option>
+                                        <option value="vista" <?= $filtrosDashboard['condicao_pagamento'] === 'vista' ? 'selected' : '' ?>>Ã€ vista</option>
                                         <option value="parcelado" <?= $filtrosDashboard['condicao_pagamento'] === 'parcelado' ? 'selected' : '' ?>>Parcelado</option>
                                     </select>
                                 </div>
@@ -117,11 +117,11 @@ include '../includes/header.php';
                                     <input type="text" id="dash_nome_cliente" name="dash_nome_cliente" class="form-control" placeholder="Digite o nome" value="<?= htmlspecialchars($filtrosDashboard['nome_cliente']) ?>">
                                 </div>
                                 <div class="col-md-3">
-                                    <label for="dash_valor_minimo" class="form-label">Valor mínimo</label>
+                                    <label for="dash_valor_minimo" class="form-label">Valor mÃ­nimo</label>
                                     <input type="number" step="0.01" min="0" id="dash_valor_minimo" name="dash_valor_minimo" class="form-control" value="<?= htmlspecialchars($filtrosDashboard['valor_minimo']) ?>">
                                 </div>
                                 <div class="col-md-3">
-                                    <label for="dash_valor_maximo" class="form-label">Valor máximo</label>
+                                    <label for="dash_valor_maximo" class="form-label">Valor mÃ¡ximo</label>
                                     <input type="number" step="0.01" min="0" id="dash_valor_maximo" name="dash_valor_maximo" class="form-control" value="<?= htmlspecialchars($filtrosDashboard['valor_maximo']) ?>">
                                 </div>
                                 <div class="col-md-6 d-flex align-items-end justify-content-end gap-2">
@@ -142,7 +142,7 @@ include '../includes/header.php';
                             <div class="col-md-6 col-lg-3">
                                 <div class="card border-0 bg-white h-100">
                                     <div class="card-body p-3">
-                                        <small class="text-uppercase text-muted">Total de serviços</small>
+                                        <small class="text-uppercase text-muted">Total de serviÃ§os</small>
                                         <h5 class="mb-0 fw-bold"><?= number_format((int) $resumoKpis['total_servicos'], 0, ',', '.') ?></h5>
                                     </div>
                                 </div>
@@ -158,7 +158,7 @@ include '../includes/header.php';
                             <div class="col-md-6 col-lg-3">
                                 <div class="card border-0 bg-white h-100">
                                     <div class="card-body p-3">
-                                        <small class="text-uppercase text-muted">Ticket médio</small>
+                                        <small class="text-uppercase text-muted">Ticket mÃ©dio</small>
                                         <h5 class="mb-0 fw-bold">R$ <?= number_format((float) $resumoKpis['ticket_medio'], 2, ',', '.') ?></h5>
                                     </div>
                                 </div>
@@ -166,9 +166,9 @@ include '../includes/header.php';
                             <div class="col-md-6 col-lg-3">
                                 <div class="card border-0 bg-white h-100">
                                     <div class="card-body p-3">
-                                        <small class="text-uppercase text-muted">Total parcelado vs à vista</small>
+                                        <small class="text-uppercase text-muted">Total parcelado vs Ã  vista</small>
                                         <div class="fw-semibold">Parcelado: R$ <?= number_format($totalParcelado, 2, ',', '.') ?> (<?= number_format($percentualParcelado, 1, ',', '.') ?>%)</div>
-                                        <div class="fw-semibold">À vista: R$ <?= number_format($totalVista, 2, ',', '.') ?> (<?= number_format($percentualVista, 1, ',', '.') ?>%)</div>
+                                        <div class="fw-semibold">Ã€ vista: R$ <?= number_format($totalVista, 2, ',', '.') ?> (<?= number_format($percentualVista, 1, ',', '.') ?>%)</div>
                                     </div>
                                 </div>
                             </div>
@@ -179,7 +179,7 @@ include '../includes/header.php';
 
             <div class="card border-0 bg-light mb-0">
                 <div class="card-header bg-transparent d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Filtros e lista de serviços</h5>
+                    <h5 class="mb-0"><i class="fas fa-filter me-2"></i>Filtros e lista de serviÃ§os</h5>
                     <button class="btn btn-outline-primary btn-sm js-toggle-section" type="button" data-target="#listaServicosConteudo" aria-expanded="true">
                         <i class="fas fa-caret-down me-1"></i> Exibir / Recolher
                     </button>
@@ -200,10 +200,10 @@ include '../includes/header.php';
                                 <input type="text" id="lista_data_final" name="lista_data_final" class="form-control js-date-br" inputmode="numeric" maxlength="10" placeholder="dd/mm/aaaa" value="<?= htmlspecialchars(format_dashboard_date($filtrosLista['data_final'])) ?>">
                             </div>
                             <div class="col-md-3">
-                                <label for="lista_condicao_pagamento" class="form-label">Condição de pagamento</label>
+                                <label for="lista_condicao_pagamento" class="form-label">CondiÃ§Ã£o de pagamento</label>
                                 <select id="lista_condicao_pagamento" name="lista_condicao_pagamento" class="form-select">
                                     <option value="">Todas</option>
-                                    <option value="vista" <?= $filtrosLista['condicao_pagamento'] === 'vista' ? 'selected' : '' ?>>À vista</option>
+                                    <option value="vista" <?= $filtrosLista['condicao_pagamento'] === 'vista' ? 'selected' : '' ?>>Ã€ vista</option>
                                     <option value="parcelado" <?= $filtrosLista['condicao_pagamento'] === 'parcelado' ? 'selected' : '' ?>>Parcelado</option>
                                 </select>
                             </div>
@@ -212,11 +212,11 @@ include '../includes/header.php';
                                 <input type="text" id="lista_nome_cliente" name="lista_nome_cliente" class="form-control" placeholder="Digite o nome" value="<?= htmlspecialchars($filtrosLista['nome_cliente']) ?>">
                             </div>
                             <div class="col-md-3">
-                                <label for="lista_valor_minimo" class="form-label">Valor mínimo</label>
+                                <label for="lista_valor_minimo" class="form-label">Valor mÃ­nimo</label>
                                 <input type="number" step="0.01" min="0" id="lista_valor_minimo" name="lista_valor_minimo" class="form-control" value="<?= htmlspecialchars($filtrosLista['valor_minimo']) ?>">
                             </div>
                             <div class="col-md-3">
-                                <label for="lista_valor_maximo" class="form-label">Valor máximo</label>
+                                <label for="lista_valor_maximo" class="form-label">Valor mÃ¡ximo</label>
                                 <input type="number" step="0.01" min="0" id="lista_valor_maximo" name="lista_valor_maximo" class="form-control" value="<?= htmlspecialchars($filtrosLista['valor_maximo']) ?>">
                             </div>
                             <div class="col-md-6 d-flex align-items-end justify-content-end gap-2">
@@ -241,24 +241,24 @@ include '../includes/header.php';
                                     <th>Data</th>
                                     <th>Cliente</th>
                                     <th>Vendedor</th>
-                                    <th>Condição</th>
+                                    <th>CondiÃ§Ã£o</th>
                                     <th>Subtotal produtos</th>
                                     <th>Subtotal micro</th>
                                     <th>Desconto</th>
                                     <th>Frete</th>
                                     <th>Total</th>
-                                    <th>Ações</th>
+                                    <th>AÃ§Ãµes</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 <?php if (!$servicos): ?>
-                                    <tr><td colspan="11" class="text-center text-muted">Nenhum serviço encontrado.</td></tr>
+                                    <tr><td colspan="11" class="text-center text-muted">Nenhum serviÃ§o encontrado.</td></tr>
                                 <?php endif; ?>
                                 <?php foreach ($servicos as $servico): ?>
                                     <tr data-row-item>
                                         <td><?= str_pad((string) ((int) $servico['id_servico']), 6, '0', STR_PAD_LEFT) ?></td>
                                         <td><?= htmlspecialchars(format_dashboard_date((string) $servico['data_servico'])) ?></td>
-                                        <td><?= htmlspecialchars((string) ($servico['nome_cliente'] ?: 'Cliente não vinculado')) ?></td>
+                                        <td><?= htmlspecialchars((string) ($servico['nome_cliente'] ?: 'Cliente nÃ£o vinculado')) ?></td>
                                         <td><?= htmlspecialchars((string) ($servico['vendedor_nome'] ?? '-')) ?></td>
                                         <td><?= htmlspecialchars((string) $servico['condicao_pagamento']) ?></td>
                                         <td>R$ <?= number_format((float) $servico['subtotal_produtos'], 2, ',', '.') ?></td>
@@ -268,18 +268,29 @@ include '../includes/header.php';
                                         <td><strong>R$ <?= number_format((float) $servico['total_geral'], 2, ',', '.') ?></strong></td>
                                         <td>
                                             <div class="d-flex flex-wrap gap-1">
-                                                <a href="<?= app_url('servicos/detalhes.php?id=' . (int) $servico['id_servico']); ?>" class="btn btn-sm btn-outline-primary" title="Ver detalhes do serviço">
+                                                <a href="<?= app_url('servicos/detalhes.php?id=' . (int) $servico['id_servico']); ?>" class="btn btn-sm btn-outline-primary" title="Ver detalhes do serviÃ§o">
                                                     <i class="fas fa-eye me-1"></i>Ver
                                                 </a>
                                                 <button
                                                     type="button"
-                                                    class="btn btn-sm btn-outline-warning js-auth-action"
-                                                    data-action-label="editar o serviço #<?= str_pad((string) ((int) $servico['id_servico']), 6, '0', STR_PAD_LEFT) ?>"
-                                                    data-target-url="<?= app_url('servicos/nova.php'); ?>?id=<?= (int) $servico['id_servico'] ?>"
+                                                    class="btn btn-sm btn-outline-warning js-firewall-link"
+                                                    data-firewall-entity="servico"
+                                                    data-firewall-intent="edit"
+                                                    data-firewall-record-id="<?= (int) $servico['id_servico'] ?>"
+                                                    data-firewall-label="editar o serviÃ§o #<?= str_pad((string) ((int) $servico['id_servico']), 6, '0', STR_PAD_LEFT) ?>"
+                                                    data-firewall-target-url="<?= app_url('servicos/nova.php'); ?>?id=<?= (int) $servico['id_servico'] ?>"
                                                 >
                                                     <i class="fas fa-pen me-1"></i>Editar
                                                 </button>
-                                                <form method="POST" action="<?= app_url('servicos/excluir.php'); ?>" class="d-inline-block m-0">
+                                                <form
+                                                    method="POST"
+                                                    action="<?= app_url('servicos/excluir.php'); ?>"
+                                                    class="d-inline-block m-0 js-firewall-form"
+                                                    data-firewall-entity="servico"
+                                                    data-firewall-intent="delete"
+                                                    data-firewall-record-id="<?= (int) $servico['id_servico'] ?>"
+                                                    data-firewall-label="excluir o serviÃ§o #<?= str_pad((string) ((int) $servico['id_servico']), 6, '0', STR_PAD_LEFT) ?>"
+                                                >
                                                     <?= csrf_input() ?>
                                                     <input type="hidden" name="id" value="<?= (int) $servico['id_servico'] ?>">
                                                     <button
@@ -311,29 +322,9 @@ include '../includes/header.php';
     </div>
 </div>
 
-<div class="modal fade" id="confirmacaoSenhaModal" tabindex="-1" aria-labelledby="confirmacaoSenhaModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="confirmacaoSenhaModalLabel">Confirmar senha</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
-            </div>
-            <div class="modal-body">
-                <p class="mb-2" id="confirmacaoSenhaDescricao">Digite sua senha para continuar.</p>
-                <div id="confirmacaoSenhaFeedback" class="alert alert-danger d-none py-2" role="alert"></div>
-                <label for="confirmacaoSenhaInput" class="form-label">Senha do usuário</label>
-                <input type="password" id="confirmacaoSenhaInput" class="form-control" autocomplete="current-password" required>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" id="confirmacaoSenhaConfirmarBtn">
-                    <span class="js-btn-label">Confirmar</span>
-                    <span class="spinner-border spinner-border-sm d-none" aria-hidden="true"></span>
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
+<?php render_action_firewall_modal(); ?>
+
+<script src="<?= app_url('assets/js/action_firewall.js'); ?>"></script>
 
 <script>
     (function () {
@@ -384,7 +375,7 @@ include '../includes/header.php';
                     row.classList.toggle('d-none', index >= visibleCount);
                 });
 
-                status.textContent = `Exibindo ${Math.min(visibleCount, rows.length)} de ${rows.length} serviÃ§os filtrados`;
+                status.textContent = `Exibindo ${Math.min(visibleCount, rows.length)} de ${rows.length} serviÃƒÂ§os filtrados`;
                 moreButton.classList.toggle('d-none', visibleCount >= rows.length);
                 allButton.classList.toggle('d-none', visibleCount >= rows.length);
             };
@@ -445,7 +436,7 @@ include '../includes/header.php';
         document.querySelectorAll('.js-auth-action').forEach((botao) => {
             botao.addEventListener('click', () => {
                 targetUrl = botao.getAttribute('data-target-url') || '';
-                const actionLabel = botao.getAttribute('data-action-label') || 'executar esta ação';
+                const actionLabel = botao.getAttribute('data-action-label') || 'executar esta aÃ§Ã£o';
                 if (descricao) {
                     descricao.textContent = `Digite sua senha para ${actionLabel}.`;
                 }
@@ -489,7 +480,7 @@ include '../includes/header.php';
                 .then((response) => response.json().catch(() => ({})))
                 .then((payload) => {
                     if (!payload || payload.status !== true) {
-                        const mensagem = payload && payload.mensagem ? payload.mensagem : 'Não foi possível validar sua senha.';
+                        const mensagem = payload && payload.mensagem ? payload.mensagem : 'NÃ£o foi possÃ­vel validar sua senha.';
                         throw new Error(mensagem);
                     }
 
@@ -506,6 +497,14 @@ include '../includes/header.php';
                 .finally(() => setLoading(false));
         });
     })();
+
+    window.ActionFirewall && window.ActionFirewall.init({
+        endpoint: <?= json_encode(app_url('includes/confirmar_senha.php'), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>,
+        csrfToken: <?= json_encode(csrf_token(), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?>
+    });
 </script>
 
 <?php include '../includes/footer.php'; ?>
+
+
+

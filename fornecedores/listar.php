@@ -30,7 +30,7 @@ $alert = $viewData['alert'];
                         type="text"
                         name="termo"
                         class="form-control"
-                        placeholder="Buscar por nome, documento, telefone ou e-mail"
+                        placeholder="Buscar por razao social, nome fantasia, documento, telefone ou e-mail"
                         value="<?= htmlspecialchars($termo, ENT_QUOTES, 'UTF-8') ?>"
                     >
                     <button class="btn btn-primary" type="submit">
@@ -45,7 +45,8 @@ $alert = $viewData['alert'];
                     <thead class="table-dark">
                         <tr>
                             <th>ID</th>
-                            <th>Nome</th>
+                            <th>Razao Social</th>
+                            <th>Nome Fantasia</th>
                             <th>Documento</th>
                             <th>Telefone</th>
                             <th>E-mail</th>
@@ -56,14 +57,15 @@ $alert = $viewData['alert'];
                     <tbody>
                         <?php if (empty($fornecedores)): ?>
                             <tr>
-                                <td colspan="7" class="text-center text-muted">Nenhum fornecedor encontrado.</td>
+                                <td colspan="8" class="text-center text-muted">Nenhum fornecedor encontrado.</td>
                             </tr>
                         <?php endif; ?>
 
                         <?php foreach ($fornecedores as $fornecedor): ?>
                             <tr>
                                 <td><?= str_pad((string) ((int) $fornecedor['id_fornecedor']), 6, '0', STR_PAD_LEFT) ?></td>
-                                <td><?= htmlspecialchars((string) $fornecedor['nome_fornecedor'], ENT_QUOTES, 'UTF-8') ?></td>
+                                <td><?= htmlspecialchars((string) ($fornecedor['razao_social'] ?? $fornecedor['nome_fornecedor'] ?? ''), ENT_QUOTES, 'UTF-8') ?></td>
+                                <td><?= htmlspecialchars((string) ($fornecedor['nome_fantasia'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></td>
                                 <td><?= htmlspecialchars((string) ($fornecedor['documento'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></td>
                                 <td><?= htmlspecialchars((string) ($fornecedor['telefone'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></td>
                                 <td><?= htmlspecialchars((string) ($fornecedor['email'] ?? '-'), ENT_QUOTES, 'UTF-8') ?></td>

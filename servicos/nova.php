@@ -14,6 +14,8 @@ $servicoIdEdicao = (int) ($_GET['id'] ?? $_GET['id_servico'] ?? $_GET['servico_i
 $servicoEdicaoPayload = null;
 
 if ($servicoIdEdicao > 0) {
+    action_firewall_require_grant('servico', 'edit', $servicoIdEdicao, app_url('servicos/listar.php?status=firewall'));
+
     $repository = new \App\Repositories\ServicoRepository($pdo);
     $detalhes = $repository->findCompleteById($servicoIdEdicao);
     if (!$detalhes) {

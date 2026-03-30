@@ -17,6 +17,8 @@ class FornecedorService
     public function defaultData(): array
     {
         return [
+            'razao_social' => '',
+            'nome_fantasia' => '',
             'nome_fornecedor' => '',
             'documento' => '',
             'telefone' => '',
@@ -27,8 +29,13 @@ class FornecedorService
 
     public function normalize(array $input): array
     {
+        $razaoSocial = $this->normalizeName($input['razao_social'] ?? $input['nome_fornecedor'] ?? '');
+        $nomeFantasia = $this->normalizeName($input['nome_fantasia'] ?? '');
+
         return [
-            'nome_fornecedor' => $this->normalizeName($input['nome_fornecedor'] ?? ''),
+            'razao_social' => $razaoSocial,
+            'nome_fantasia' => $nomeFantasia === '' ? $razaoSocial : $nomeFantasia,
+            'nome_fornecedor' => $razaoSocial,
             'documento' => $this->nullableDigits($input['documento'] ?? ''),
             'telefone' => $this->nullableTrim($input['telefone'] ?? ''),
             'email' => $this->nullableTrim($input['email'] ?? ''),
@@ -38,8 +45,12 @@ class FornecedorService
 
     public function validate(array $fornecedor): ?array
     {
-        if ($fornecedor['nome_fornecedor'] === '') {
-            return AlertRenderer::make('danger', 'O nome do fornecedor e obrigatorio.');
+        if ($fornecedor['razao_social'] === '') {
+            return AlertRenderer::make('danger', 'A razao social do fornecedor e obrigatoria.');
+        }
+
+        if ($fornecedor['nome_fantasia'] === '') {
+            return AlertRenderer::make('danger', 'O nome fantasia do fornecedor e obrigatorio.');
         }
 
         if ($fornecedor['documento'] !== null && !in_array(strlen($fornecedor['documento']), [11, 14], true)) {

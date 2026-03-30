@@ -25,28 +25,32 @@ include '../includes/header.php';
                     <div class="card-body">
                         <div class="row g-3 align-items-end">
                             <div class="col-lg-5">
-                                <label class="form-label" for="fornecedorNome">Fornecedor</label>
-                                <input type="text" class="form-control" id="fornecedorNome" list="fornecedoresSugestoes" placeholder="Digite para buscar fornecedor">
+                                <label class="form-label" for="fornecedorNomeFantasia">Fornecedor por Nome Fantasia</label>
+                                <input type="text" class="form-control" id="fornecedorNomeFantasia" list="fornecedoresSugestoes" placeholder="Digite para buscar pelo nome fantasia">
                                 <datalist id="fornecedoresSugestoes">
                                     <?php foreach ($fornecedores as $fornecedor): ?>
-                                        <option value="<?= htmlspecialchars((string) $fornecedor['nome_fornecedor'], ENT_QUOTES, 'UTF-8') ?>"></option>
+                                        <option value="<?= htmlspecialchars((string) ($fornecedor['nome_fantasia'] ?? $fornecedor['nome_fornecedor']), ENT_QUOTES, 'UTF-8') ?>"></option>
                                     <?php endforeach; ?>
                                 </datalist>
+                            </div>
+                            <div class="col-lg-4">
+                                <label class="form-label" for="fornecedorRazaoSocial">Razao Social</label>
+                                <input type="text" class="form-control" id="fornecedorRazaoSocial" placeholder="Razao social do fornecedor">
                             </div>
                             <div class="col-lg-2">
                                 <label class="form-label" for="fornecedorDocumento">Documento</label>
                                 <input type="text" class="form-control" id="fornecedorDocumento" placeholder="CPF/CNPJ">
                             </div>
-                            <div class="col-lg-2">
+                            <div class="col-lg-1">
                                 <label class="form-label" for="fornecedorTelefone">Telefone</label>
                                 <input type="text" class="form-control" id="fornecedorTelefone" placeholder="Contato">
                             </div>
-                            <div class="col-lg-3">
+                        </div>
+                        <div class="row g-3 align-items-end mt-1">
+                            <div class="col-lg-4">
                                 <label class="form-label" for="fornecedorEmail">E-mail</label>
                                 <input type="email" class="form-control" id="fornecedorEmail" placeholder="financeiro@fornecedor.com">
                             </div>
-                        </div>
-                        <div class="row g-3 align-items-end mt-1">
                             <div class="col-md-3">
                                 <label class="form-label" for="numeroNota">Numero da nota</label>
                                 <input type="text" class="form-control" id="numeroNota" placeholder="Ex.: 12345">

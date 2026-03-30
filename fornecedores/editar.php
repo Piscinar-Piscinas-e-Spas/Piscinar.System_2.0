@@ -38,10 +38,19 @@ include '../includes/header.php';
             <div class="row">
                 <div class="col-md-6">
                     <div class="mb-3">
-                        <label class="form-label" for="fornecedor-form-nome">Nome do Fornecedor</label>
-                        <input type="text" class="form-control" id="fornecedor-form-nome" name="nome_fornecedor" value="<?= htmlspecialchars((string) ($fornecedor['nome_fornecedor'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" required>
+                        <label class="form-label" for="fornecedor-form-razao-social">Razao Social</label>
+                        <input type="text" class="form-control" id="fornecedor-form-razao-social" name="razao_social" value="<?= htmlspecialchars((string) ($fornecedor['razao_social'] ?? $fornecedor['nome_fornecedor'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" required>
                     </div>
                 </div>
+                <div class="col-md-6">
+                    <div class="mb-3">
+                        <label class="form-label" for="fornecedor-form-nome-fantasia">Nome Fantasia</label>
+                        <input type="text" class="form-control" id="fornecedor-form-nome-fantasia" name="nome_fantasia" value="<?= htmlspecialchars((string) ($fornecedor['nome_fantasia'] ?? ''), ENT_QUOTES, 'UTF-8') ?>" required>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label class="form-label" for="fornecedor-form-documento">Documento (opcional)</label>
