@@ -274,3 +274,244 @@ tr.estoque-critico > td {
     display: none;
   }
 }
+
+.financial-summary-panel {
+  border: 1px solid #dfeaff;
+  border-radius: 22px;
+  padding: 1.5rem;
+  background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
+}
+
+.financial-summary-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.financial-summary-kicker {
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #3f66b5;
+  font-weight: 700;
+}
+
+.financial-kpi-card {
+  border-radius: 18px;
+  border-width: 1px;
+}
+
+.financial-kpi-card small {
+  display: block;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #697b9f;
+  margin-bottom: 0.5rem;
+}
+
+.financial-kpi-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  line-height: 1.15;
+  margin-bottom: 0.35rem;
+}
+
+.financial-kpi-revenue {
+  border-color: #cfe1ff;
+  background: linear-gradient(135deg, #f8fbff 0%, #eef5ff 100%);
+}
+
+.financial-kpi-paid {
+  border-color: #cfead7;
+  background: linear-gradient(135deg, #f7fffa 0%, #edf9f0 100%);
+}
+
+.financial-kpi-expense {
+  border-color: #ffd3cf;
+  background: linear-gradient(135deg, #fff9f8 0%, #fff0ee 100%);
+}
+
+.financial-kpi-balance-positive {
+  border-color: #cfead7;
+  background: linear-gradient(135deg, #f7fffb 0%, #e9f7ef 100%);
+}
+
+.financial-kpi-balance-negative {
+  border-color: #ffd3cf;
+  background: linear-gradient(135deg, #fff8f7 0%, #ffeceb 100%);
+}
+
+.financial-progress-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.financial-source-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 0.9rem 1rem;
+  border: 1px solid #dfebff;
+  border-radius: 16px;
+  background: #f7faff;
+}
+
+.financial-source-toggle .form-check {
+  margin-bottom: 0;
+}
+
+.financial-table-card,
+.financial-side-stack .card {
+  border-radius: 20px;
+}
+
+.financial-legend {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: #6d7d98;
+  font-size: 0.82rem;
+}
+
+.financial-legend-bar {
+  width: 120px;
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #ff4444 0%, #ffa500 50%, #44bb44 100%);
+}
+
+.financial-heatmap-table {
+  --bs-table-bg: transparent;
+}
+
+.financial-heatmap-table th,
+.financial-heatmap-table td {
+  text-align: center;
+  vertical-align: middle;
+  border-color: #d9e5f7;
+  min-width: 112px;
+  font-size: 0.88rem;
+}
+
+.financial-heatmap-table th:first-child {
+  text-align: left;
+  min-width: 130px;
+}
+
+.financial-heatmap-table thead th {
+  background: #edf4ff;
+  color: #29477f;
+}
+
+.financial-heatmap-table tfoot th,
+.financial-heatmap-table tfoot td {
+  background: #17376d;
+  color: #f4f8ff;
+  font-weight: 700;
+}
+
+.financial-average-cell {
+  background: #fff4d8;
+  font-weight: 700;
+  color: #6f5200;
+}
+
+.financial-side-stack {
+  display: grid;
+  gap: 1rem;
+}
+
+.financial-chart-wrapper {
+  position: relative;
+  min-height: 260px;
+}
+
+.financial-month-status {
+  display: grid;
+  gap: 0.85rem;
+  margin-bottom: 1rem;
+}
+
+.financial-month-status strong,
+.financial-indicator-box strong {
+  display: block;
+  font-size: 1.2rem;
+}
+
+.financial-month-label {
+  display: block;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #6d7d98;
+  margin-bottom: 0.2rem;
+}
+
+.financial-indicator-box {
+  border-radius: 16px;
+  padding: 0.95rem 1rem;
+  border: 1px solid transparent;
+}
+
+.financial-indicator-positive {
+  background: #eaf7ef;
+  color: #166534;
+  border-color: #cbe8d5;
+}
+
+.financial-indicator-neutral {
+  background: #eef5ff;
+  color: #0d6efd;
+  border-color: #d5e4ff;
+}
+
+.financial-indicator-negative {
+  background: #fff0ef;
+  color: #b42318;
+  border-color: #f6d2cf;
+}
+
+.promotion-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.promotion-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.promotion-pill {
+  border-radius: 999px;
+  padding: 0.45rem 0.75rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.promotion-pill-low {
+  background: #fde8e8;
+  color: #b42318;
+}
+
+.promotion-pill-high {
+  background: #e7f7ee;
+  color: #166534;
+}
+
+@media (max-width: 1199.98px) {
+  .financial-summary-header {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .financial-progress-grid,
+  .promotion-grid {
+    grid-template-columns: 1fr;
+  }
+}
