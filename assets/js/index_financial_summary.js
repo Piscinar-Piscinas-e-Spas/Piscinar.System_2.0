@@ -13,12 +13,29 @@
   const indicatorBox = document.getElementById('financialIndicatorBox');
   const indicatorValue = document.getElementById('financialIndicatorValue');
   const sourceInputs = document.querySelectorAll('.financial-source-input');
+  const easterTargets = [
+    document.getElementById('financialSummarySecret'),
+    document.getElementById('financialCashButton')
+  ];
   let chart;
 
   const formatCurrency = (value) => new Intl.NumberFormat('pt-BR', {
     style: 'currency',
     currency: 'BRL'
   }).format(Number(value || 0));
+
+  const isTypingTarget = (element) => {
+    if (!element) {
+      return false;
+    }
+
+    const tagName = (element.tagName || '').toLowerCase();
+    return element.isContentEditable || ['input', 'textarea', 'select'].includes(tagName);
+  };
+
+  const toggleFinancialEasterEgg = () => {
+    root.classList.toggle('is-easter-visible');
+  };
 
   const getSelectedSources = () => {
     const selected = ['vendas'];
@@ -60,7 +77,7 @@
       });
     });
 
-    const years = Array.from(yearsSet).sort((a, b) => a - b);
+    const years = Array.from(yearsSet).sort((a, b) => b - a);
     years.forEach((year) => {
       yearTotals[year] = 0;
     });
@@ -313,6 +330,22 @@
   sourceInputs.forEach((input) => {
     input.addEventListener('change', renderAnalysis);
   });
+
+  if (easterTargets.every(Boolean)) {
+    document.addEventListener('keydown', (event) => {
+      if (event.repeat || isTypingTarget(event.target)) {
+        return;
+      }
+
+      const key = String(event.key || '').toLowerCase();
+      if (!event.ctrlKey || !event.altKey || !event.shiftKey || key !== 'f') {
+        return;
+      }
+
+      event.preventDefault();
+      toggleFinancialEasterEgg();
+    });
+  }
 
   renderAnalysis();
 })();

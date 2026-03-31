@@ -282,6 +282,19 @@ tr.estoque-critico > td {
   background: linear-gradient(180deg, #f8fbff 0%, #ffffff 100%);
 }
 
+#financialSummarySecret,
+#financialCashButton {
+  display: none;
+}
+
+#financialSummaryApp.is-easter-visible #financialSummarySecret {
+  display: block;
+}
+
+#financialSummaryApp.is-easter-visible #financialCashButton {
+  display: inline-flex;
+}
+
 .financial-summary-header {
   display: flex;
   justify-content: space-between;
@@ -424,9 +437,24 @@ tr.estoque-critico > td {
   gap: 1rem;
 }
 
+.financial-side-stack > .card:first-child {
+  width: 100%;
+}
+
 .financial-chart-wrapper {
   position: relative;
   min-height: 260px;
+}
+
+@media (min-width: 1200px) {
+  .financial-side-stack {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+  }
+
+  .financial-side-stack > .card:first-child {
+    grid-column: 1 / -1;
+  }
 }
 
 .financial-month-status {

@@ -111,31 +111,33 @@ include 'includes/header.php';
                             <h4 class="mb-1">Historico consolidado e acompanhamento de <?= htmlspecialchars($currentMonthLabel, ENT_QUOTES, 'UTF-8') ?></h4>
                             <p class="text-muted mb-0">A leitura inicial abre em vendas e permite acrescentar servicos e compras no somatorio conforme o historico for ficando mais completo.</p>
                         </div>
-                        <a href="<?= htmlspecialchars(app_url('financeiro/fluxo_caixa.php'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-outline-primary">
+                        <a href="<?= htmlspecialchars(app_url('financeiro/fluxo_caixa.php'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-outline-primary" id="financialCashButton">
                             <i class="fas fa-wallet me-1"></i>Fluxo de caixa
                         </a>
                     </div>
 
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-4 col-xl-3">
-                            <div class="card financial-kpi-card financial-kpi-revenue h-100"><div class="card-body"><small>Total previsto receitas</small><div class="financial-kpi-value"><?= \App\Services\FinancialDashboardService::formatMoney((float) $cashKpis['receitas_previstas']) ?></div><div class="text-muted">Vendas + servicos com vencimento no mes</div></div></div>
+                    <div id="financialSummarySecret">
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-4 col-xl-3">
+                                <div class="card financial-kpi-card financial-kpi-revenue h-100"><div class="card-body"><small>Total previsto receitas</small><div class="financial-kpi-value"><?= \App\Services\FinancialDashboardService::formatMoney((float) $cashKpis['receitas_previstas']) ?></div><div class="text-muted">Vendas + servicos com vencimento no mes</div></div></div>
+                            </div>
+                            <div class="col-md-4 col-xl-3">
+                                <div class="card financial-kpi-card financial-kpi-paid h-100"><div class="card-body"><small>Recebido ate hoje</small><div class="financial-kpi-value"><?= \App\Services\FinancialDashboardService::formatMoney((float) $cashKpis['receitas_recebidas']) ?></div><div class="text-muted">Parcelas baixadas ate hoje</div></div></div>
+                            </div>
+                            <div class="col-md-4 col-xl-3">
+                                <div class="card financial-kpi-card financial-kpi-expense h-100"><div class="card-body"><small>Total contas a pagar</small><div class="financial-kpi-value"><?= \App\Services\FinancialDashboardService::formatMoney((float) $cashKpis['despesas_previstas']) ?></div><div class="text-muted">Compras com vencimento no mes</div></div></div>
+                            </div>
+                            <div class="col-md-6 col-xl-3">
+                                <div class="card financial-kpi-card <?= ((float) $cashKpis['saldo_projetado']) >= 0 ? 'financial-kpi-balance-positive' : 'financial-kpi-balance-negative' ?> h-100"><div class="card-body"><small>Saldo projetado</small><div class="financial-kpi-value"><?= \App\Services\FinancialDashboardService::formatMoney((float) $cashKpis['saldo_projetado']) ?></div><div class="text-muted"><?= ((float) $cashKpis['saldo_projetado']) >= 0 ? 'Receitas previstas acima das despesas.' : 'Despesas previstas acima das receitas.' ?></div></div></div>
+                            </div>
                         </div>
-                        <div class="col-md-4 col-xl-3">
-                            <div class="card financial-kpi-card financial-kpi-paid h-100"><div class="card-body"><small>Recebido ate hoje</small><div class="financial-kpi-value"><?= \App\Services\FinancialDashboardService::formatMoney((float) $cashKpis['receitas_recebidas']) ?></div><div class="text-muted">Parcelas baixadas ate hoje</div></div></div>
-                        </div>
-                        <div class="col-md-4 col-xl-3">
-                            <div class="card financial-kpi-card financial-kpi-expense h-100"><div class="card-body"><small>Total contas a pagar</small><div class="financial-kpi-value"><?= \App\Services\FinancialDashboardService::formatMoney((float) $cashKpis['despesas_previstas']) ?></div><div class="text-muted">Compras com vencimento no mes</div></div></div>
-                        </div>
-                        <div class="col-md-6 col-xl-3">
-                            <div class="card financial-kpi-card <?= ((float) $cashKpis['saldo_projetado']) >= 0 ? 'financial-kpi-balance-positive' : 'financial-kpi-balance-negative' ?> h-100"><div class="card-body"><small>Saldo projetado</small><div class="financial-kpi-value"><?= \App\Services\FinancialDashboardService::formatMoney((float) $cashKpis['saldo_projetado']) ?></div><div class="text-muted"><?= ((float) $cashKpis['saldo_projetado']) >= 0 ? 'Receitas previstas acima das despesas.' : 'Despesas previstas acima das receitas.' ?></div></div></div>
-                        </div>
-                    </div>
 
-                    <?php $revenuePercent = (float) $cashKpis['receitas_previstas'] > 0 ? min(((float) $cashKpis['receitas_recebidas'] / (float) $cashKpis['receitas_previstas']) * 100, 100) : 0; ?>
-                    <?php $expensePercent = (float) $cashKpis['despesas_previstas'] > 0 ? min(((float) $cashKpis['despesas_pagas'] / (float) $cashKpis['despesas_previstas']) * 100, 100) : 0; ?>
-                    <div class="financial-progress-grid mb-4">
-                        <div class="card h-100"><div class="card-body"><div class="small text-uppercase text-muted mb-2">Receitas do mes</div><div class="d-flex justify-content-between align-items-end mb-2"><div class="fw-semibold"><?= \App\Services\FinancialDashboardService::formatMoney((float) $cashKpis['receitas_recebidas']) ?></div><small class="text-muted">de <?= \App\Services\FinancialDashboardService::formatMoney((float) $cashKpis['receitas_previstas']) ?></small></div><div class="progress mb-2"><div class="progress-bar bg-success" style="width: <?= number_format($revenuePercent, 2, '.', '') ?>%"></div></div><div class="text-muted small">A receber ainda no mes: <?= \App\Services\FinancialDashboardService::formatMoney((float) $cashKpis['receitas_a_receber']) ?></div></div></div>
-                        <div class="card h-100"><div class="card-body"><div class="small text-uppercase text-muted mb-2">Despesas do mes</div><div class="d-flex justify-content-between align-items-end mb-2"><div class="fw-semibold"><?= \App\Services\FinancialDashboardService::formatMoney((float) $cashKpis['despesas_pagas']) ?></div><small class="text-muted">de <?= \App\Services\FinancialDashboardService::formatMoney((float) $cashKpis['despesas_previstas']) ?></small></div><div class="progress mb-2"><div class="progress-bar bg-danger" style="width: <?= number_format($expensePercent, 2, '.', '') ?>%"></div></div><div class="text-muted small">A pagar restante no mes: <?= \App\Services\FinancialDashboardService::formatMoney((float) $cashKpis['despesas_a_pagar']) ?></div></div></div>
+                        <?php $revenuePercent = (float) $cashKpis['receitas_previstas'] > 0 ? min(((float) $cashKpis['receitas_recebidas'] / (float) $cashKpis['receitas_previstas']) * 100, 100) : 0; ?>
+                        <?php $expensePercent = (float) $cashKpis['despesas_previstas'] > 0 ? min(((float) $cashKpis['despesas_pagas'] / (float) $cashKpis['despesas_previstas']) * 100, 100) : 0; ?>
+                        <div class="financial-progress-grid mb-4">
+                            <div class="card h-100"><div class="card-body"><div class="small text-uppercase text-muted mb-2">Receitas do mes</div><div class="d-flex justify-content-between align-items-end mb-2"><div class="fw-semibold"><?= \App\Services\FinancialDashboardService::formatMoney((float) $cashKpis['receitas_recebidas']) ?></div><small class="text-muted">de <?= \App\Services\FinancialDashboardService::formatMoney((float) $cashKpis['receitas_previstas']) ?></small></div><div class="progress mb-2"><div class="progress-bar bg-success" style="width: <?= number_format($revenuePercent, 2, '.', '') ?>%"></div></div><div class="text-muted small">A receber ainda no mes: <?= \App\Services\FinancialDashboardService::formatMoney((float) $cashKpis['receitas_a_receber']) ?></div></div></div>
+                            <div class="card h-100"><div class="card-body"><div class="small text-uppercase text-muted mb-2">Despesas do mes</div><div class="d-flex justify-content-between align-items-end mb-2"><div class="fw-semibold"><?= \App\Services\FinancialDashboardService::formatMoney((float) $cashKpis['despesas_pagas']) ?></div><small class="text-muted">de <?= \App\Services\FinancialDashboardService::formatMoney((float) $cashKpis['despesas_previstas']) ?></small></div><div class="progress mb-2"><div class="progress-bar bg-danger" style="width: <?= number_format($expensePercent, 2, '.', '') ?>%"></div></div><div class="text-muted small">A pagar restante no mes: <?= \App\Services\FinancialDashboardService::formatMoney((float) $cashKpis['despesas_a_pagar']) ?></div></div></div>
+                        </div>
                     </div>
 
                     <div class="financial-source-toggle mb-4">
@@ -148,7 +150,7 @@ include 'includes/header.php';
                     </div>
 
                     <div class="row g-4">
-                        <div class="col-xl-8">
+                        <div class="col-12">
                             <div class="financial-table-card card h-100">
                                 <div class="card-body">
                                     <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
@@ -174,7 +176,7 @@ include 'includes/header.php';
                             </div>
                         </div>
 
-                        <div class="col-xl-4">
+                        <div class="col-12">
                             <div class="financial-side-stack">
                                 <div class="card"><div class="card-body"><div class="small text-uppercase text-muted">Media Mes/Ano</div><h5 class="mb-3">Tendencia mensal</h5><div class="financial-chart-wrapper"><canvas id="financialAverageChart"></canvas></div></div></div>
                                 <div class="card"><div class="card-body"><div class="small text-uppercase text-muted">Acompanhamento do mes</div><h5 class="mb-3"><?= htmlspecialchars((string) ($monthNames[(int) $defaultAnalysis['current_month']] ?? 'Mes atual'), ENT_QUOTES, 'UTF-8') ?></h5><div class="financial-month-status"><div><span class="financial-month-label">Realizado no mes</span><strong id="financialCurrentMonthTotal"><?= htmlspecialchars(\App\Services\FinancialDashboardService::formatMoney((float) $defaultAnalysis['current_month_total']), ENT_QUOTES, 'UTF-8') ?></strong></div><div><span class="financial-month-label">Valor esperado ate hoje</span><strong id="financialExpectedValue"><?= htmlspecialchars(\App\Services\FinancialDashboardService::formatMoney((float) $defaultAnalysis['expected_value']), ENT_QUOTES, 'UTF-8') ?></strong></div></div><div class="financial-indicator-box <?= (float) $defaultAnalysis['indicator'] > 0 ? 'financial-indicator-positive' : ((float) $defaultAnalysis['indicator'] < 0 ? 'financial-indicator-negative' : 'financial-indicator-neutral') ?>" id="financialIndicatorBox"><span class="financial-month-label">Valor indicador</span><strong id="financialIndicatorValue"><?= htmlspecialchars(\App\Services\FinancialDashboardService::formatMoney((float) $defaultAnalysis['indicator']), ENT_QUOTES, 'UTF-8') ?></strong></div></div></div>

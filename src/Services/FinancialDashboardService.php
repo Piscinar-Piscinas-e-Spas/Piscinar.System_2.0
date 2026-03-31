@@ -78,7 +78,7 @@ class FinancialDashboardService
             }
         }
 
-        ksort($yearsMap);
+        krsort($yearsMap);
         $years = array_values($yearsMap);
         $monthNames = self::monthNames();
         $shortMonthNames = self::shortMonthNames();
