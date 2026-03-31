@@ -76,14 +76,14 @@
 
                     <ul class="navbar-nav ms-auto">
                         <?php if (function_exists('is_authenticated') && is_authenticated()): ?>
-                        <li class="nav-item">
+                        <li class="nav-item" id="userShow">
                             <span class="nav-link text-muted">
                                 <i class="fas fa-user-circle"></i>
                                 <?= htmlspecialchars((string) ((auth_user()['nome'] ?? auth_user()['usuario'] ?? 'Usuario')), ENT_QUOTES, 'UTF-8') ?>
                             </span>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-danger" href="<?= htmlspecialchars(app_url('logout.php'), ENT_QUOTES, 'UTF-8') ?>">
+                            <a class="nav-link" id="btn-soft-danger" href="<?= htmlspecialchars(app_url('logout.php'), ENT_QUOTES, 'UTF-8') ?>">
                                 <i class="fas fa-sign-out-alt"></i> Sair
                             </a>
                         </li>
