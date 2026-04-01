@@ -1,13 +1,6 @@
-body {
-  padding-top: 20px;
-  background-color: #f8f9fa;
-}
-.card {
-  margin-bottom: 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
 .navbar-light .navbar-nav .nav-link {
+  /* O menu principal usa gradient no texto para dar identidade visual
+     sem pesar o restante do layout com blocos muito coloridos. */
   background: -webkit-linear-gradient(
     0deg,
     oklch(64.22% 0.18 249.59) 0%,
@@ -16,6 +9,15 @@ body {
   );
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+}
+
+body {
+  padding-top: 20px;
+  background-color: #f8f9fa;
+}
+.card {
+  margin-bottom: 20px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
 .navbar-light .navbar-nav .nav-link:hover {
@@ -127,6 +129,8 @@ body {
 }
 
 .user-settings-offcanvas {
+  /* Painel lateral da conta com visual proprio para separar preferencia pessoal
+     das telas operacionais do sistema. */
   width: min(420px, 100vw);
   background:
     radial-gradient(circle at top right, rgba(18, 151, 244, 0.12), transparent 24%),
@@ -254,6 +258,8 @@ tr.estoque-critico > td {
 }
 
 .site-footer {
+  /* O footer funciona como fechamento visual da aplicacao e tambem como
+     mapa rapido de navegacao em telas mais longas. */
   background: linear-gradient(135deg, #052f83 0%, #0a4ec4 45%, #1297f4 100%);
   border-radius: 64px 8px;
   color: #f2f8ff;
@@ -399,6 +405,7 @@ tr.estoque-critico > td {
 }
 
 .financial-summary-panel {
+  /* Container do resumo financeiro expandido da home. */
   border: 1px solid #dfeaff;
   border-radius: 22px;
   padding: 1.5rem;
@@ -407,6 +414,7 @@ tr.estoque-critico > td {
 
 #financialSummarySecret,
 #financialCashButton {
+  /* Ficam ocultos ate o usuario abrir o modo detalhado do painel financeiro. */
   display: none;
 }
 
@@ -486,6 +494,7 @@ tr.estoque-critico > td {
 }
 
 .financial-source-toggle {
+  /* Area dos toggles que combinam fontes diferentes no mesmo historico. */
   display: flex;
   flex-wrap: wrap;
   gap: 1rem;
@@ -520,6 +529,7 @@ tr.estoque-critico > td {
 }
 
 .financial-heatmap-table {
+  /* A tabela usa heatmap, entao o fundo padrao do Bootstrap precisa ficar neutro. */
   --bs-table-bg: transparent;
 }
 

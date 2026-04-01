@@ -3,6 +3,8 @@ require_once dirname(__DIR__) . '/src/bootstrap.php';
 require_once __DIR__ . '/auth.php';
 require_once __DIR__ . '/action_firewall.php';
 
+// A conexao PDO nasce aqui porque quase todo modulo inclui este arquivo
+// como porta de entrada para infraestrutura compartilhada.
 $host = getenv('DB_HOST') ?: '127.0.0.1';
 $db   = getenv('DB_NAME') ?: 'piscinar_db';
 $user = getenv('DB_USER') ?: 'root';
@@ -10,12 +12,15 @@ $pass = getenv('DB_PASS') ?: 'BxuZpImQLwh*Ndw-';
 
 
 try {
+    // Charset utf8mb4 evita dor de cabeca com acento, emoji e texto livre.
     $dsn = "mysql:host={$host};dbname={$db};charset=utf8mb4";
     $pdo = new PDO($dsn, $user, $pass, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     ]);
 } catch (PDOException $e) {
+    // Quando o banco cai, mostramos uma tela simples e direta em vez de deixar
+    // o usuario cair em warning cru de PHP.
     http_response_code(500);
     ?>
     <!DOCTYPE html>

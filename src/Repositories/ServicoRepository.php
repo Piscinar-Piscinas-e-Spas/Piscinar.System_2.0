@@ -7,6 +7,9 @@ use PDO;
 
 class ServicoRepository
 {
+    // Repository hibrido: ele ainda carrega alguns metodos do modelo antigo
+    // (servicos + servico_*) e os metodos ativos de leitura no modelo atual
+    // (servicos_pedidos + servicos_itens + servicos_parcelas).
     private $pdo;
     private $auditLogger;
 
@@ -18,6 +21,8 @@ class ServicoRepository
 
     public function createServico(array $servico): int
     {
+        // Fluxo legado de persistencia singular. Vale manter comentado porque
+        // quem entrar no projeto precisa perceber que existe esse caminho paralelo.
         $stmt = $this->pdo->prepare('INSERT INTO servicos (
                 id_cliente,
                 data_servico,
@@ -57,6 +62,7 @@ class ServicoRepository
 
     public function createServicoProduto(int $servicoId, array $item): void
     {
+        // Persistencia legado dos produtos vinculados ao modelo singular.
         $stmt = $this->pdo->prepare('INSERT INTO servico_produtos (
                 id_servico,
                 id_produto,
@@ -95,6 +101,7 @@ class ServicoRepository
 
     public function createServicoMicroservico(int $servicoId, array $item): void
     {
+        // Persistencia legado dos microservicos no modelo singular.
         $stmt = $this->pdo->prepare('INSERT INTO servico_microservicos (
                 id_servico,
                 descricao,
@@ -130,6 +137,7 @@ class ServicoRepository
 
     public function createServicoParcela(int $servicoId, array $parcela): void
     {
+        // Persistencia legado das parcelas no modelo singular.
         $stmt = $this->pdo->prepare('INSERT INTO servico_parcelas (
                 id_servico,
                 numero_parcela,
@@ -165,6 +173,7 @@ class ServicoRepository
 
     public function logCreate(int $servicoId, array $servico, array $produtos, array $microservicos, array $parcelas): void
     {
+        // Mesmo no caminho legado, a auditoria tenta registrar o snapshot completo.
         $this->auditLogger->logCreate('servico', 'servicos', $servicoId, [
             'servico' => $servico,
             'produtos' => $produtos,
@@ -175,6 +184,7 @@ class ServicoRepository
 
     public function listWithCliente(array $filters = []): array
     {
+        // Listagem ativa do modulo de servicos baseada no schema atual.
         $sql = 'SELECT
                 s.id_servico,
                 s.data_servico,
@@ -203,6 +213,7 @@ class ServicoRepository
 
     public function findCompleteById(int $servicoId): ?array
     {
+        // Monta o servico completo para detalhe, dashboard e tela de edicao.
         $stmtServico = $this->pdo->prepare('SELECT
                 s.id_servico,
                 s.cliente_id,
@@ -270,6 +281,7 @@ class ServicoRepository
 
     public function getResumoKpis(array $filters = []): array
     {
+        // KPIs resumidos usados no dashboard/listagem de servicos.
         $sql = 'SELECT
                 COUNT(s.id_servico) AS total_servicos,
                 COALESCE(SUM(s.total_geral), 0) AS faturamento_bruto,
@@ -301,6 +313,7 @@ class ServicoRepository
 
     private function buildFilterClause(array $filters): array
     {
+        // Reaproveita o mesmo WHERE entre listagem e consultas de resumo.
         $conditions = [];
         $params = [];
 

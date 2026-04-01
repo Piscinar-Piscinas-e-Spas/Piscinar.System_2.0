@@ -11,6 +11,8 @@ use Throwable;
 
 class VendaService
 {
+    // Service responsavel por validar e normalizar o payload da venda
+    // antes de a camada de dados encostar no banco.
     private $vendaRepository;
     private $clienteRepository;
     private $produtoRepository;
@@ -33,6 +35,7 @@ class VendaService
 
     public function buildFormData()
     {
+        // Entrega a base do formulario de venda em um unico pacote.
         return [
             'clientes' => $this->clienteRepository->listForSales(),
             'produtos' => $this->produtoRepository->listForSales(),
@@ -42,6 +45,8 @@ class VendaService
 
     public function createFromPayload(array $dados)
     {
+        // Revalida no backend tudo que a UI calculou no frontend:
+        // cliente, vendedor, itens, totais e parcelas.
         $vendaId = (int) ($dados['id_venda'] ?? 0);
         $clienteId = (int) ($dados['cliente_id'] ?? 0);
         $dataVenda = trim((string) ($dados['data_venda'] ?? date('Y-m-d')));
@@ -75,6 +80,7 @@ class VendaService
         }
 
         if ($vendedorId <= 0) {
+            // Fallback para o usuario logado quando a tela nao informar vendedor.
             $authUserId = (int) (auth_user_id() ?? 0);
             if ($authUserId > 0) {
                 $vendedorId = $authUserId;
@@ -103,6 +109,8 @@ class VendaService
         $freteItensCalculado = 0.0;
 
         foreach ($itens as $idx => $item) {
+            // Cada item e recalculado no backend para evitar confiar
+            // cegamente no total que veio do JavaScript.
             $itemNormalizado = $this->normalizeItem($item, $idx);
             if (isset($itemNormalizado['error'])) {
                 return $itemNormalizado['error'];
@@ -128,6 +136,7 @@ class VendaService
         $totalCalculado = round($subtotalCalculado - $descontoCalculado + $freteInformado, 2);
 
         if (
+            // Os totais informados pela UI precisam bater com os totais recalculados.
             !$this->almostEquals($subtotalCalculado, $this->toDecimal($dados['subtotal'] ?? 0)) ||
             !$this->almostEquals($descontoCalculado, $this->toDecimal($dados['desconto_total'] ?? 0)) ||
             !$this->almostEquals($totalCalculado, $this->toDecimal($dados['total_geral'] ?? 0))
@@ -152,6 +161,7 @@ class VendaService
         $somaParcelas = 0.0;
 
         foreach ($parcelas as $idx => $parcela) {
+            // Parcelas tambem passam por padronizacao antes do save.
             $parcelaNormalizada = $this->normalizeParcela($parcela, $idx, count($parcelas), $totalCalculado);
             if (isset($parcelaNormalizada['error'])) {
                 return $parcelaNormalizada['error'];
@@ -167,6 +177,7 @@ class VendaService
 
         $startedTransaction = false;
         try {
+            // A transacao protege cliente, venda, itens e parcelas como um conjunto unico.
             $startedTransaction = !$this->pdo->inTransaction();
             if ($startedTransaction) {
                 $this->pdo->beginTransaction();
@@ -189,6 +200,7 @@ class VendaService
             $clienteId = $resolucaoCliente['cliente_id'];
 
             $vendaPersistida = [
+                // Daqui em diante o array ja esta pronto para o repository.
                 'cliente_id' => $clienteId,
                 'vendedor_id' => (int) $vendedorSelecionado['id_usuario'],
                 'vendedor_nome' => $vendedorNome,
@@ -230,6 +242,7 @@ class VendaService
 
     private function resolverClienteParaVenda($clienteId, $clienteResolucao, ?array $clientePayload, $validarConsistencia)
     {
+        // O fluxo comercial pode manter, atualizar ou criar cliente durante a venda.
         if (!in_array($clienteResolucao, ['manter', 'atualizar', 'novo'], true)) {
             return ['error' => $this->error(422, 'Valor inválido para cliente_resolucao.')];
         }
@@ -300,6 +313,7 @@ class VendaService
 
     private function normalizeItem(array $item, $idx)
     {
+        // Garante shape consistente e bloqueia desconto maior que subtotal.
         $produtoId = (int) ($item['produto_id'] ?? 0);
         $quantidade = $this->toDecimal($item['quantidade'] ?? 0);
         $valorUnitario = $this->toDecimal($item['valor_unitario'] ?? 0);
@@ -328,6 +342,7 @@ class VendaService
 
     private function normalizeParcela(array $parcela, $idx, $totalParcelas, $totalVenda)
     {
+        // Padroniza a parcela no formato esperado pela persistencia.
         $numeroParcela = (int) ($parcela['numero_parcela'] ?? ($idx + 1));
         $vencimento = trim((string) ($parcela['vencimento'] ?? ''));
         $valorParcela = $this->toDecimal($parcela['valor'] ?? 0);
@@ -356,6 +371,7 @@ class VendaService
 
     private function toDecimal($valor)
     {
+        // Aceita numero puro ou texto no formato BR.
         if (is_float($valor) || is_int($valor)) {
             return (float) $valor;
         }
@@ -398,6 +414,7 @@ class VendaService
 
     private function error($statusCode, $message)
     {
+        // Mantem contrato de erro consistente para qualquer endpoint que use a service.
         return [
             'status_code' => (int) $statusCode,
             'payload' => [

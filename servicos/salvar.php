@@ -3,16 +3,21 @@ include '../includes/db.php';
 require_login();
 require_once __DIR__ . '/_infra.php';
 
+// Esse endpoint e o save principal do modulo de servicos usado pela UI atual.
+// Ele trabalha com o modelo servicos_pedidos + servicos_itens + servicos_parcelas.
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     render_security_error(405, 'method_not_allowed', 'Metodo POST obrigatorio para esta operacao.');
 }
 
+// O frontend manda tudo em JSON, entao o decode acontece logo na entrada.
 $dados = json_decode(file_get_contents('php://input') ?: '', true);
 if (!is_array($dados)) {
     \App\Views\ApiResponse::send(400, ['status' => false, 'mensagem' => 'JSON invalido.']);
 }
 
 require_valid_csrf(is_string($dados['csrf_token'] ?? null) ? $dados['csrf_token'] : null);
+// Algumas garantias de schema e regras auxiliares ainda vivem em _infra.php
+// porque o modulo de servicos mistura partes novas e legado em transicao.
 servicos_ensure_schema($pdo);
 $clienteObrigatorio = servicos_cliente_obrigatorio();
 $vendedores = servicos_obter_vendedores($pdo);
@@ -27,6 +32,7 @@ if ($clienteId <= 0) {
     $clienteId = null;
 }
 
+// O vendedor salvo precisa existir entre os usuarios ativos liberados para o fluxo.
 $vendedorSelecionado = null;
 foreach ($vendedores as $vendedor) {
     if ((int) ($vendedor['id_usuario'] ?? 0) !== $vendedorId) {
@@ -70,14 +76,18 @@ $itensProduto = is_array($dados['itens_produto'] ?? null) ? $dados['itens_produt
 $itensMicro = is_array($dados['itens_microservico'] ?? null) ? $dados['itens_microservico'] : [];
 $parcelas = is_array($dados['parcelas'] ?? null) ? $dados['parcelas'] : [];
 
+// O servico pode ter produto, microservico ou os dois, mas nunca pode sair vazio.
 if (!$itensProduto && !$itensMicro) {
     \App\Views\ApiResponse::send(422, ['status' => false, 'mensagem' => 'Informe ao menos um item de produto ou micro-serviço.']);
 }
 
 try {
+    // A transacao protege cabecalho, itens, parcelas e auditoria do save.
     $pdo->beginTransaction();
 
     if ($servicoIdEdicao > 0) {
+        // Na edicao o cabecalho e atualizado e os filhos sao regravados.
+        // E uma estrategia simples, mas reduz chance de estado misturado.
         $stmt = $pdo->prepare(
             'UPDATE servicos_pedidos
              SET cliente_id = ?,
@@ -144,6 +154,8 @@ try {
     );
 
     $registrar = function (array $item, string $tipo) use ($stmtItem, $servicoId): void {
+        // Cada item recalcula subtotal/total no backend para nao depender
+        // so dos numeros enviados pela tela.
         $quantidade = max(1, (float) ($item['quantidade'] ?? 1));
         $valorUnitario = max(0, (float) ($item['valor_unitario'] ?? 0));
         $desconto = max(0, (float) ($item['desconto_valor'] ?? 0));
@@ -182,6 +194,8 @@ try {
     );
 
     if (!$parcelas) {
+        // Se a UI nao mandar parcela, o sistema assume pagamento unico
+        // no valor total do servico para nao deixar o financeiro sem vencimento.
         $parcelas = [[
             'vencimento' => $dataServico,
             'valor' => (float) ($dados['total_geral'] ?? 0),
@@ -204,6 +218,7 @@ try {
     }
 
     try {
+        // Falha de auditoria nao deve derrubar o save operacional.
         $servicoAuditService->logSaveFromCurrentFlow(
             $servicoId,
             $servicoIdEdicao > 0,
@@ -226,6 +241,8 @@ try {
         'id_servico' => $servicoId,
     ]);
 } catch (Throwable $e) {
+    // Se qualquer parte falhar, a transacao volta inteira para evitar
+    // servico salvo pela metade.
     if ($pdo->inTransaction()) {
         $pdo->rollBack();
     }

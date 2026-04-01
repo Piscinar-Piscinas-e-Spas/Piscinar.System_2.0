@@ -1,4 +1,6 @@
 (function () {
+  // Esse script pega o payload renderizado pela home e monta a camada interativa
+  // do resumo financeiro sem nova ida ao backend.
   const root = document.getElementById('financialSummaryApp');
   if (!root) {
     return;
@@ -34,10 +36,13 @@
   };
 
   const toggleFinancialEasterEgg = () => {
+    // O resumo detalhado fica escondido por padrao e pode ser revelado
+    // por shortcut. Isso deixa a home mais limpa para uso rapido.
     root.classList.toggle('is-easter-visible');
   };
 
   const getSelectedSources = () => {
+    // "vendas" e a base minima obrigatoria. As outras fontes entram como soma opcional.
     const selected = ['vendas'];
     sourceInputs.forEach((input) => {
       if (input.value !== 'vendas' && input.checked) {
@@ -48,6 +53,8 @@
   };
 
   const buildAnalysis = (selectedSources) => {
+    // Aqui o payload bruto vira uma matriz ano/mes com medias, totais
+    // e candidatos de sazonalidade para promocao.
     const yearsSet = new Set();
     const matrix = {};
     const heatValues = [];
@@ -151,6 +158,8 @@
   };
 
   const heatColor = (value, min, max) => {
+    // A cor do heatmap vai de vermelho ate verde conforme o valor relativo
+    // daquele mes dentro da serie carregada.
     if (value === null || value === undefined) {
       return '';
     }
@@ -185,6 +194,7 @@
   };
 
   const renderPromotions = (container, months, className) => {
+    // Reaproveita a mesma renderizacao para meses fracos e fortes.
     container.innerHTML = '';
 
     if (!months.length) {
@@ -204,6 +214,7 @@
   };
 
   const renderTable = (analysis) => {
+    // Reconstroi a tabela inteira sempre que o usuario muda as fontes selecionadas.
     const thead = table.querySelector('thead tr');
     const tbody = table.querySelector('tbody');
     const tfoot = table.querySelector('tfoot tr');
@@ -255,6 +266,7 @@
   };
 
   const renderChart = (analysis) => {
+    // O grafico mistura barra e linha para mostrar media mensal e tendencia no mesmo canvas.
     const canvas = document.getElementById('financialAverageChart');
     if (!canvas || typeof Chart === 'undefined') {
       return;
@@ -312,6 +324,7 @@
   };
 
   const renderAnalysis = () => {
+    // Ponto central de refresh da UI: recalcula analise e redistribui tudo na tela.
     const analysis = buildAnalysis(getSelectedSources());
     const indicator = analysis.currentMonthTotal - analysis.expectedValue;
 
@@ -332,6 +345,7 @@
   });
 
   if (easterTargets.every(Boolean)) {
+    // Shortcut escondido para liberar a versao detalhada do painel financeiro.
     document.addEventListener('keydown', (event) => {
       if (event.repeat || isTypingTarget(event.target)) {
         return;
@@ -347,5 +361,6 @@
     });
   }
 
+  // Primeira pintura da interface ja acontece com o payload embutido na pagina.
   renderAnalysis();
 })();

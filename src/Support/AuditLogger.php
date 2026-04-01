@@ -6,6 +6,7 @@ use PDO;
 
 class AuditLogger
 {
+    // Logger unico para rastrear create, update e delete em modulos diferentes.
     private $pdo;
 
     public function __construct(PDO $pdo)
@@ -15,11 +16,13 @@ class AuditLogger
 
     public function logCreate($entity, $table, $recordId, array $data)
     {
+        // Em create o snapshot completo costuma ser mais util do que um diff.
         $this->insertSnapshotLog('create', $entity, $table, $recordId, $data);
     }
 
     public function logUpdate($entity, $table, $recordId, array $before, array $after)
     {
+        // Update gera diff textual para facilitar leitura do historico.
         $lines = [];
 
         foreach ($after as $field => $newValue) {
@@ -59,6 +62,7 @@ class AuditLogger
 
     private function insertLog($action, $entity, $table, $recordId, array $lines)
     {
+        // Toda auditoria cai na mesma tabela, independente do modulo.
         $actor = $this->resolveActor();
 
         $stmt = $this->pdo->prepare('INSERT INTO auditoria_logs (
@@ -94,6 +98,7 @@ class AuditLogger
 
     private function resolveActor()
     {
+        // O usuario vem da sessao quando existir, mas o log continua funcionando sem ele.
         $userId = null;
         $userName = null;
 
@@ -122,6 +127,7 @@ class AuditLogger
 
     private function insertSnapshotLog($action, $entity, $table, $recordId, array $data)
     {
+        // Snapshot vira lista campo: valor para ser legivel direto no banco.
         $lines = [];
 
         foreach ($data as $field => $value) {
@@ -133,6 +139,7 @@ class AuditLogger
 
     private function stringifyValue($value)
     {
+        // Converte varios tipos para um formato estavel usado em log e comparacao.
         if ($value === null) {
             return 'NULL';
         }

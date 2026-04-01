@@ -8,18 +8,21 @@ use Throwable;
 
 class VendaRepository
 {
+    // Repository focado em persistencia, leitura estruturada e auditoria de vendas.
     private $pdo;
     private $auditLogger;
 
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
+        // Compat layer para bases mais antigas que ainda nao receberam colunas de vendedor.
         $this->ensureSchema();
         $this->auditLogger = new AuditLogger($pdo);
     }
 
     public function create(array $venda, array $itens, array $parcelas)
     {
+        // Salva cabecalho, itens, parcelas e auditoria em uma mesma transacao.
         $startedTransaction = !$this->pdo->inTransaction();
 
         try {
@@ -135,6 +138,7 @@ class VendaRepository
                 ]);
             }
 
+            // O log inclui os filhos para o historico explicar a venda inteira.
             $this->auditLogger->logCreate('venda', 'vendas', $vendaId, [
                 'id_cliente' => $venda['cliente_id'],
                 'vendedor_id' => $venda['vendedor_id'],
@@ -165,6 +169,7 @@ class VendaRepository
 
     public function update(int $vendaId, array $venda, array $itens, array $parcelas): int
     {
+        // Na edicao o conjunto de itens/parcelas e regravado para manter consistencia.
         $startedTransaction = !$this->pdo->inTransaction();
         $before = $this->findCompleteById($vendaId);
 
@@ -232,6 +237,7 @@ class VendaRepository
                 )');
 
             foreach ($itens as $item) {
+                // Os itens ja chegam validados pela service; aqui o foco e atomicidade.
                 $insertItem->execute([
                     ':id_venda' => $vendaId,
                     ':id_produto' => $item['produto_id'],
@@ -278,6 +284,7 @@ class VendaRepository
             }
 
             $after = [
+                // O diff compara o estado completo da venda, nao so o cabecalho.
                 'venda' => [
                     'id_venda' => $vendaId,
                     'id_cliente' => $venda['cliente_id'],
@@ -312,6 +319,7 @@ class VendaRepository
 
     public function listWithCliente(array $filters = [])
     {
+        // Base reaproveitada pela listagem e dashboards de venda.
         $sql = 'SELECT
                 v.id_venda,
                 v.data_venda,
@@ -339,6 +347,7 @@ class VendaRepository
 
     public function findCompleteById(int $vendaId): ?array
     {
+        // Monta a venda completa para detalhe e tela de edicao.
         $stmtVenda = $this->pdo->prepare('SELECT
                 v.id_venda,
                 v.vendedor_id,
@@ -406,6 +415,7 @@ class VendaRepository
 
     public function getSerieFaturamento(array $filters = [], string $agrupamento = 'dia'): array
     {
+        // Alimenta series historicas por dia ou por mes.
         $agrupamento = $agrupamento === 'mes' ? 'mes' : 'dia';
 
         $periodoExpr = $agrupamento === 'mes'
@@ -465,6 +475,7 @@ class VendaRepository
 
     private function ensureSchema(): void
     {
+        // Ajuste automatico para base antiga nao quebrar o modulo ao subir codigo novo.
         $stmt = $this->pdo->query("SHOW COLUMNS FROM vendas LIKE 'vendedor_id'");
         $hasVendedorId = $stmt && $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -490,6 +501,7 @@ class VendaRepository
 
     private function buildFilterClause(array $filters): array
     {
+        // Construcao centralizada do WHERE para evitar duplicacao entre consultas.
         $conditions = [];
         $params = [];
 

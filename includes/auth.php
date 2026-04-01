@@ -2,6 +2,8 @@
 
 require_once dirname(__DIR__) . '/config.php';
 
+// O middleware de auth prepara a sessao e concentra tudo que o sistema
+// precisa para login, timeout, CSRF e respostas padronizadas.
 $secureCookie = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
 if (PHP_VERSION_ID >= 70300) {
     session_set_cookie_params([
@@ -17,6 +19,8 @@ if (PHP_VERSION_ID >= 70300) {
 }
 
 if (session_status() !== PHP_SESSION_ACTIVE) {
+    // A deteccao de HTTPS olha tambem para cenarios com proxy ou porta 443,
+    // porque nem sempre o PHP recebe esse contexto do mesmo jeito.
     $isHttps = (!empty($_SERVER['HTTPS']) && strtolower((string) $_SERVER['HTTPS']) !== 'off')
         || ((int) ($_SERVER['SERVER_PORT'] ?? 0) === 443)
         || strtolower((string) ($_SERVER['HTTP_X_FORWARDED_PROTO'] ?? '')) === 'https';
@@ -33,11 +37,15 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 }
 
 if (empty($_SESSION['csrf_token']) || !is_string($_SESSION['csrf_token'])) {
+    // O token CSRF nasce junto da sessao e passa a ser reutilizado
+    // pelos formularios e endpoints AJAX protegidos.
     $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
 
 function auth_session_keys($envKey, array $defaults)
 {
+    // Permite adaptar o middleware para outras convencoes de sessao
+    // sem editar todas as chamadas espalhadas pelo projeto.
     $rawValue = getenv($envKey);
 
     if ($rawValue === false || $rawValue === null || trim((string) $rawValue) === '') {
@@ -51,6 +59,7 @@ function auth_session_keys($envKey, array $defaults)
 
 function auth_user()
 {
+    // Primeiro tentamos achar o objeto completo do usuario logado.
     foreach (auth_session_keys('AUTH_SESSION_USER_KEYS', ['auth_user', 'usuario', 'user']) as $key) {
         if (!empty($_SESSION[$key]) && is_array($_SESSION[$key])) {
             return $_SESSION[$key];
@@ -62,6 +71,8 @@ function auth_user()
 
 function auth_user_id()
 {
+    // O ID pode estar salvo em chave simples ou dentro do objeto de usuario.
+    // Esse fallback ajuda a manter compatibilidade com fluxos mais antigos.
     foreach (auth_session_keys('AUTH_SESSION_ID_KEYS', ['auth_user_id', 'usuario_id', 'user_id']) as $key) {
         if (!empty($_SESSION[$key])) {
             return $_SESSION[$key];
@@ -130,6 +141,8 @@ function csrf_input()
 
 function request_expects_json()
 {
+    // Alguns endpoints respondem HTML ou JSON dependendo da origem do request.
+    // Esta funcao centraliza essa leitura para o restante do sistema.
     $accept = strtolower((string) ($_SERVER['HTTP_ACCEPT'] ?? ''));
     $requestedWith = strtolower((string) ($_SERVER['HTTP_X_REQUESTED_WITH'] ?? ''));
     $contentType = strtolower((string) ($_SERVER['CONTENT_TYPE'] ?? ''));
@@ -143,6 +156,7 @@ function request_expects_json()
 
 function auth_clear_session()
 {
+    // Limpa memoria de sessao e cookie para encerrar o contexto por completo.
     $_SESSION = [];
 
     if (ini_get('session.use_cookies')) {
@@ -165,6 +179,8 @@ function auth_clear_session()
 
 function redirect_to_login($reason = null)
 {
+    // Guardamos a rota atual em "next" para facilitar o retorno
+    // do usuario ao ponto onde ele parou.
     $next = $_SERVER['REQUEST_URI'] ?? app_url('index.php');
     $params = [];
 
@@ -181,6 +197,7 @@ function redirect_to_login($reason = null)
 
 function enforce_session_timeout()
 {
+    // Timeout so entra em jogo quando ja existe usuario autenticado.
     if (!is_authenticated()) {
         return;
     }
@@ -212,6 +229,7 @@ function enforce_session_timeout()
 
 function require_login()
 {
+    // Esse e o guard principal das paginas protegidas e tambem dos endpoints AJAX.
     if (!auth_enforcement_enabled()) {
         return;
     }
@@ -237,6 +255,7 @@ function require_login()
 
 function read_json_input()
 {
+    // Faz cache do body decodificado para evitar ler php://input varias vezes.
     static $decoded = null;
     static $loaded = false;
 
@@ -254,6 +273,7 @@ function read_json_input()
 
 function request_csrf_token()
 {
+    // O token pode chegar via POST, header custom ou payload JSON.
     $postToken = $_POST['csrf_token'] ?? null;
     if (is_string($postToken) && $postToken !== '') {
         return $postToken;
@@ -272,6 +292,8 @@ function request_csrf_token()
 
 function require_valid_csrf($token = null)
 {
+    // Toda validacao CSRF passa por aqui para manter o mesmo criterio
+    // em formularios normais e requests assincronas.
     $candidate = is_string($token) && $token !== '' ? $token : request_csrf_token();
 
     if (!is_string($candidate) || $candidate === '' || !hash_equals(csrf_token(), $candidate)) {

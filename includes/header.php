@@ -1,10 +1,14 @@
 <?php
+    // O header resolve o menu ativo para o layout inteiro,
+    // assim as paginas nao precisam duplicar essa rotina.
     $currentRoute = parse_url($_SERVER['REQUEST_URI'] ?? ($_SERVER['PHP_SELF'] ?? ''), PHP_URL_PATH) ?? '';
     $currentRoute = rtrim($currentRoute, '/');
     $currentRoute = $currentRoute === '' ? '/' : $currentRoute;
 
     require_once dirname(__DIR__) . '/config.php';
 
+    // Tira o BASE_URL da rota atual para a comparacao funcionar igual
+    // em raiz de dominio ou subpasta.
     $basePath = parse_url(app_url(), PHP_URL_PATH) ?? '';
     $basePath = rtrim($basePath, '/');
 
@@ -43,6 +47,7 @@
 </head>
 <body>
     <?php
+        // Esses dados alimentam o menu de conta e o painel lateral do usuario autenticado.
         $authUser = function_exists('auth_user') ? auth_user() : null;
         $authDisplayName = function_exists('auth_user_display_name') ? auth_user_display_name() : '';
         $authUsername = is_array($authUser) ? (string) ($authUser['usuario'] ?? '') : '';
@@ -57,6 +62,7 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
+                    <!-- Menu principal de navegacao entre os modulos -->
                     <ul class="navbar-nav w-75 justify-content-around">
                         <li class="nav-item">
                             <a class="nav-link<?php echo $inicioActive; ?>" href="<?php echo app_url('index.php'); ?>">
@@ -81,6 +87,7 @@
                     </ul>
 
                     <ul class="navbar-nav ms-auto">
+                        <!-- Acoes de conta so aparecem para sessao autenticada -->
                         <?php if (function_exists('is_authenticated') && is_authenticated()): ?>
                         <li class="nav-item" id="userShow">
                             <button
@@ -105,6 +112,7 @@
             </div>
         </nav>
         <?php if (function_exists('is_authenticated') && is_authenticated()): ?>
+        <!-- Offcanvas para ajustes rapidos sem obrigar uma pagina separada de perfil -->
         <div
             class="offcanvas offcanvas-end user-settings-offcanvas"
             tabindex="-1"

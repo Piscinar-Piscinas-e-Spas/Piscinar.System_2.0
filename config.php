@@ -1,4 +1,7 @@
 <?php
+// Este arquivo concentra configuracoes globais usadas pelo sistema inteiro.
+// O foco aqui e resolver base path, auth defaults e helpers compartilhados
+// sem obrigar cada pagina a reinventar essas decisoes.
 // URL base opcional do projeto (ex.: /piscinar.system_2.0).
 // Defina via variável de ambiente BASE_URL.
 // Detectamos automaticamente o caminho-base da aplicação
@@ -18,6 +21,9 @@ function normalize_base_path(string $path): string
 
 function detected_base_path(): string
 {
+    // Faz uma leitura do path real da aplicacao comparando rota HTTP e
+    // caminho fisico do projeto. Isso ajuda bastante quando o sistema
+    // roda em ambientes diferentes, como raiz de dominio ou subpasta.
     $scriptName = (string) ($_SERVER['SCRIPT_NAME'] ?? '');
     $scriptFilename = (string) ($_SERVER['SCRIPT_FILENAME'] ?? '');
     $projectRoot = realpath(__DIR__);
@@ -76,6 +82,7 @@ function script_path_matches_base(string $basePath): bool
 
 function configured_base_path(): string
 {
+    // Normaliza a configuracao vinda do ambiente antes de usar em links.
     $configured = getenv('BASE_URL');
 
     if ($configured === false || $configured === null) {
@@ -87,6 +94,8 @@ function configured_base_path(): string
 
 function resolved_base_path(): string
 {
+    // Regra pratica: quando a configuracao fixa conflita com a rota real,
+    // a rota detectada vence para evitar link quebrado.
     $detected = detected_base_path();
     $configured = configured_base_path();
 
@@ -109,6 +118,8 @@ define('BASE_URL', resolved_base_path());
 
 
 // Habilita obrigatoriedade de login por padrão seguro.
+// O sistema assume auth obrigatoria por padrao e so abre excecao
+// quando o ambiente pedir isso de forma explicita.
 $requireAuthRaw = getenv('REQUIRE_AUTH');
 define(
     'REQUIRE_AUTH',
@@ -125,6 +136,8 @@ define('SESSION_EXPIRY_WARNING_SECONDS', (int) (getenv('SESSION_EXPIRY_WARNING_S
 
 // Lifetime do cookie de sessão (0 = expira ao fechar o navegador).
 // Para modo excepcionalmente longo, defina SESSION_COOKIE_LIFETIME_OVERRIDE.
+// O cookie de sessao continua curto por padrao.
+// O override existe para caso operacional especifico.
 define('SESSION_COOKIE_LIFETIME', (int) (getenv('SESSION_COOKIE_LIFETIME_OVERRIDE') ?: 0));
 
 /**

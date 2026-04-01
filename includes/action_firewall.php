@@ -1,6 +1,8 @@
 <?php
 
 if (!function_exists('action_firewall_storage_key')) {
+    // Esse firewall adiciona uma confirmacao extra para acoes sensiveis.
+    // Ele funciona como uma "liberacao temporaria" depois que a senha e validada.
     function action_firewall_storage_key(): string
     {
         return '__action_firewall_grants';
@@ -8,6 +10,7 @@ if (!function_exists('action_firewall_storage_key')) {
 
     function action_firewall_cleanup_grants(): void
     {
+        // Limpa grants vencidos, malformados ou amarrados a outro usuario.
         $storageKey = action_firewall_storage_key();
         $currentUserId = (string) (auth_user_id() ?? '');
         $now = time();
@@ -46,6 +49,7 @@ if (!function_exists('action_firewall_storage_key')) {
 
     function action_firewall_issue_grant(string $entity, string $intent, int $recordId, int $ttlSeconds = 300): string
     {
+        // O token temporario evita pedir senha de novo no passo final da mesma acao.
         action_firewall_cleanup_grants();
 
         $token = bin2hex(random_bytes(24));
@@ -62,6 +66,7 @@ if (!function_exists('action_firewall_storage_key')) {
 
     function action_firewall_request_token(): ?string
     {
+        // O grant pode chegar por GET, POST ou JSON dependendo do fluxo.
         $postToken = $_POST['fw_token'] ?? null;
         if (is_string($postToken) && $postToken !== '') {
             return $postToken;
@@ -80,6 +85,7 @@ if (!function_exists('action_firewall_storage_key')) {
 
     function action_firewall_consume_grant(string $entity, string $intent, int $recordId, ?string $token = null): bool
     {
+        // O grant e de uso unico. Se contexto nao bater, ele e descartado.
         action_firewall_cleanup_grants();
 
         $candidateToken = is_string($token) && $token !== '' ? $token : action_firewall_request_token();
@@ -109,6 +115,7 @@ if (!function_exists('action_firewall_storage_key')) {
 
     function action_firewall_require_grant(string $entity, string $intent, int $recordId, string $redirectUrl): void
     {
+        // Esse ponto protege o endpoint final da acao sensivel.
         if (action_firewall_consume_grant($entity, $intent, $recordId)) {
             return;
         }
@@ -130,6 +137,7 @@ if (!function_exists('action_firewall_storage_key')) {
 
     function action_firewall_password_is_valid(PDO $pdo, string $senha): bool
     {
+        // A senha e validada direto no banco para evitar confiar em dado stale de sessao.
         $userId = (int) (auth_user_id() ?? 0);
         if ($userId <= 0 || $senha === '') {
             return false;
@@ -146,6 +154,7 @@ if (!function_exists('action_firewall_storage_key')) {
 
     function render_action_firewall_modal(): void
     {
+        // O modal so e renderizado uma vez por pagina, mesmo se varios botoes usarem o fluxo.
         static $rendered = false;
         if ($rendered) {
             return;

@@ -2,8 +2,12 @@
 include 'includes/db.php';
 require_login();
 
+// O dashboard combina indicadores rapidos de estoque com um resumo financeiro
+// mais analitico. A ideia e transformar a home em ponto de leitura operacional.
 $extraHeadContent = '<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>';
 
+// Esses KPIs sao simples e baratos de consultar, por isso entram direto
+// na carga inicial da home sem depender de AJAX.
 $resumoStmt = $pdo->query("SELECT
     COUNT(*) AS total_produtos,
     SUM(CASE WHEN (COALESCE(qtdLoja, 0) + COALESCE(qtdEstoque, 0)) > 0 THEN 1 ELSE 0 END) AS em_estoque,
@@ -17,6 +21,7 @@ FROM produtos");
 
 $resumo = $resumoStmt->fetch(PDO::FETCH_ASSOC) ?: [];
 
+// O menu lateral funciona como atalho por area do negocio.
 $menuSections = [
     'Operacao Comercial' => [
         ['href' => app_url('vendas/nova.php'), 'icon' => 'fas fa-file-invoice-dollar', 'label' => 'Nova Venda', 'class' => 'btn-outline-success'],
@@ -41,6 +46,8 @@ $menuSections = [
     ],
 ];
 
+// O bloco financeiro usa repository + service para deixar a home com
+// leitura consolidada sem misturar regra de analise no template.
 $today = new DateTimeImmutable('today');
 $financeiroRepository = new \App\Repositories\FinanceiroRepository($pdo);
 $financialDashboardService = new \App\Services\FinancialDashboardService();
@@ -65,6 +72,8 @@ include 'includes/header.php';
 ?>
 
 <style>
+    /* Ajustes locais da home para nao inflar o CSS global com regras
+       que so fazem sentido neste dashboard */
     .index-side-menu-card { position: sticky; top: 1rem; }
     .index-side-menu-title { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: #5c6b86; margin-bottom: 0.75rem; }
     .index-side-menu-section + .index-side-menu-section { margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid #e7eefb; }
@@ -104,6 +113,8 @@ include 'includes/header.php';
                 <h3 class="card-title mb-0"><i class="fas fa-tachometer-alt me-2"></i>Dashboard</h3>
             </div>
             <div class="card-body">
+                <!-- O payload JSON abastece o JS do resumo financeiro sem
+                     precisar de uma segunda request so para montar os graficos -->
                 <section class="financial-summary-panel mb-4" id="financialSummaryApp" data-financial-payload='<?= htmlspecialchars(json_encode($financialPayload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES), ENT_QUOTES, 'UTF-8') ?>'>
                     <div class="financial-summary-header">
                         <div>
@@ -140,6 +151,8 @@ include 'includes/header.php';
                         </div>
                     </div>
 
+                    <!-- Vendas fica sempre ligada porque e a base historica minima.
+                         Os outros modulos entram como camadas extras de analise. -->
                     <div class="financial-source-toggle mb-4">
                         <?php foreach ($sourceLabels as $sourceKey => $label): ?>
                             <div class="form-check form-switch">
@@ -186,6 +199,7 @@ include 'includes/header.php';
                     </div>
                 </section>
 
+                <!-- KPIs curtos de estoque para leitura imediata sem abrir outro modulo -->
                 <div class="row text-center">
                     <div class="col-md-4 mb-3"><div class="card index-kpi-card"><div class="card-body"><h5><i class="fas fa-boxes text-primary"></i> Total Produtos</h5><h3><?= (int) ($resumo['total_produtos'] ?? 0) ?></h3></div></div></div>
                     <div class="col-md-4 mb-3"><div class="card index-kpi-card"><div class="card-body"><h5><i class="fas fa-tags text-success"></i> Em Estoque</h5><h3><?= (int) ($resumo['em_estoque'] ?? 0) ?></h3></div></div></div>
@@ -204,6 +218,7 @@ include 'includes/header.php';
     </div>
 </div>
 
+<!-- O JS abaixo recalcula heatmap, tendencia e sazonalidade a partir do payload inicial -->
 <script src="<?= htmlspecialchars(app_url('assets/js/index_financial_summary.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
 
 <?php include 'includes/footer.php'; ?>
