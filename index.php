@@ -165,7 +165,7 @@ include 'includes/header.php';
                                                     <tr>
                                                         <th><?= htmlspecialchars((string) $row['month_label'], ENT_QUOTES, 'UTF-8') ?></th>
                                                         <?php foreach ($row['values'] as $cell): ?><td><?= $cell['value'] === null ? '&nbsp;' : htmlspecialchars(\App\Services\FinancialDashboardService::formatMoney((float) $cell['value']), ENT_QUOTES, 'UTF-8') ?></td><?php endforeach; ?>
-                                                        <td class="financial-average-cell"><?= htmlspecialchars(\App\Services\FinancialDashboardService::formatMoney((float) $row['average']), ENT_QUOTES, 'UTF-8') ?></td>
+                                                        <td class="financial-average-cell"><?= htmlspecialchars(\App\Services\FinancialDashboardService::formatMoney((float) $row['month_average']), ENT_QUOTES, 'UTF-8') ?></td>
                                                     </tr>
                                                 <?php endforeach; ?>
                                             </tbody>

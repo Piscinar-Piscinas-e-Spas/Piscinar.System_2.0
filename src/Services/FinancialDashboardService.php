@@ -93,7 +93,7 @@ class FinancialDashboardService
 
         for ($month = 1; $month <= 12; $month++) {
             $rowValues = [];
-            $averageBase = [];
+            $historicalAverageBase = [];
 
             foreach ($years as $year) {
                 $amount = (float) ($matrix[$year][$month] ?? 0);
@@ -118,21 +118,16 @@ class FinancialDashboardService
                     continue;
                 }
 
-                if ($amount > 0) {
-                    $averageBase[] = $amount;
-                }
+                $historicalAverageBase[] = $amount;
             }
 
-            $averageRaw = empty($averageBase) ? 0.0 : array_sum($averageBase) / count($averageBase);
-            $averageDisplay = $month === $currentMonth
-                ? ($daysInMonth > 0 ? ($averageRaw / $daysInMonth) * $currentDay : 0.0)
-                : $averageRaw;
+            $monthAverage = empty($historicalAverageBase) ? 0.0 : array_sum($historicalAverageBase) / count($historicalAverageBase);
 
-            if ($averageDisplay > 0) {
+            if ($monthAverage > 0) {
                 $promotionCandidates[] = [
                     'month' => $month,
                     'label' => $monthNames[$month],
-                    'average' => $averageDisplay,
+                    'average' => $monthAverage,
                 ];
             }
 
@@ -140,7 +135,7 @@ class FinancialDashboardService
                 'month' => $month,
                 'month_label' => $monthNames[$month],
                 'values' => $rowValues,
-                'average' => $averageDisplay,
+                'month_average' => $monthAverage,
             ];
         }
 
@@ -149,7 +144,8 @@ class FinancialDashboardService
         $highest = array_slice(array_reverse($promotionCandidates), 0, 3);
 
         $currentMonthTotal = (float) ($matrix[$currentYear][$currentMonth] ?? 0);
-        $expectedValue = (float) ($rows[$currentMonth - 1]['average'] ?? 0);
+        $currentMonthAverage = (float) ($rows[$currentMonth - 1]['month_average'] ?? 0);
+        $expectedValue = $daysInMonth > 0 ? ($currentMonthAverage / $daysInMonth) * $currentDay : 0.0;
 
         return [
             'selected_sources' => $selectedSources,
@@ -162,7 +158,7 @@ class FinancialDashboardService
             'expected_value' => $expectedValue,
             'indicator' => $currentMonthTotal - $expectedValue,
             'chart_labels' => array_values($shortMonthNames),
-            'chart_values' => array_map(static fn (array $row): float => (float) $row['average'], $rows),
+            'chart_values' => array_map(static fn (array $row): float => (float) $row['month_average'], $rows),
             'lowest_months' => $lowest,
             'highest_months' => $highest,
             'current_year' => $currentYear,

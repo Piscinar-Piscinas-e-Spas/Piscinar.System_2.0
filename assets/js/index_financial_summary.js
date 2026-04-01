@@ -84,7 +84,7 @@
 
     for (let month = 1; month <= 12; month += 1) {
       const cells = [];
-      const averageBase = [];
+      const historicalAverageBase = [];
 
       years.forEach((year) => {
         const rawValue = Number((matrix[year] || {})[month] || 0);
@@ -106,35 +106,35 @@
           return;
         }
 
-        if (rawValue > 0) {
-          averageBase.push(rawValue);
-        }
+        historicalAverageBase.push(rawValue);
       });
 
-      const rawAverage = averageBase.length
-        ? averageBase.reduce((sum, value) => sum + value, 0) / averageBase.length
+      const monthAverage = historicalAverageBase.length
+        ? historicalAverageBase.reduce((sum, value) => sum + value, 0) / historicalAverageBase.length
         : 0;
-      const displayAverage = month === payload.currentMonth
-        ? (payload.daysInMonth > 0 ? (rawAverage / payload.daysInMonth) * payload.currentDay : 0)
-        : rawAverage;
 
       rows.push({
         month,
         monthLabel: payload.monthLabels[month - 1],
         cells,
-        average: displayAverage
+        monthAverage
       });
 
-      if (displayAverage > 0) {
+      if (monthAverage > 0) {
         promotionCandidates.push({
           month,
           label: payload.monthLabels[month - 1],
-          average: displayAverage
+          average: monthAverage
         });
       }
     }
 
     promotionCandidates.sort((a, b) => a.average - b.average);
+
+    const currentMonthAverage = Number((rows[payload.currentMonth - 1] || {}).monthAverage || 0);
+    const expectedValue = payload.daysInMonth > 0
+      ? (currentMonthAverage / payload.daysInMonth) * payload.currentDay
+      : 0;
 
     return {
       years,
@@ -143,8 +143,8 @@
       heatMin: heatValues.length ? Math.min(...heatValues) : 0,
       heatMax: heatValues.length ? Math.max(...heatValues) : 0,
       currentMonthTotal: Number((matrix[payload.currentYear] || {})[payload.currentMonth] || 0),
-      expectedValue: Number((rows[payload.currentMonth - 1] || {}).average || 0),
-      chartValues: rows.map((row) => row.average),
+      expectedValue,
+      chartValues: rows.map((row) => row.monthAverage),
       lowestMonths: promotionCandidates.slice(0, 3),
       highestMonths: promotionCandidates.slice().reverse().slice(0, 3)
     };
@@ -238,7 +238,7 @@
 
       const avgTd = document.createElement('td');
       avgTd.className = 'financial-average-cell';
-      avgTd.textContent = formatCurrency(row.average);
+      avgTd.textContent = formatCurrency(row.monthAverage);
       tr.appendChild(avgTd);
       tbody.appendChild(tr);
     });
