@@ -101,7 +101,7 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
 }
 ?>
 <!DOCTYPE html>
-<html lang="pt-BR" data-bs-theme="light" data-theme-preference="auto">
+<html lang="pt-BR" data-bs-theme="light" data-theme-preference="auto" data-app-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -110,23 +110,34 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     (function () {
         var storageKey = 'piscinar.theme.preference';
         var preference = 'auto';
+        var bootstrapThemeMap = {
+            light: 'light',
+            dark: 'dark',
+            wellbeing: 'light',
+            'neo-neon': 'dark',
+            sunwash: 'light',
+            thermal: 'dark',
+            walnut: 'light'
+        };
 
         try {
             var storedPreference = window.localStorage ? window.localStorage.getItem(storageKey) : null;
-            if (storedPreference === 'light' || storedPreference === 'dark' || storedPreference === 'auto') {
+            if (storedPreference === 'auto' || bootstrapThemeMap[storedPreference]) {
                 preference = storedPreference;
             }
         } catch (error) {
             preference = 'auto';
         }
 
-        var resolvedTheme = preference === 'auto'
+        var resolvedAppTheme = preference === 'auto'
             ? ((window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light')
             : preference;
+        var resolvedBootstrapTheme = bootstrapThemeMap[resolvedAppTheme] || 'light';
 
         document.documentElement.setAttribute('data-theme-preference', preference);
-        document.documentElement.setAttribute('data-bs-theme', resolvedTheme);
-        document.documentElement.style.colorScheme = resolvedTheme;
+        document.documentElement.setAttribute('data-app-theme', resolvedAppTheme);
+        document.documentElement.setAttribute('data-bs-theme', resolvedBootstrapTheme);
+        document.documentElement.style.colorScheme = resolvedBootstrapTheme;
     })();
     </script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">

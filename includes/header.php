@@ -27,7 +27,7 @@
 ?>
 
 <!DOCTYPE html>
-<html lang="pt-BR" data-bs-theme="light" data-theme-preference="auto">
+<html lang="pt-BR" data-bs-theme="light" data-theme-preference="auto" data-app-theme="light">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -37,23 +37,34 @@
         (function () {
             var storageKey = 'piscinar.theme.preference';
             var preference = 'auto';
+            var bootstrapThemeMap = {
+                light: 'light',
+                dark: 'dark',
+                wellbeing: 'light',
+                'neo-neon': 'dark',
+                sunwash: 'light',
+                thermal: 'dark',
+                walnut: 'light'
+            };
 
             try {
                 var storedPreference = window.localStorage ? window.localStorage.getItem(storageKey) : null;
-                if (storedPreference === 'light' || storedPreference === 'dark' || storedPreference === 'auto') {
+                if (storedPreference === 'auto' || bootstrapThemeMap[storedPreference]) {
                     preference = storedPreference;
                 }
             } catch (error) {
                 preference = 'auto';
             }
 
-            var resolvedTheme = preference === 'auto'
+            var resolvedAppTheme = preference === 'auto'
                 ? ((window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light')
                 : preference;
+            var resolvedBootstrapTheme = bootstrapThemeMap[resolvedAppTheme] || 'light';
 
             document.documentElement.setAttribute('data-theme-preference', preference);
-            document.documentElement.setAttribute('data-bs-theme', resolvedTheme);
-            document.documentElement.style.colorScheme = resolvedTheme;
+            document.documentElement.setAttribute('data-app-theme', resolvedAppTheme);
+            document.documentElement.setAttribute('data-bs-theme', resolvedBootstrapTheme);
+            document.documentElement.style.colorScheme = resolvedBootstrapTheme;
         })();
     </script>
 
@@ -205,6 +216,11 @@
                             <option value="auto">Automatico (usar tema do navegador)</option>
                             <option value="light">Claro</option>
                             <option value="dark">Escuro</option>
+                            <option value="wellbeing">Bem-estar Digital</option>
+                            <option value="neo-neon">Neo-Neon / Cyber-Synth</option>
+                            <option value="sunwash">Sunwash</option>
+                            <option value="thermal">Termico / Iridescente</option>
+                            <option value="walnut">Walnut Retro</option>
                         </select>
                     </div>
                     <p class="theme-preference-status mb-0" id="themePreferenceStatus"></p>

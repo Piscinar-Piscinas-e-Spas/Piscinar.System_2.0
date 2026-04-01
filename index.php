@@ -75,13 +75,13 @@ include 'includes/header.php';
     /* Ajustes locais da home para nao inflar o CSS global com regras
        que so fazem sentido neste dashboard */
     .index-side-menu-card { position: sticky; top: 1rem; }
-    .index-side-menu-title { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: #5c6b86; margin-bottom: 0.75rem; }
-    .index-side-menu-section + .index-side-menu-section { margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid #e7eefb; }
+    .index-side-menu-title { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--app-index-side-title); margin-bottom: 0.75rem; }
+    .index-side-menu-section + .index-side-menu-section { margin-top: 1.25rem; padding-top: 1.25rem; border-top: 1px solid var(--app-index-section-border); }
     .index-side-link { width: 100%; display: flex; align-items: center; justify-content: flex-start; gap: 0.75rem; border-radius: 14px; padding: 0.8rem 1rem; font-weight: 600; }
     .index-side-link + .index-side-link { margin-top: 0.65rem; }
     .index-side-link i { width: 1.15rem; text-align: center; }
     .index-dashboard-card { min-height: 100%; }
-    .index-kpi-card { border: 1px solid #e6eefc; background: linear-gradient(135deg, #f9fbff 0%, #f1f6ff 100%); }
+    .index-kpi-card { border: 1px solid var(--app-index-kpi-border); background: var(--app-index-kpi-bg); }
     .index-kpi-card .card-body { padding: 1.25rem; }
 </style>
 

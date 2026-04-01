@@ -61,8 +61,21 @@
     label.innerHTML = '<i class="fas fa-user-circle"></i> ' + displayName;
   }
 
-  function getThemeLabel(theme) {
-    return theme === 'dark' ? 'escuro' : 'claro';
+  function getThemeLabel(themeKey) {
+    if (!window.AppThemePreference) {
+      return themeKey;
+    }
+
+    return window.AppThemePreference.getThemeLabel(themeKey);
+  }
+
+  function getThemeBaseLabel(themeKey) {
+    if (!window.AppThemePreference) {
+      return 'clara';
+    }
+
+    var themeMeta = window.AppThemePreference.getThemeMeta(themeKey);
+    return themeMeta && themeMeta.bootstrapTheme === 'dark' ? 'escura' : 'clara';
   }
 
   function refreshThemePreference() {
@@ -71,15 +84,15 @@
     }
 
     var preference = window.AppThemePreference.getPreference();
-    var resolvedTheme = window.AppThemePreference.getResolvedTheme();
+    var resolvedAppTheme = window.AppThemePreference.getResolvedAppTheme();
     themePreferenceSelect.value = preference;
 
     if (preference === 'auto') {
-      themePreferenceStatus.textContent = 'Automatico ativo. O sistema esta seguindo o navegador e agora usa o modo ' + getThemeLabel(resolvedTheme) + '.';
+      themePreferenceStatus.textContent = 'Automatico ativo. O sistema esta seguindo o navegador e agora usa o tema ' + getThemeLabel(resolvedAppTheme) + '.';
       return;
     }
 
-    themePreferenceStatus.textContent = 'Tema fixado manualmente neste navegador: modo ' + getThemeLabel(resolvedTheme) + '.';
+    themePreferenceStatus.textContent = 'Tema fixado manualmente neste navegador: ' + getThemeLabel(resolvedAppTheme) + ' (base ' + getThemeBaseLabel(resolvedAppTheme) + ').';
   }
 
   function refreshVoiceOptions() {

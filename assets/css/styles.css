@@ -972,3 +972,691 @@ tr.estoque-critico > td {
   background: rgba(22, 101, 52, 0.2);
   color: #9fe0b6;
 }
+
+:root,
+[data-app-theme="light"] {
+  --app-nav-gradient: linear-gradient(0deg, oklch(64.22% 0.18 249.59) 0%, oklch(73.42% 0.132 223.73) 25%, oklch(78.77% 0.134 199.66) 100%);
+  --app-nav-gradient-hover: linear-gradient(180deg, oklch(51.78% 0.224 263.83) 0%, oklch(57.82% 0.228 260.03) 25%, oklch(64.22% 0.18 249.59) 100%);
+  --app-nav-gradient-active: linear-gradient(45deg, oklch(51.78% 0.224 263.83) 0%, oklch(57.82% 0.228 260.03) 50%, oklch(64.22% 0.18 249.59) 100%);
+  --app-nav-border-gradient: linear-gradient(0deg, oklch(64.22% 0.18 249.59 / 0.3) 0%, oklch(73.42% 0.132 223.73 / 0.3) 25%, oklch(78.77% 0.134 199.66 / 0.3) 100%);
+  --app-brand-color: #0d6efd;
+  --app-soft-danger-color: #e57373;
+  --app-soft-danger-hover-bg: oklch(65.39% 0.19256 25.125);
+  --app-soft-danger-hover-color: #ffffff;
+  --app-footer-bg: linear-gradient(135deg, #052f83 0%, #0a4ec4 45%, #1297f4 100%);
+  --app-footer-color: #f2f8ff;
+  --app-footer-title-color: #7efff5;
+  --app-footer-link-color: #ffffff;
+  --app-footer-muted-color: rgba(255, 255, 255, 0.68);
+  --app-version-badge-bg: rgba(255, 255, 255, 0.12);
+  --app-version-badge-border: rgba(255, 255, 255, 0.24);
+  --app-version-badge-color: #e7f7ff;
+  --app-index-side-title: #5c6b86;
+  --app-index-section-border: #e7eefb;
+  --app-index-kpi-border: #e6eefc;
+  --app-index-kpi-bg: linear-gradient(135deg, #f9fbff 0%, #f1f6ff 100%);
+  --app-financial-kicker: #3f66b5;
+  --app-financial-muted-strong: #697b9f;
+  --app-financial-source-toggle-border: #dfebff;
+  --app-financial-source-toggle-bg: #f7faff;
+  --app-financial-legend-color: #6d7d98;
+  --app-financial-heatmap-border: #d9e5f7;
+  --app-financial-heatmap-head-bg: #edf4ff;
+  --app-financial-heatmap-head-color: #29477f;
+  --app-financial-heatmap-foot-bg: #17376d;
+  --app-financial-heatmap-foot-color: #f4f8ff;
+  --app-financial-average-bg: #fff4d8;
+  --app-financial-average-color: #6f5200;
+  --app-financial-revenue-border: #cfe1ff;
+  --app-financial-revenue-bg: linear-gradient(135deg, #f8fbff 0%, #eef5ff 100%);
+  --app-financial-paid-border: #cfead7;
+  --app-financial-paid-bg: linear-gradient(135deg, #f7fffa 0%, #edf9f0 100%);
+  --app-financial-expense-border: #ffd3cf;
+  --app-financial-expense-bg: linear-gradient(135deg, #fff9f8 0%, #fff0ee 100%);
+  --app-financial-balance-positive-border: #cfead7;
+  --app-financial-balance-positive-bg: linear-gradient(135deg, #f7fffb 0%, #e9f7ef 100%);
+  --app-financial-balance-negative-border: #ffd3cf;
+  --app-financial-balance-negative-bg: linear-gradient(135deg, #fff8f7 0%, #ffeceb 100%);
+  --app-indicator-positive-bg: #eaf7ef;
+  --app-indicator-positive-color: #166534;
+  --app-indicator-positive-border: #cbe8d5;
+  --app-indicator-neutral-bg: #eef5ff;
+  --app-indicator-neutral-color: #0d6efd;
+  --app-indicator-neutral-border: #d5e4ff;
+  --app-indicator-negative-bg: #fff0ef;
+  --app-indicator-negative-color: #b42318;
+  --app-indicator-negative-border: #f6d2cf;
+  --app-promotion-low-bg: #fde8e8;
+  --app-promotion-low-color: #b42318;
+  --app-promotion-high-bg: #e7f7ee;
+  --app-promotion-high-color: #166534;
+  --app-table-light-color: #212529;
+  --app-table-light-bg: #f8f9fa;
+  --app-table-light-border: #dee2e6;
+  --app-table-light-striped: #f1f3f5;
+  --app-table-light-hover: #eef2f6;
+  --app-outline-dark-color: #212529;
+  --app-outline-dark-border: #212529;
+  --app-outline-dark-hover-color: #ffffff;
+  --app-outline-dark-hover-bg: #212529;
+  --app-outline-dark-active-color: #ffffff;
+  --app-outline-dark-active-bg: #212529;
+  --app-outline-dark-active-border: #212529;
+}
+
+[data-bs-theme="dark"] {
+  --app-nav-gradient: linear-gradient(0deg, #7ab7ff 0%, #8fe7ff 45%, #d1f4ff 100%);
+  --app-nav-gradient-hover: linear-gradient(180deg, #d8e9ff 0%, #7ecbff 50%, #4d97ff 100%);
+  --app-nav-gradient-active: linear-gradient(45deg, #f6fbff 0%, #88dcff 45%, #54a6ff 100%);
+  --app-nav-border-gradient: linear-gradient(0deg, rgba(84, 166, 255, 0.35) 0%, rgba(126, 203, 255, 0.32) 50%, rgba(209, 244, 255, 0.26) 100%);
+  --app-brand-color: #8bc3ff;
+  --app-soft-danger-color: #ffadad;
+  --app-soft-danger-hover-bg: rgba(229, 115, 115, 0.88);
+  --app-soft-danger-hover-color: #ffffff;
+  --app-footer-bg: linear-gradient(135deg, #041a42 0%, #0a3171 42%, #0f5db3 100%);
+  --app-footer-color: #f2f8ff;
+  --app-footer-title-color: #7efff5;
+  --app-footer-link-color: #ffffff;
+  --app-footer-muted-color: rgba(226, 237, 255, 0.72);
+  --app-version-badge-bg: rgba(255, 255, 255, 0.1);
+  --app-version-badge-border: rgba(255, 255, 255, 0.18);
+  --app-version-badge-color: #e7f7ff;
+  --app-index-side-title: #abc0de;
+  --app-index-section-border: rgba(137, 168, 216, 0.16);
+  --app-index-kpi-border: rgba(137, 168, 216, 0.18);
+  --app-index-kpi-bg: linear-gradient(135deg, rgba(11, 24, 42, 0.98) 0%, rgba(15, 31, 53, 0.96) 100%);
+  --app-financial-kicker: #89bfff;
+  --app-financial-muted-strong: #a7bad8;
+  --app-financial-source-toggle-border: rgba(137, 168, 216, 0.18);
+  --app-financial-source-toggle-bg: rgba(12, 24, 42, 0.82);
+  --app-financial-legend-color: #98abc8;
+  --app-financial-heatmap-border: rgba(137, 168, 216, 0.16);
+  --app-financial-heatmap-head-bg: #182a43;
+  --app-financial-heatmap-head-color: #dbe8ff;
+  --app-financial-heatmap-foot-bg: #0d1c31;
+  --app-financial-heatmap-foot-color: #f4f8ff;
+  --app-financial-average-bg: rgba(134, 96, 10, 0.28);
+  --app-financial-average-color: #ffd988;
+  --app-financial-revenue-border: rgba(92, 147, 255, 0.32);
+  --app-financial-revenue-bg: linear-gradient(135deg, rgba(10, 29, 58, 0.98) 0%, rgba(14, 39, 73, 0.96) 100%);
+  --app-financial-paid-border: rgba(69, 177, 120, 0.3);
+  --app-financial-paid-bg: linear-gradient(135deg, rgba(9, 34, 39, 0.98) 0%, rgba(11, 48, 41, 0.96) 100%);
+  --app-financial-expense-border: rgba(255, 143, 126, 0.3);
+  --app-financial-expense-bg: linear-gradient(135deg, rgba(47, 18, 25, 0.98) 0%, rgba(60, 22, 30, 0.96) 100%);
+  --app-financial-balance-positive-border: rgba(69, 177, 120, 0.3);
+  --app-financial-balance-positive-bg: linear-gradient(135deg, rgba(8, 33, 36, 0.98) 0%, rgba(11, 46, 43, 0.96) 100%);
+  --app-financial-balance-negative-border: rgba(255, 143, 126, 0.3);
+  --app-financial-balance-negative-bg: linear-gradient(135deg, rgba(44, 17, 24, 0.98) 0%, rgba(59, 22, 30, 0.96) 100%);
+  --app-indicator-positive-bg: rgba(22, 101, 52, 0.22);
+  --app-indicator-positive-color: #91f0b3;
+  --app-indicator-positive-border: rgba(34, 197, 94, 0.22);
+  --app-indicator-neutral-bg: rgba(13, 110, 253, 0.18);
+  --app-indicator-neutral-color: #b7d2ff;
+  --app-indicator-neutral-border: rgba(88, 147, 255, 0.22);
+  --app-indicator-negative-bg: rgba(180, 35, 24, 0.18);
+  --app-indicator-negative-color: #ffb1ab;
+  --app-indicator-negative-border: rgba(246, 114, 105, 0.2);
+  --app-promotion-low-bg: rgba(180, 35, 24, 0.18);
+  --app-promotion-low-color: #ffb1ab;
+  --app-promotion-high-bg: rgba(22, 101, 52, 0.2);
+  --app-promotion-high-color: #9fe0b6;
+  --app-table-light-color: #e8f1ff;
+  --app-table-light-bg: #16253a;
+  --app-table-light-border: rgba(137, 168, 216, 0.22);
+  --app-table-light-striped: #1a2b44;
+  --app-table-light-hover: #20324d;
+  --app-outline-dark-color: #d5e3f8;
+  --app-outline-dark-border: rgba(137, 168, 216, 0.34);
+  --app-outline-dark-hover-color: #08121f;
+  --app-outline-dark-hover-bg: #9fc8ff;
+  --app-outline-dark-active-color: #08121f;
+  --app-outline-dark-active-bg: #9fc8ff;
+  --app-outline-dark-active-border: #9fc8ff;
+}
+
+[data-app-theme="wellbeing"] {
+  --app-body-bg: #f3eee4;
+  --app-surface-1: #fbf7ef;
+  --app-surface-2: #f4ede0;
+  --app-surface-3: #ece4d2;
+  --app-border-color: #d8ccb8;
+  --app-card-shadow: 0 12px 28px rgba(96, 82, 58, 0.08);
+  --app-card-shadow-strong: 0 18px 36px rgba(96, 82, 58, 0.12);
+  --app-muted-color: #6d6857;
+  --app-heading-color: #596b46;
+  --app-menu-bg: linear-gradient(135deg, #f8f2e7 0%, #eadfcd 100%);
+  --app-menu-shadow: 0 14px 30px rgba(110, 96, 69, 0.12);
+  --app-glass-bg: rgba(251, 246, 236, 0.84);
+  --app-glass-border: rgba(160, 148, 120, 0.22);
+  --app-glass-shadow: 0 14px 28px rgba(126, 112, 84, 0.12);
+  --app-panel-bg: radial-gradient(circle at top right, rgba(117, 142, 92, 0.13), transparent 28%), linear-gradient(180deg, #fcf7ef 0%, #f3ecdf 100%);
+  --app-panel-border: rgba(121, 139, 95, 0.16);
+  --app-panel-card-bg: rgba(252, 248, 240, 0.95);
+  --app-panel-card-border: #d8ccb8;
+  --app-panel-status-bg: rgba(89, 107, 70, 0.08);
+  --app-panel-status-color: #5d624b;
+  --app-soft-info-bg: linear-gradient(135deg, #f8f1e7 0%, #efe7d8 100%);
+  --app-soft-success-bg: linear-gradient(135deg, #f6f1e8 0%, #ebe3d3 100%);
+  --app-soft-success-border: #d9cfbd;
+  --app-nav-gradient: linear-gradient(0deg, #5a6a47 0%, #7b8d63 48%, #9b8e68 100%);
+  --app-nav-gradient-hover: linear-gradient(180deg, #45573a 0%, #5b7650 55%, #8a7a58 100%);
+  --app-nav-gradient-active: linear-gradient(45deg, #4f5c3d 0%, #6f8457 50%, #8f7a55 100%);
+  --app-nav-border-gradient: linear-gradient(0deg, rgba(89, 107, 70, 0.28) 0%, rgba(123, 141, 99, 0.32) 45%, rgba(155, 142, 104, 0.36) 100%);
+  --app-brand-color: #657a50;
+  --app-soft-danger-color: #9f625d;
+  --app-soft-danger-hover-bg: #8a524b;
+  --app-footer-bg: linear-gradient(135deg, #4b5d43 0%, #746a4d 55%, #8f7a57 100%);
+  --app-footer-title-color: #f5e6be;
+  --app-footer-muted-color: rgba(251, 243, 225, 0.72);
+  --app-index-side-title: #6c6552;
+  --app-index-section-border: #ded2c0;
+  --app-index-kpi-border: #ddd1c0;
+  --app-index-kpi-bg: linear-gradient(135deg, #fbf6ee 0%, #efe5d6 100%);
+  --app-financial-kicker: #657b53;
+  --app-financial-muted-strong: #786f5d;
+  --app-financial-source-toggle-border: #d7ccb9;
+  --app-financial-source-toggle-bg: #f7f1e7;
+  --app-financial-legend-color: #7a745f;
+  --app-financial-heatmap-border: #d8cebd;
+  --app-financial-heatmap-head-bg: #ebe4d6;
+  --app-financial-heatmap-head-color: #5f624a;
+  --app-financial-heatmap-foot-bg: #5b6144;
+  --app-financial-heatmap-foot-color: #faf8f0;
+  --app-financial-average-bg: #f3e1b9;
+  --app-financial-average-color: #6e5730;
+  --app-financial-revenue-border: #d9d6bc;
+  --app-financial-revenue-bg: linear-gradient(135deg, #fbf7ef 0%, #f1ebde 100%);
+  --app-financial-paid-border: #cdd9c3;
+  --app-financial-paid-bg: linear-gradient(135deg, #f4f7ef 0%, #e8efe0 100%);
+  --app-financial-expense-border: #e2c9bc;
+  --app-financial-expense-bg: linear-gradient(135deg, #fbf3ef 0%, #f4e4dd 100%);
+  --app-financial-balance-positive-border: #cbd7c0;
+  --app-financial-balance-positive-bg: linear-gradient(135deg, #f3f6ef 0%, #e6eee0 100%);
+  --app-financial-balance-negative-border: #e2c9bc;
+  --app-financial-balance-negative-bg: linear-gradient(135deg, #faf1ee 0%, #f0dfd7 100%);
+  --app-indicator-positive-bg: #e4ecdc;
+  --app-indicator-positive-color: #4f6a37;
+  --app-indicator-positive-border: #c8d6bb;
+  --app-indicator-neutral-bg: #ece6d6;
+  --app-indicator-neutral-color: #756248;
+  --app-indicator-neutral-border: #d8ccb5;
+  --app-indicator-negative-bg: #f3e2db;
+  --app-indicator-negative-color: #8b4f47;
+  --app-indicator-negative-border: #e0beb2;
+  --app-promotion-low-bg: #f2ddd4;
+  --app-promotion-low-color: #8a5048;
+  --app-promotion-high-bg: #e3eadb;
+  --app-promotion-high-color: #50643d;
+  --app-table-light-bg: #ede4d7;
+  --app-table-light-border: #d4c8b7;
+  --app-table-light-striped: #e7ddd0;
+  --app-table-light-hover: #e2d8c8;
+  --app-outline-dark-color: #5a5c43;
+  --app-outline-dark-border: #8e7a58;
+  --app-outline-dark-hover-color: #fbf7ef;
+  --app-outline-dark-hover-bg: #7e6a49;
+  --app-outline-dark-active-color: #fbf7ef;
+  --app-outline-dark-active-bg: #7e6a49;
+  --app-outline-dark-active-border: #7e6a49;
+}
+
+[data-app-theme="neo-neon"] {
+  --app-body-bg: #06080c;
+  --app-surface-1: #0b1016;
+  --app-surface-2: #101720;
+  --app-surface-3: #151f2a;
+  --app-border-color: rgba(90, 255, 186, 0.22);
+  --app-card-shadow: 0 16px 36px rgba(0, 0, 0, 0.42);
+  --app-card-shadow-strong: 0 22px 46px rgba(0, 0, 0, 0.52);
+  --app-muted-color: #8cb6c2;
+  --app-heading-color: #72ffb8;
+  --app-menu-bg: linear-gradient(135deg, #06080c 0%, #0c1522 45%, #11192a 100%);
+  --app-menu-shadow: 0 20px 44px rgba(0, 0, 0, 0.46);
+  --app-glass-bg: rgba(9, 17, 26, 0.84);
+  --app-glass-border: rgba(109, 246, 255, 0.18);
+  --app-glass-shadow: 0 0 0 1px rgba(109, 246, 255, 0.08), 0 0 24px rgba(109, 246, 255, 0.12);
+  --app-panel-bg: radial-gradient(circle at top right, rgba(109, 246, 255, 0.18), transparent 26%), radial-gradient(circle at bottom left, rgba(255, 65, 181, 0.14), transparent 34%), linear-gradient(180deg, #071018 0%, #0b1118 50%, #111722 100%);
+  --app-panel-border: rgba(109, 246, 255, 0.16);
+  --app-panel-card-bg: rgba(10, 16, 24, 0.94);
+  --app-panel-card-border: rgba(109, 246, 255, 0.14);
+  --app-panel-status-bg: rgba(114, 255, 184, 0.12);
+  --app-panel-status-color: #c8ffe8;
+  --app-soft-info-bg: linear-gradient(135deg, rgba(7, 17, 31, 0.98) 0%, rgba(13, 27, 38, 0.96) 100%);
+  --app-soft-success-bg: linear-gradient(135deg, rgba(8, 19, 28, 0.98) 0%, rgba(12, 29, 35, 0.96) 100%);
+  --app-soft-success-border: rgba(109, 246, 255, 0.18);
+  --app-nav-gradient: linear-gradient(0deg, #72ffb8 0%, #67f4ff 48%, #5b8dff 100%);
+  --app-nav-gradient-hover: linear-gradient(180deg, #ff49c8 0%, #67f4ff 45%, #72ffb8 100%);
+  --app-nav-gradient-active: linear-gradient(45deg, #f4ffff 0%, #67f4ff 42%, #72ffb8 78%, #ff49c8 100%);
+  --app-nav-border-gradient: linear-gradient(0deg, rgba(114, 255, 184, 0.36) 0%, rgba(103, 244, 255, 0.32) 50%, rgba(255, 73, 200, 0.34) 100%);
+  --app-brand-color: #67f4ff;
+  --app-soft-danger-color: #ff8bd7;
+  --app-soft-danger-hover-bg: linear-gradient(135deg, #ff49c8 0%, #ff6f9e 100%);
+  --app-footer-bg: linear-gradient(135deg, #06121b 0%, #0a2741 45%, #11211e 100%);
+  --app-footer-title-color: #72ffb8;
+  --app-footer-link-color: #dbffff;
+  --app-footer-muted-color: rgba(185, 231, 239, 0.72);
+  --app-version-badge-bg: rgba(103, 244, 255, 0.12);
+  --app-version-badge-border: rgba(103, 244, 255, 0.28);
+  --app-version-badge-color: #b8ffff;
+  --app-index-side-title: #8ceae5;
+  --app-index-section-border: rgba(109, 246, 255, 0.16);
+  --app-index-kpi-border: rgba(114, 255, 184, 0.2);
+  --app-index-kpi-bg: linear-gradient(135deg, rgba(8, 18, 29, 0.98) 0%, rgba(10, 26, 32, 0.96) 100%);
+  --app-financial-kicker: #72ffb8;
+  --app-financial-muted-strong: #8cb6c2;
+  --app-financial-source-toggle-border: rgba(109, 246, 255, 0.16);
+  --app-financial-source-toggle-bg: rgba(7, 18, 25, 0.88);
+  --app-financial-legend-color: #95c7d2;
+  --app-financial-heatmap-border: rgba(103, 244, 255, 0.14);
+  --app-financial-heatmap-head-bg: #102332;
+  --app-financial-heatmap-head-color: #d4ffff;
+  --app-financial-heatmap-foot-bg: #0a1620;
+  --app-financial-heatmap-foot-color: #d7fff7;
+  --app-financial-average-bg: rgba(103, 244, 255, 0.14);
+  --app-financial-average-color: #9ffffc;
+}
+
+[data-app-theme="sunwash"] {
+  --app-body-bg: #f8f1eb;
+  --app-surface-1: #fffaf6;
+  --app-surface-2: #f4ebe3;
+  --app-surface-3: #efe4dd;
+  --app-border-color: #dbcfc6;
+  --app-card-shadow: 0 12px 28px rgba(122, 92, 79, 0.08);
+  --app-card-shadow-strong: 0 18px 36px rgba(122, 92, 79, 0.12);
+  --app-muted-color: #7a6d67;
+  --app-heading-color: #7185a3;
+  --app-menu-bg: linear-gradient(135deg, #fff2ec 0%, #f0e3db 52%, #ebe1d2 100%);
+  --app-menu-shadow: 0 14px 30px rgba(135, 113, 101, 0.12);
+  --app-glass-bg: rgba(255, 248, 242, 0.82);
+  --app-glass-border: rgba(175, 157, 147, 0.22);
+  --app-glass-shadow: 0 14px 28px rgba(135, 113, 101, 0.12);
+  --app-panel-bg: radial-gradient(circle at top right, rgba(201, 143, 132, 0.13), transparent 26%), linear-gradient(180deg, #fff8f3 0%, #f3ebe2 100%);
+  --app-panel-border: rgba(180, 160, 149, 0.18);
+  --app-panel-card-bg: rgba(255, 250, 245, 0.94);
+  --app-panel-card-border: #dfd1c9;
+  --app-panel-status-bg: rgba(113, 133, 163, 0.08);
+  --app-panel-status-color: #6a7287;
+  --app-soft-info-bg: linear-gradient(135deg, #fcf5ef 0%, #f2e7df 100%);
+  --app-soft-success-bg: linear-gradient(135deg, #fbf3ee 0%, #efe7e1 100%);
+  --app-soft-success-border: #ddcfc7;
+  --app-nav-gradient: linear-gradient(0deg, #c38278 0%, #879bb8 52%, #8d8e67 100%);
+  --app-nav-gradient-hover: linear-gradient(180deg, #b26e67 0%, #7a8faa 48%, #7a855e 100%);
+  --app-nav-gradient-active: linear-gradient(45deg, #c7867a 0%, #8398b7 45%, #8c8c66 100%);
+  --app-nav-border-gradient: linear-gradient(0deg, rgba(195, 130, 120, 0.32) 0%, rgba(135, 155, 184, 0.3) 45%, rgba(141, 142, 103, 0.28) 100%);
+  --app-brand-color: #c77d71;
+  --app-soft-danger-color: #b86f66;
+  --app-soft-danger-hover-bg: #b06d63;
+  --app-footer-bg: linear-gradient(135deg, #a5635e 0%, #7f90a7 48%, #8b7a62 100%);
+  --app-footer-title-color: #ffe3cd;
+  --app-footer-muted-color: rgba(255, 239, 226, 0.72);
+  --app-index-side-title: #8a6f68;
+  --app-index-section-border: #e1d5cf;
+  --app-index-kpi-border: #e2d4ca;
+  --app-index-kpi-bg: linear-gradient(135deg, #fff5ef 0%, #f3e7e0 100%);
+  --app-financial-kicker: #879bb8;
+  --app-financial-muted-strong: #897d76;
+  --app-financial-revenue-border: #d7dce6;
+  --app-financial-revenue-bg: linear-gradient(135deg, #faf6f4 0%, #ecf0f6 100%);
+  --app-financial-paid-border: #d8dfd0;
+  --app-financial-paid-bg: linear-gradient(135deg, #f7f5ef 0%, #edf1e7 100%);
+  --app-financial-expense-border: #edd3cf;
+  --app-financial-expense-bg: linear-gradient(135deg, #fcf3f0 0%, #f5e6e0 100%);
+  --app-financial-balance-positive-border: #d8e0d2;
+  --app-financial-balance-positive-bg: linear-gradient(135deg, #f6f5ef 0%, #ecf0e8 100%);
+  --app-financial-balance-negative-border: #ecd2cd;
+  --app-financial-balance-negative-bg: linear-gradient(135deg, #fbf2ef 0%, #f3e4dd 100%);
+}
+
+[data-app-theme="thermal"] {
+  --app-body-bg: #12061f;
+  --app-surface-1: #1a0b2c;
+  --app-surface-2: #24103a;
+  --app-surface-3: #311751;
+  --app-border-color: rgba(255, 138, 92, 0.24);
+  --app-card-shadow: 0 18px 40px rgba(0, 0, 0, 0.42);
+  --app-card-shadow-strong: 0 24px 48px rgba(0, 0, 0, 0.5);
+  --app-muted-color: #c1b0de;
+  --app-heading-color: #7cf7ff;
+  --app-menu-bg: linear-gradient(135deg, #1b0830 0%, #3f0f58 38%, #7a153e 72%, #ff7d39 100%);
+  --app-menu-shadow: 0 22px 46px rgba(0, 0, 0, 0.42);
+  --app-glass-bg: rgba(29, 11, 43, 0.82);
+  --app-glass-border: rgba(124, 247, 255, 0.18);
+  --app-glass-shadow: 0 0 0 1px rgba(124, 247, 255, 0.08), 0 0 26px rgba(255, 91, 113, 0.14);
+  --app-panel-bg: radial-gradient(circle at top right, rgba(124, 247, 255, 0.15), transparent 24%), radial-gradient(circle at bottom left, rgba(255, 105, 77, 0.18), transparent 32%), linear-gradient(180deg, #170628 0%, #210a38 52%, #2d0e48 100%);
+  --app-panel-border: rgba(255, 137, 93, 0.18);
+  --app-panel-card-bg: rgba(28, 10, 41, 0.92);
+  --app-panel-card-border: rgba(255, 137, 93, 0.18);
+  --app-panel-status-bg: rgba(124, 247, 255, 0.12);
+  --app-panel-status-color: #d4faff;
+  --app-soft-info-bg: linear-gradient(135deg, rgba(32, 11, 48, 0.98) 0%, rgba(49, 16, 63, 0.96) 100%);
+  --app-soft-success-bg: linear-gradient(135deg, rgba(42, 12, 50, 0.98) 0%, rgba(77, 20, 67, 0.96) 100%);
+  --app-soft-success-border: rgba(255, 137, 93, 0.22);
+  --app-nav-gradient: linear-gradient(0deg, #7cf7ff 0%, #ff6b87 48%, #ffb34d 100%);
+  --app-nav-gradient-hover: linear-gradient(180deg, #f2f7ff 0%, #7cf7ff 42%, #ff6b87 76%, #ffb34d 100%);
+  --app-nav-gradient-active: linear-gradient(45deg, #ffffff 0%, #7cf7ff 36%, #ff6b87 70%, #ffb34d 100%);
+  --app-nav-border-gradient: linear-gradient(0deg, rgba(124, 247, 255, 0.34) 0%, rgba(255, 107, 135, 0.34) 48%, rgba(255, 179, 77, 0.34) 100%);
+  --app-brand-color: #8ef9ff;
+  --app-soft-danger-color: #ffb2c3;
+  --app-soft-danger-hover-bg: linear-gradient(135deg, #ff5f74 0%, #ff9f45 100%);
+  --app-footer-bg: linear-gradient(135deg, #1c082f 0%, #5b1263 42%, #ff6b4a 100%);
+  --app-footer-title-color: #9ffffc;
+  --app-footer-link-color: #fff2fb;
+  --app-footer-muted-color: rgba(247, 224, 255, 0.72);
+  --app-version-badge-bg: rgba(124, 247, 255, 0.12);
+  --app-version-badge-border: rgba(124, 247, 255, 0.24);
+  --app-version-badge-color: #d1feff;
+  --app-index-side-title: #d6c2ff;
+  --app-index-section-border: rgba(255, 137, 93, 0.16);
+  --app-index-kpi-border: rgba(255, 137, 93, 0.22);
+  --app-index-kpi-bg: linear-gradient(135deg, rgba(31, 11, 47, 0.98) 0%, rgba(64, 16, 64, 0.96) 100%);
+  --app-financial-kicker: #7cf7ff;
+  --app-financial-muted-strong: #c6b7e3;
+}
+
+[data-app-theme="walnut"] {
+  --app-body-bg: #efe2d3;
+  --app-surface-1: #fbf3ea;
+  --app-surface-2: #f3e6d8;
+  --app-surface-3: #ead7c3;
+  --app-border-color: #d4bfab;
+  --app-card-shadow: 0 12px 28px rgba(84, 59, 39, 0.1);
+  --app-card-shadow-strong: 0 18px 36px rgba(84, 59, 39, 0.14);
+  --app-muted-color: #6f5d50;
+  --app-heading-color: #6d4a31;
+  --app-menu-bg: linear-gradient(135deg, #f8ecdf 0%, #ead4be 52%, #d7b491 100%);
+  --app-menu-shadow: 0 14px 30px rgba(109, 74, 49, 0.14);
+  --app-glass-bg: rgba(251, 243, 234, 0.84);
+  --app-glass-border: rgba(133, 97, 66, 0.18);
+  --app-glass-shadow: 0 14px 28px rgba(109, 74, 49, 0.12);
+  --app-panel-bg: radial-gradient(circle at top right, rgba(196, 142, 92, 0.14), transparent 26%), linear-gradient(180deg, #fcf5ed 0%, #efe2d3 100%);
+  --app-panel-border: rgba(133, 97, 66, 0.18);
+  --app-panel-card-bg: rgba(252, 245, 237, 0.94);
+  --app-panel-card-border: #d7c1ae;
+  --app-panel-status-bg: rgba(109, 74, 49, 0.08);
+  --app-panel-status-color: #664935;
+  --app-soft-info-bg: linear-gradient(135deg, #faf1e7 0%, #f0e0d1 100%);
+  --app-soft-success-bg: linear-gradient(135deg, #faf1e8 0%, #ecdccf 100%);
+  --app-soft-success-border: #d7c1ae;
+  --app-nav-gradient: linear-gradient(0deg, #6d4a31 0%, #b07a4f 52%, #d4b38b 100%);
+  --app-nav-gradient-hover: linear-gradient(180deg, #533623 0%, #8a5b39 48%, #c79c72 100%);
+  --app-nav-gradient-active: linear-gradient(45deg, #5f3d28 0%, #9f6a43 48%, #d4b38b 100%);
+  --app-nav-border-gradient: linear-gradient(0deg, rgba(109, 74, 49, 0.32) 0%, rgba(176, 122, 79, 0.3) 48%, rgba(212, 179, 139, 0.3) 100%);
+  --app-brand-color: #8f5f3d;
+  --app-soft-danger-color: #b56d5c;
+  --app-soft-danger-hover-bg: #a85e4d;
+  --app-footer-bg: linear-gradient(135deg, #3e291c 0%, #6d4a31 48%, #b07a4f 100%);
+  --app-footer-title-color: #ffd8ad;
+  --app-footer-muted-color: rgba(255, 235, 216, 0.72);
+  --app-index-side-title: #7b614f;
+  --app-index-section-border: #d8c3af;
+  --app-index-kpi-border: #dbc5b2;
+  --app-index-kpi-bg: linear-gradient(135deg, #fbf1e7 0%, #efddcd 100%);
+  --app-financial-kicker: #8f5f3d;
+  --app-financial-muted-strong: #7c6655;
+  --app-financial-revenue-border: #dbcab9;
+  --app-financial-revenue-bg: linear-gradient(135deg, #fbf2ea 0%, #efe0d2 100%);
+  --app-financial-paid-border: #d5d4c5;
+  --app-financial-paid-bg: linear-gradient(135deg, #f8f3eb 0%, #ede6d9 100%);
+  --app-financial-expense-border: #e4cdbf;
+  --app-financial-expense-bg: linear-gradient(135deg, #fbf1eb 0%, #f1dfd2 100%);
+  --app-financial-balance-positive-border: #d5d1c2;
+  --app-financial-balance-positive-bg: linear-gradient(135deg, #f8f4eb 0%, #ebe4d8 100%);
+  --app-financial-balance-negative-border: #e3cbbc;
+  --app-financial-balance-negative-bg: linear-gradient(135deg, #faf0eb 0%, #efddd0 100%);
+}
+
+.navbar-light .navbar-nav .nav-link {
+  background: var(--app-nav-gradient);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.navbar-light .navbar-nav .nav-link:hover {
+  background: var(--app-nav-gradient-hover);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.navbar-light .navbar-nav .nav-link.active {
+  background: var(--app-nav-gradient-active);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  border-image: var(--app-nav-border-gradient) 1;
+}
+
+.navbar-brand {
+  color: var(--app-brand-color) !important;
+}
+
+.navbar-light .navbar-nav .nav-link#btn-soft-danger {
+  -webkit-text-fill-color: var(--app-soft-danger-color) !important;
+}
+
+.navbar-light .navbar-nav .nav-link#btn-soft-danger:hover {
+  -webkit-text-fill-color: var(--app-soft-danger-hover-color) !important;
+  background: var(--app-soft-danger-hover-bg) !important;
+}
+
+.site-footer {
+  background: var(--app-footer-bg);
+  color: var(--app-footer-color);
+}
+
+.footer-title {
+  color: var(--app-footer-title-color);
+}
+
+.footer-map a {
+  color: var(--app-footer-link-color);
+}
+
+.footer-map-muted {
+  color: var(--app-footer-muted-color);
+}
+
+.version-badge {
+  background: var(--app-version-badge-bg);
+  border-color: var(--app-version-badge-border);
+  color: var(--app-version-badge-color);
+}
+
+[data-app-theme] .bg-light,
+[data-app-theme] .card-header.bg-light,
+[data-app-theme] .text-bg-light {
+  background-color: var(--app-surface-2) !important;
+  color: var(--bs-body-color) !important;
+  border-color: var(--app-border-color) !important;
+}
+
+[data-app-theme] .bg-light.text-dark,
+[data-app-theme] .text-bg-light.text-secondary,
+[data-app-theme] .text-dark {
+  color: var(--bs-body-color) !important;
+}
+
+[data-app-theme] .table-light {
+  --bs-table-color: var(--app-table-light-color);
+  --bs-table-bg: var(--app-table-light-bg);
+  --bs-table-border-color: var(--app-table-light-border);
+  --bs-table-striped-bg: var(--app-table-light-striped);
+  --bs-table-hover-bg: var(--app-table-light-hover);
+}
+
+[data-app-theme] .btn-outline-dark {
+  --bs-btn-color: var(--app-outline-dark-color);
+  --bs-btn-border-color: var(--app-outline-dark-border);
+  --bs-btn-hover-color: var(--app-outline-dark-hover-color);
+  --bs-btn-hover-bg: var(--app-outline-dark-hover-bg);
+  --bs-btn-hover-border-color: var(--app-outline-dark-hover-bg);
+  --bs-btn-active-color: var(--app-outline-dark-active-color);
+  --bs-btn-active-bg: var(--app-outline-dark-active-bg);
+  --bs-btn-active-border-color: var(--app-outline-dark-active-border);
+}
+
+.financial-summary-kicker {
+  color: var(--app-financial-kicker);
+}
+
+.financial-kpi-card small {
+  color: var(--app-financial-muted-strong);
+}
+
+.financial-kpi-revenue {
+  border-color: var(--app-financial-revenue-border);
+  background: var(--app-financial-revenue-bg);
+}
+
+.financial-kpi-paid {
+  border-color: var(--app-financial-paid-border);
+  background: var(--app-financial-paid-bg);
+}
+
+.financial-kpi-expense {
+  border-color: var(--app-financial-expense-border);
+  background: var(--app-financial-expense-bg);
+}
+
+.financial-kpi-balance-positive {
+  border-color: var(--app-financial-balance-positive-border);
+  background: var(--app-financial-balance-positive-bg);
+}
+
+.financial-kpi-balance-negative {
+  border-color: var(--app-financial-balance-negative-border);
+  background: var(--app-financial-balance-negative-bg);
+}
+
+.financial-source-toggle {
+  border-color: var(--app-financial-source-toggle-border);
+  background: var(--app-financial-source-toggle-bg);
+}
+
+.financial-legend,
+.financial-month-label {
+  color: var(--app-financial-legend-color);
+}
+
+.financial-heatmap-table th,
+.financial-heatmap-table td {
+  border-color: var(--app-financial-heatmap-border);
+}
+
+.financial-heatmap-table thead th {
+  background: var(--app-financial-heatmap-head-bg);
+  color: var(--app-financial-heatmap-head-color);
+}
+
+.financial-heatmap-table tfoot th,
+.financial-heatmap-table tfoot td {
+  background: var(--app-financial-heatmap-foot-bg);
+  color: var(--app-financial-heatmap-foot-color);
+}
+
+.financial-average-cell {
+  background: var(--app-financial-average-bg);
+  color: var(--app-financial-average-color);
+}
+
+.financial-indicator-positive {
+  background: var(--app-indicator-positive-bg);
+  color: var(--app-indicator-positive-color);
+  border-color: var(--app-indicator-positive-border);
+}
+
+.financial-indicator-neutral {
+  background: var(--app-indicator-neutral-bg);
+  color: var(--app-indicator-neutral-color);
+  border-color: var(--app-indicator-neutral-border);
+}
+
+.financial-indicator-negative {
+  background: var(--app-indicator-negative-bg);
+  color: var(--app-indicator-negative-color);
+  border-color: var(--app-indicator-negative-border);
+}
+
+.promotion-pill-low {
+  background: var(--app-promotion-low-bg);
+  color: var(--app-promotion-low-color);
+}
+
+.promotion-pill-high {
+  background: var(--app-promotion-high-bg);
+  color: var(--app-promotion-high-color);
+}
+
+[data-app-theme="neo-neon"] .navbar-brand,
+[data-app-theme="neo-neon"] .settings-panel-heading h6,
+[data-app-theme="neo-neon"] .financial-summary-kicker,
+[data-app-theme="neo-neon"] .footer-title {
+  text-shadow: 0 0 14px rgba(103, 244, 255, 0.22);
+}
+
+[data-app-theme="neo-neon"] .btn-primary {
+  background: linear-gradient(135deg, #72ffb8 0%, #67f4ff 52%, #ff49c8 100%);
+  border-color: #72ffb8;
+  color: #071018;
+  box-shadow: 0 0 18px rgba(103, 244, 255, 0.18);
+}
+
+[data-app-theme="neo-neon"] .btn-outline-primary {
+  color: #8cfbff;
+  border-color: rgba(103, 244, 255, 0.28);
+  box-shadow: inset 0 0 0 1px rgba(103, 244, 255, 0.08), 0 0 14px rgba(103, 244, 255, 0.08);
+}
+
+[data-app-theme="neo-neon"] .btn-outline-primary:hover {
+  background-color: rgba(103, 244, 255, 0.12);
+  color: #dfffff;
+  border-color: rgba(103, 244, 255, 0.38);
+}
+
+[data-app-theme="thermal"] .settings-panel-card,
+[data-app-theme="thermal"] .financial-summary-panel {
+  position: relative;
+  overflow: hidden;
+}
+
+[data-app-theme="thermal"] .settings-panel-card::before,
+[data-app-theme="thermal"] .financial-summary-panel::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(120deg, rgba(124, 247, 255, 0.06), transparent 28%, rgba(255, 107, 135, 0.08), transparent 68%, rgba(255, 179, 77, 0.08));
+  pointer-events: none;
+}
+
+[data-app-theme="thermal"] .btn-primary {
+  background: linear-gradient(135deg, #7b2cff 0%, #ff5f74 52%, #ffb34d 100%);
+  border-color: rgba(255, 179, 77, 0.8);
+  color: #fff7ff;
+  box-shadow: 0 0 20px rgba(255, 107, 135, 0.18);
+}
+
+[data-app-theme="thermal"] .btn-outline-primary {
+  color: #bffcff;
+  border-color: rgba(124, 247, 255, 0.28);
+  box-shadow: inset 0 0 0 1px rgba(124, 247, 255, 0.08), 0 0 14px rgba(124, 247, 255, 0.08);
+}
+
+[data-app-theme="thermal"] .btn-outline-primary:hover {
+  background-color: rgba(124, 247, 255, 0.12);
+  color: #fff5ff;
+  border-color: rgba(124, 247, 255, 0.4);
+}
+
+[data-app-theme="wellbeing"] .btn-primary {
+  background: linear-gradient(135deg, #6f8457 0%, #8f7a55 100%);
+  border-color: #6f8457;
+}
+
+[data-app-theme="sunwash"] .btn-primary {
+  background: linear-gradient(135deg, #c38278 0%, #879bb8 100%);
+  border-color: #c38278;
+}
+
+[data-app-theme="walnut"] .btn-primary {
+  background: linear-gradient(135deg, #8f5f3d 0%, #c08a58 100%);
+  border-color: #8f5f3d;
+}

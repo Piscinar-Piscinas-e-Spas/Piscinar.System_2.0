@@ -7,13 +7,50 @@
   var mediaQuery = typeof global.matchMedia === 'function'
     ? global.matchMedia('(prefers-color-scheme: dark)')
     : null;
+  var themeRegistry = {
+    auto: {
+      label: 'Automatico',
+      bootstrapTheme: null
+    },
+    light: {
+      label: 'Claro',
+      bootstrapTheme: 'light'
+    },
+    dark: {
+      label: 'Escuro',
+      bootstrapTheme: 'dark'
+    },
+    wellbeing: {
+      label: 'Bem-estar Digital',
+      bootstrapTheme: 'light'
+    },
+    'neo-neon': {
+      label: 'Neo-Neon / Cyber-Synth',
+      bootstrapTheme: 'dark'
+    },
+    sunwash: {
+      label: 'Sunwash',
+      bootstrapTheme: 'light'
+    },
+    thermal: {
+      label: 'Termico / Iridescente',
+      bootstrapTheme: 'dark'
+    },
+    walnut: {
+      label: 'Walnut Retro',
+      bootstrapTheme: 'light'
+    }
+  };
 
   function normalizePreference(value) {
-    if (value === 'light' || value === 'dark' || value === 'auto') {
-      return value;
-    }
+    return Object.prototype.hasOwnProperty.call(themeRegistry, value)
+      ? value
+      : defaultPreference;
+  }
 
-    return defaultPreference;
+  function getThemeMeta(themeName) {
+    var normalized = normalizePreference(themeName);
+    return themeRegistry[normalized] || themeRegistry[defaultPreference];
   }
 
   function readStoredPreference() {
@@ -34,13 +71,22 @@
     }
   }
 
-  function resolveTheme(preference) {
+  function resolveAppTheme(preference) {
     var normalized = normalizePreference(preference);
     if (normalized === 'auto') {
       return mediaQuery && mediaQuery.matches ? 'dark' : 'light';
     }
 
     return normalized;
+  }
+
+  function resolveBootstrapTheme(preference) {
+    var resolvedAppTheme = resolveAppTheme(preference);
+    return getThemeMeta(resolvedAppTheme).bootstrapTheme || 'light';
+  }
+
+  function getThemeLabel(themeName) {
+    return getThemeMeta(themeName).label;
   }
 
   function dispatchThemeChange(detail) {
@@ -53,22 +99,34 @@
 
   function applyTheme(preference) {
     var normalized = normalizePreference(typeof preference === 'string' ? preference : readStoredPreference());
-    var resolvedTheme = resolveTheme(normalized);
+    var resolvedAppTheme = resolveAppTheme(normalized);
+    var resolvedBootstrapTheme = resolveBootstrapTheme(normalized);
 
     if (!docEl) {
-      return resolvedTheme;
+      return {
+        preference: normalized,
+        appTheme: resolvedAppTheme,
+        bootstrapTheme: resolvedBootstrapTheme
+      };
     }
 
     docEl.setAttribute('data-theme-preference', normalized);
-    docEl.setAttribute('data-bs-theme', resolvedTheme);
-    docEl.style.colorScheme = resolvedTheme;
+    docEl.setAttribute('data-app-theme', resolvedAppTheme);
+    docEl.setAttribute('data-bs-theme', resolvedBootstrapTheme);
+    docEl.style.colorScheme = resolvedBootstrapTheme;
 
     dispatchThemeChange({
       preference: normalized,
-      theme: resolvedTheme
+      appTheme: resolvedAppTheme,
+      bootstrapTheme: resolvedBootstrapTheme,
+      label: getThemeLabel(resolvedAppTheme)
     });
 
-    return resolvedTheme;
+    return {
+      preference: normalized,
+      appTheme: resolvedAppTheme,
+      bootstrapTheme: resolvedBootstrapTheme
+    };
   }
 
   function setPreference(preference) {
@@ -83,7 +141,21 @@
   }
 
   function getResolvedTheme() {
-    return resolveTheme(getPreference());
+    return resolveBootstrapTheme(getPreference());
+  }
+
+  function getResolvedAppTheme() {
+    return resolveAppTheme(getPreference());
+  }
+
+  function listThemes() {
+    return Object.keys(themeRegistry).map(function (themeKey) {
+      return {
+        key: themeKey,
+        label: getThemeMeta(themeKey).label,
+        bootstrapTheme: getThemeMeta(themeKey).bootstrapTheme
+      };
+    });
   }
 
   function handleSystemThemeChange() {
@@ -112,7 +184,12 @@
     storageKey: storageKey,
     getPreference: getPreference,
     getResolvedTheme: getResolvedTheme,
-    resolveTheme: resolveTheme,
+    getResolvedAppTheme: getResolvedAppTheme,
+    getThemeLabel: getThemeLabel,
+    getThemeMeta: getThemeMeta,
+    listThemes: listThemes,
+    resolveTheme: resolveBootstrapTheme,
+    resolveAppTheme: resolveAppTheme,
     applyTheme: applyTheme,
     setPreference: setPreference
   };
