@@ -382,15 +382,45 @@ include '../includes/header.php';
         }
     });
 
-    function mostrarFeedback(tipo, mensagem) {
+    function mostrarFeedback(tipo, mensagem, voiceCode) {
         feedbackBox.className = `alert alert-${tipo}`;
         feedbackBox.textContent = mensagem;
         feedbackBox.classList.remove('d-none');
+        if (voiceCode && window.AppSpeechFeedback) {
+            window.AppSpeechFeedback.speakFeedback({
+                screen: 'sales',
+                type: tipo,
+                text: mensagem,
+                code: voiceCode
+            });
+        }
     }
 
     function limparFeedback() {
         feedbackBox.className = 'alert d-none';
         feedbackBox.textContent = '';
+    }
+
+    function criarErroInterface(mensagem, voiceCode) {
+        const error = new Error(mensagem);
+        error.voiceCode = voiceCode;
+        return error;
+    }
+
+    function showBlockingAlert(message, voiceCode) {
+        window.alert(message);
+        if (window.AppSpeechFeedback) {
+            window.AppSpeechFeedback.speakFeedback({
+                screen: 'sales',
+                type: 'warning',
+                text: message,
+                code: voiceCode
+            });
+        }
+    }
+
+    function obterPrimeiraPalavra(value) {
+        return String(value || '').trim().split(/\s+/).filter(Boolean)[0] || '';
     }
 
     function obterDataVendaSelecionada() {
@@ -580,17 +610,17 @@ include '../includes/header.php';
     function montarPayloadVenda() {
         const clienteBase = obterClienteSelecionadoPorId(clienteSelecionadoId);
         if (!clienteBase) {
-            throw new Error('Selecione ou salve um cliente antes de salvar a venda.');
+            throw criarErroInterface('Selecione ou salve um cliente antes de salvar a venda.', 'sales.customer_required');
         }
 
         const vendedor = obterVendedorSelecionado();
         if (!vendedor.id || !vendedor.nome) {
-            throw new Error('Selecione um vendedor antes de salvar a venda.');
+            throw criarErroInterface('Selecione um vendedor antes de salvar a venda.', 'sales.vendor_required');
         }
 
         const estado = composicao.getState();
         if (!estado.itens_produto.length) {
-            throw new Error('Adicione ao menos um item na venda.');
+            throw criarErroInterface('Adicione ao menos um item na venda.', 'sales.items_required');
         }
 
         const resumo = composicao.getResumo();
@@ -648,7 +678,7 @@ include '../includes/header.php';
             payload = montarPayloadVenda();
             clienteBase = obterClienteSelecionadoPorId(payload.cliente_id);
         } catch (error) {
-            mostrarFeedback('warning', error.message || 'Verifique os dados da venda antes de salvar.');
+            mostrarFeedback('warning', error.message || 'Verifique os dados da venda antes de salvar.', error.voiceCode);
             return;
         }
 
@@ -694,6 +724,13 @@ include '../includes/header.php';
                 ? `Venda #${dados.id_venda} atualizada com sucesso.`
                 : `Venda #${dados.id_venda} salva com sucesso.`);
 
+            if (window.AppSpeechFeedback) {
+                window.AppSpeechFeedback.speakText('Venda Salva.', {
+                    screen: 'sales',
+                    type: 'success'
+                });
+            }
+
             if (vendaEdicaoData && vendaEdicaoData.id_venda) {
                 window.location.href = `<?= app_url('vendas/detalhes.php?id=') ?>${dados.id_venda}`;
                 return;
@@ -701,7 +738,7 @@ include '../includes/header.php';
 
             limparFormularioVendaPosSucesso();
         } catch (error) {
-            mostrarFeedback('danger', error.message || 'Erro inesperado ao salvar venda.');
+            mostrarFeedback('danger', error.message || 'Erro inesperado ao salvar venda.', 'sales.save_error');
         } finally {
             btnSalvarVenda.disabled = false;
             btnSalvarVenda.innerHTML = '<i class="fas fa-save me-1"></i>Salvar venda';
@@ -756,6 +793,13 @@ include '../includes/header.php';
             atualizarClienteNaLista(dados.cliente);
             preencherDadosCliente(dados.cliente);
             mostrarFeedback('success', `Cliente #${dados.id_cliente} salvo com sucesso.`);
+            const primeiroNomeCliente = obterPrimeiraPalavra(dados.cliente?.nome_cliente);
+            if (primeiroNomeCliente && window.AppSpeechFeedback) {
+                window.AppSpeechFeedback.speakText(`Cliente ${primeiroNomeCliente} Salvo.`, {
+                    screen: 'sales',
+                    type: 'success'
+                });
+            }
         } catch (error) {
             mostrarFeedback('danger', error.message || 'Erro ao salvar cliente.');
         } finally {
@@ -800,7 +844,7 @@ include '../includes/header.php';
         const opt = select.selectedOptions[0];
 
         if (!opt || !opt.value) {
-            alert('Selecione um produto para adicionar.');
+            showBlockingAlert('Selecione um produto para adicionar.', 'sales.product_required');
             return;
         }
 

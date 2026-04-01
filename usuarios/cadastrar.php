@@ -8,6 +8,7 @@ $ativo = 1;
 $alert = null;
 $clearFormAfterSuccess = false;
 $backButtonClass = 'btn-secondary';
+$usuarioNomeFalado = '';
 
 if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
     require_valid_csrf();
@@ -57,6 +58,10 @@ if (($_SERVER['REQUEST_METHOD'] ?? '') === 'POST') {
                 'type' => 'success',
                 'message' => 'Usuario cadastrado com sucesso.',
             ];
+
+            $nomeFaladoBase = $nomeExibicao !== '' ? $nomeExibicao : $usuario;
+            $partesNomeFalado = preg_split('/\s+/u', trim($nomeFaladoBase)) ?: [];
+            $usuarioNomeFalado = $partesNomeFalado[0] ?? '';
 
             $usuario = '';
             $nomeExibicao = '';
@@ -146,6 +151,13 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (form) {
         form.reset();
+    }
+
+    if (window.AppSpeechFeedback && '<?= htmlspecialchars($usuarioNomeFalado, ENT_QUOTES, 'UTF-8') ?>') {
+        window.AppSpeechFeedback.speakText('<?= htmlspecialchars("Usuario {$usuarioNomeFalado} Salvo.", ENT_QUOTES, 'UTF-8') ?>', {
+            screen: 'users',
+            type: 'success'
+        });
     }
 });
 </script>

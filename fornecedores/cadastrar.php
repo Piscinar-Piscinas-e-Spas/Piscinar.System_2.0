@@ -9,6 +9,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $controller = new \App\Controllers\FornecedorController($pdo);
 $result = $controller->create($_POST, $_SERVER['REQUEST_METHOD']);
 $fornecedor = $result['data'];
+$fornecedorFaladoComSucesso = (($result['alert']['type'] ?? '') === 'success');
 
 include '../includes/header.php';
 ?>
@@ -72,5 +73,20 @@ include '../includes/header.php';
         </form>
     </div>
 </div>
+
+<?php if ($fornecedorFaladoComSucesso): ?>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (!window.AppSpeechFeedback) {
+        return;
+    }
+
+    window.AppSpeechFeedback.speakText('Fornecedor Salvo.', {
+        screen: 'suppliers',
+        type: 'success'
+    });
+});
+</script>
+<?php endif; ?>
 
 <?php include '../includes/footer.php'; ?>

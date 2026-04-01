@@ -2,7 +2,7 @@
 require_once __DIR__ . '/includes/db.php';
 require_once __DIR__ . '/includes/password_reset.php';
 
-if (is_authenticated()) {
+if (is_authenticated() && (string) ($_GET['from'] ?? '') !== 'settings') {
     header('Location: ' . app_url('index.php'));
     exit;
 }

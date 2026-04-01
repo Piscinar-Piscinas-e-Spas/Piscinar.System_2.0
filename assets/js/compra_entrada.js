@@ -82,10 +82,22 @@
         });
     }
 
-    function showFeedback(type, message) {
+    function getFirstWord(value) {
+        return String(value || '').trim().split(/\s+/).filter(Boolean)[0] || '';
+    }
+
+    function showFeedback(type, message, voiceCode) {
         feedback.className = 'alert alert-' + type;
         feedback.textContent = message;
         feedback.classList.remove('d-none');
+        if (voiceCode && window.AppSpeechFeedback) {
+            window.AppSpeechFeedback.speakFeedback({
+                screen: 'purchase',
+                type,
+                text: message,
+                code: voiceCode
+            });
+        }
     }
 
     function hideFeedback() {
@@ -329,13 +341,19 @@
         fornecedorNomeFantasia.value = data.fornecedor.nome_fantasia || '';
         refreshFornecedorDatalist();
         showFeedback('success', data.mensagem || 'Fornecedor salvo com sucesso.');
+        if (window.AppSpeechFeedback) {
+            window.AppSpeechFeedback.speakText('Fornecedor Salvo.', {
+                screen: 'purchase',
+                type: 'success'
+            });
+        }
     }
 
     async function saveProdutoRapido() {
         hideFeedback();
         const nome = produtoBusca.value.trim();
         if (!nome) {
-            showFeedback('warning', 'Digite o nome do produto antes de cadastrar.');
+            showFeedback('warning', 'Digite o nome do produto antes de cadastrar.', 'purchase.product_name_missing');
             return;
         }
 
@@ -375,35 +393,42 @@
         produtoBusca.value = data.produto.nome;
         itemCustoUnitario.value = formatDecimalInput(data.produto.custo, 2);
         showFeedback('success', data.mensagem || 'Produto salvo com sucesso.');
+        const firstProductName = getFirstWord(data.produto?.nome);
+        if (firstProductName && window.AppSpeechFeedback) {
+            window.AppSpeechFeedback.speakText(`Produto ${firstProductName} Salvo.`, {
+                screen: 'purchase',
+                type: 'success'
+            });
+        }
     }
 
     function validateBeforeSubmit() {
         syncFornecedor();
 
         if (!state.fornecedorId) {
-            showFeedback('warning', 'Selecione ou cadastre um fornecedor antes de salvar.');
+            showFeedback('warning', 'Selecione ou cadastre um fornecedor antes de salvar.', 'purchase.supplier_required');
             return false;
         }
 
         if (!numeroNota.value.trim()) {
-            showFeedback('warning', 'Informe o numero da nota.');
+            showFeedback('warning', 'Informe o numero da nota.', 'purchase.invoice_number_required');
             return false;
         }
 
         if (!state.itens.length) {
-            showFeedback('warning', 'Adicione ao menos um item na nota.');
+            showFeedback('warning', 'Adicione ao menos um item na nota.', 'purchase.items_required');
             return false;
         }
 
         if (!state.parcelas.length) {
-            showFeedback('warning', 'Gere ou informe as parcelas antes de salvar.');
+            showFeedback('warning', 'Gere ou informe as parcelas antes de salvar.', 'purchase.installments_required');
             return false;
         }
 
         const totais = getTotais();
         const somaParcelas = state.parcelas.reduce((total, parcela) => total + Number(parcela.valor || 0), 0);
         if (Math.abs(somaParcelas - totais.totalNota) > 0.05) {
-            showFeedback('warning', 'A soma das parcelas precisa ser igual ao total da nota.');
+            showFeedback('warning', 'A soma das parcelas precisa ser igual ao total da nota.', 'purchase.installments_mismatch');
             return false;
         }
 
@@ -467,9 +492,15 @@
             }
 
             showFeedback('success', data.mensagem || 'Entrada salva com sucesso.');
+            if (window.AppSpeechFeedback) {
+                window.AppSpeechFeedback.speakText('Compra Salva.', {
+                    screen: 'purchase',
+                    type: 'success'
+                });
+            }
             resetForm();
         } catch (error) {
-            showFeedback('danger', error.message || 'Erro ao salvar a entrada.');
+            showFeedback('danger', error.message || 'Erro ao salvar a entrada.', 'purchase.save_error');
         } finally {
             btnSalvarCompra.disabled = false;
             btnSalvarCompra.textContent = 'Salvar entrada';

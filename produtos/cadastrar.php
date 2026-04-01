@@ -9,6 +9,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $controller = new \App\Controllers\ProdutoController($pdo);
 $result = $controller->create($_POST, $_SERVER['REQUEST_METHOD']);
 $produto = $result['data'];
+$produtoNomeFalado = '';
+
+if (($result['alert']['type'] ?? '') === 'success') {
+    $partesProdutoNome = preg_split('/\s+/u', trim((string) ($_POST['nome'] ?? ''))) ?: [];
+    $produtoNomeFalado = $partesProdutoNome[0] ?? '';
+}
 
 include '../includes/header.php';
 ?>
@@ -146,5 +152,20 @@ include '../includes/header.php';
         alternarCamposControle();
     });
 </script>
+
+<?php if ($produtoNomeFalado !== ''): ?>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (!window.AppSpeechFeedback) {
+        return;
+    }
+
+    window.AppSpeechFeedback.speakText('<?= htmlspecialchars("Produto {$produtoNomeFalado} Salvo.", ENT_QUOTES, 'UTF-8') ?>', {
+        screen: 'products',
+        type: 'success'
+    });
+});
+</script>
+<?php endif; ?>
 
 <?php include '../includes/footer.php'; ?>

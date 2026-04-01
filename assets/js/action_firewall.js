@@ -7,6 +7,26 @@
         return url.toString();
     }
 
+    function getActionVerb(intent, label) {
+        var normalizedIntent = String(intent || '').trim().toLowerCase();
+        if (normalizedIntent === 'edit') {
+            return 'Editar';
+        }
+        if (normalizedIntent === 'delete') {
+            return 'Excluir';
+        }
+
+        var normalizedLabel = String(label || '').trim().toLowerCase();
+        if (normalizedLabel.indexOf('editar') !== -1) {
+            return 'Editar';
+        }
+        if (normalizedLabel.indexOf('excluir') !== -1) {
+            return 'Excluir';
+        }
+
+        return 'continuar';
+    }
+
     window.ActionFirewall = {
         init: function initActionFirewall(options) {
             if (!options || !options.endpoint || !options.csrfToken) {
@@ -58,6 +78,9 @@
                 pendingAction = action;
                 if (description) {
                     description.textContent = 'Digite sua senha para ' + (action.label || 'continuar') + '.';
+                }
+                if (window.AppSpeechFeedback) {
+                    window.AppSpeechFeedback.speakText('Digite sua senha para ' + getActionVerb(action.intent, action.label) + '.');
                 }
                 modal.show();
                 window.setTimeout(function () {

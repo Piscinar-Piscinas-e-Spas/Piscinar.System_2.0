@@ -749,6 +749,13 @@ async function salvarClienteRapido() {
     document.getElementById('clienteEndereco').value = dados.cliente.endereco || '';
     clienteSelecionadoId = Number(dados.id_cliente);
     feedback('success', `Cliente #${dados.id_cliente} salvo com sucesso.`);
+    const primeiroNomeCliente = obterPrimeiraPalavra(dados.cliente?.nome_cliente);
+    if (primeiroNomeCliente && window.AppSpeechFeedback) {
+      window.AppSpeechFeedback.speakText(`Cliente ${primeiroNomeCliente} Salvo.`, {
+        screen: 'services',
+        type: 'success'
+      });
+    }
   } catch (err) {
     feedback('danger', err.message || 'Erro ao salvar cliente.');
   } finally {
@@ -803,17 +810,41 @@ function renderTabelas({ skipComposicaoSync = false } = {}) {
   }
 }
 
-function feedback(tipo, msg) {
+function feedback(tipo, msg, voiceCode) {
   const box = document.getElementById('servicoFeedback');
   box.className = `alert alert-${tipo}`;
   box.textContent = msg;
   box.classList.remove('d-none');
+  if (voiceCode && window.AppSpeechFeedback) {
+    window.AppSpeechFeedback.speakFeedback({
+      screen: 'services',
+      type: tipo,
+      text: msg,
+      code: voiceCode
+    });
+  }
 }
 
 function limparFeedback() {
   const box = document.getElementById('servicoFeedback');
   box.className = 'alert d-none';
   box.textContent = '';
+}
+
+function showBlockingAlert(message, voiceCode) {
+  window.alert(message);
+  if (window.AppSpeechFeedback) {
+    window.AppSpeechFeedback.speakFeedback({
+      screen: 'services',
+      type: 'warning',
+      text: message,
+      code: voiceCode
+    });
+  }
+}
+
+function obterPrimeiraPalavra(value) {
+  return String(value || '').trim().split(/\s+/).filter(Boolean)[0] || '';
 }
 
 function obterDataServicoSelecionada() {
@@ -943,7 +974,7 @@ document.getElementById('produtoSelect').addEventListener('change', (e) => {
 
 document.getElementById('btnAdicionarProduto').addEventListener('click', () => {
   const opt = document.getElementById('produtoSelect').selectedOptions[0];
-  if (!opt || !opt.value) return alert('Selecione um produto.');
+  if (!opt || !opt.value) return showBlockingAlert('Selecione um produto.', 'services.product_required');
   state.produtos.push({
     produto_id: Number(opt.value),
     descricao: opt.dataset.nome || opt.textContent,
@@ -957,7 +988,7 @@ document.getElementById('btnAdicionarProduto').addEventListener('click', () => {
 
 document.getElementById('btnAdicionarMicro').addEventListener('click', () => {
   const descricao = document.getElementById('microDescricao').value.trim();
-  if (!descricao) return alert('Informe a descrição do micro-serviço.');
+  if (!descricao) return showBlockingAlert('Informe a descrição do micro-serviço.', 'services.micro_description_required');
   state.microservicos.push({
     descricao,
     quantidade: Math.max(1, parseInt(document.getElementById('microQtd').value, 10) || 1),
@@ -994,9 +1025,9 @@ document.getElementById('btnAdicionarMicro').addEventListener('click', () => {
 });
 
 async function salvarServico() {
-  if (!state.produtos.length && !state.microservicos.length) return feedback('warning', 'Adicione ao menos um item de produto ou micro-serviço.');
+  if (!state.produtos.length && !state.microservicos.length) return feedback('warning', 'Adicione ao menos um item de produto ou micro-serviço.', 'services.items_required');
   if (clienteObrigatorio && !clienteSelecionadoId) {
-    return feedback('warning', 'Selecione um cliente existente ou use o botão "Salvar cliente rápido" antes de salvar o serviço.');
+    return feedback('warning', 'Selecione um cliente existente ou use o botão "Salvar cliente rápido" antes de salvar o serviço.', 'services.customer_required');
   }
 
   const vendedorSelecionado = {
@@ -1004,7 +1035,7 @@ async function salvarServico() {
     nome: vendedorSelect.selectedOptions[0]?.dataset?.nome || vendedorLogadoPadrao.nome || ''
   };
   if (!vendedorSelecionado.id || !vendedorSelecionado.nome) {
-    return feedback('warning', 'Selecione um vendedor antes de salvar o serviço.');
+    return feedback('warning', 'Selecione um vendedor antes de salvar o serviço.', 'services.vendor_required');
   }
 
   const resumo = composicao.getResumo();
@@ -1048,13 +1079,19 @@ async function salvarServico() {
     window.alert(servicoEdicaoData && servicoEdicaoData.id_servico
       ? `Serviço #${dados.id_servico} atualizado com sucesso.`
       : `Serviço #${dados.id_servico} salvo com sucesso.`);
+    if (window.AppSpeechFeedback) {
+      window.AppSpeechFeedback.speakText('Serviço Salvo.', {
+        screen: 'services',
+        type: 'success'
+      });
+    }
     if (servicoEdicaoData && servicoEdicaoData.id_servico) {
       window.location.href = `<?= app_url('servicos/detalhes.php?id=') ?>${dados.id_servico}`;
       return;
     }
     limparFormularioServicoPosSucesso();
   } catch (err) {
-    feedback('danger', err.message || 'Erro ao salvar serviço.');
+    feedback('danger', err.message || 'Erro ao salvar serviço.', 'services.save_error');
   } finally { btn.disabled = false; }
 }
 

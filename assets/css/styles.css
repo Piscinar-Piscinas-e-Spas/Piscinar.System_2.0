@@ -31,8 +31,10 @@ body {
 
 .navbar-light .navbar-nav .nav-item:hover {
   /* Aumenta a cor de fundo e diminui a transparência */
-  background-color: rgba(255, 255, 255, 0.3);
-  border-radius: 10%/50%;
+  background-color: rgba(255, 255, 255, 0.6);
+  border-radius: 100px; /* Cria o formato de pílula/cápsula */
+  backdrop-filter: blur(10px); 
+  padding: 0 0.1omparem; /* Pequeno preenchimento horizontal para destacar o efeito */
 
   /* Adiciona o efeito de brilho (glow) */
   box-shadow:
@@ -108,6 +110,56 @@ body {
   border: 1px solid rgba(255, 255, 255, 0.8);
   padding: 0 0.2rem;
   margin-right: 5px;
+}
+
+#userShow .user-settings-trigger {
+  border: 0;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  cursor: pointer;
+  padding: 0.45rem 0.9rem;
+}
+
+#userShow .user-settings-trigger:focus {
+  box-shadow: none;
+}
+
+.user-settings-offcanvas {
+  width: min(420px, 100vw);
+  background:
+    radial-gradient(circle at top right, rgba(18, 151, 244, 0.12), transparent 24%),
+    linear-gradient(180deg, #f7fbff 0%, #ffffff 28%);
+  border-left: 1px solid rgba(13, 110, 253, 0.12);
+}
+
+.user-settings-eyebrow {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #6c7ea6;
+  margin-bottom: 0.25rem;
+}
+
+.settings-panel-card {
+  border: 1px solid #d7e5ff;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 10px 24px rgba(13, 56, 117, 0.08);
+  padding: 1rem;
+}
+
+.settings-panel-heading h6 {
+  margin-bottom: 0.35rem;
+  font-weight: 700;
+  color: #1148a8;
+}
+
+.settings-panel-heading p {
+  margin-bottom: 1rem;
+  color: #5f6f8e;
+  font-size: 0.92rem;
 }
 
 .navbar-light .navbar-nav .nav-link#btn-soft-danger {

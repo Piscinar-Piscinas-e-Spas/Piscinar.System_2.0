@@ -9,6 +9,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 $controller = new \App\Controllers\ClienteController($pdo);
 $result = $controller->create($_POST, $_SERVER['REQUEST_METHOD']);
 $cliente = $result['data'];
+$clienteNomeFalado = '';
+
+if (($result['alert']['type'] ?? '') === 'success') {
+    $partesClienteNome = preg_split('/\s+/u', trim((string) ($_POST['nome_cliente'] ?? ''))) ?: [];
+    $clienteNomeFalado = $partesClienteNome[0] ?? '';
+}
 
 include '../includes/header.php';
 ?>
@@ -70,5 +76,19 @@ include '../includes/header.php';
 </div>
 
 <script src="<?= app_url('assets/js/clientes_form.js'); ?>"></script>
+<?php if ($clienteNomeFalado !== ''): ?>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    if (!window.AppSpeechFeedback) {
+        return;
+    }
+
+    window.AppSpeechFeedback.speakText('<?= htmlspecialchars("Cliente {$clienteNomeFalado} Salvo.", ENT_QUOTES, 'UTF-8') ?>', {
+        screen: 'customers',
+        type: 'success'
+    });
+});
+</script>
+<?php endif; ?>
 
 <?php include '../includes/footer.php'; ?>

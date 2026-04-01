@@ -39,8 +39,14 @@
     <?php endif; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script src="<?= htmlspecialchars(app_url('assets/js/app_speech_feedback.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
 </head>
 <body>
+    <?php
+        $authUser = function_exists('auth_user') ? auth_user() : null;
+        $authDisplayName = function_exists('auth_user_display_name') ? auth_user_display_name() : '';
+        $authUsername = is_array($authUser) ? (string) ($authUser['usuario'] ?? '') : '';
+    ?>
     <div class="container page-shell">
         <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4 mobile-tablet-fixed-nav">
             <div class="container-fluid menu">
@@ -77,10 +83,16 @@
                     <ul class="navbar-nav ms-auto">
                         <?php if (function_exists('is_authenticated') && is_authenticated()): ?>
                         <li class="nav-item" id="userShow">
-                            <span class="nav-link text-muted">
+                            <button
+                                type="button"
+                                class="nav-link text-muted btn btn-link user-settings-trigger"
+                                data-bs-toggle="offcanvas"
+                                data-bs-target="#userSettingsPanel"
+                                aria-controls="userSettingsPanel"
+                            >
                                 <i class="fas fa-user-circle"></i>
-                                <?= htmlspecialchars((string) ((auth_user()['nome'] ?? auth_user()['usuario'] ?? 'Usuario')), ENT_QUOTES, 'UTF-8') ?>
-                            </span>
+                                <?= htmlspecialchars((string) ($authDisplayName !== '' ? $authDisplayName : ($authUsername !== '' ? $authUsername : 'Usuario')), ENT_QUOTES, 'UTF-8') ?>
+                            </button>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" id="btn-soft-danger" href="<?= htmlspecialchars(app_url('logout.php'), ENT_QUOTES, 'UTF-8') ?>">
@@ -92,3 +104,98 @@
                 </div>
             </div>
         </nav>
+        <?php if (function_exists('is_authenticated') && is_authenticated()): ?>
+        <div
+            class="offcanvas offcanvas-end user-settings-offcanvas"
+            tabindex="-1"
+            id="userSettingsPanel"
+            aria-labelledby="userSettingsPanelLabel"
+            data-profile-endpoint="<?= htmlspecialchars(app_url('usuarios/atualizar_perfil.php'), ENT_QUOTES, 'UTF-8') ?>"
+        >
+            <div class="offcanvas-header">
+                <div>
+                    <div class="user-settings-eyebrow">Configuracoes rapidas</div>
+                    <h5 class="offcanvas-title mb-0" id="userSettingsPanelLabel">Minha conta</h5>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Fechar"></button>
+            </div>
+            <div class="offcanvas-body">
+                <div id="userSettingsFeedback" class="alert d-none" role="alert"></div>
+
+                <section class="settings-panel-card">
+                    <div class="settings-panel-heading">
+                        <h6><i class="fas fa-id-badge me-2"></i>Perfil</h6>
+                        <p>Atualize seus dados de acesso e nome de exibicao.</p>
+                    </div>
+                    <form id="userSettingsForm" novalidate>
+                        <input type="hidden" name="csrf_token" value="<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8') ?>">
+                        <div class="mb-3">
+                            <label class="form-label" for="userSettingsUsuario">Usuario</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="userSettingsUsuario"
+                                name="usuario"
+                                maxlength="80"
+                                value="<?= htmlspecialchars($authUsername, ENT_QUOTES, 'UTF-8') ?>"
+                                required
+                            >
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label" for="userSettingsNomeExibicao">Nome de exibicao</label>
+                            <input
+                                type="text"
+                                class="form-control"
+                                id="userSettingsNomeExibicao"
+                                name="nome_exibicao"
+                                maxlength="120"
+                                value="<?= htmlspecialchars((string) (($authDisplayName !== $authUsername) ? $authDisplayName : ''), ENT_QUOTES, 'UTF-8') ?>"
+                            >
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary" id="userSettingsSaveButton">
+                                <span class="js-btn-label"><i class="fas fa-save me-1"></i>Salvar alteracoes</span>
+                                <span class="spinner-border spinner-border-sm d-none" aria-hidden="true"></span>
+                            </button>
+                        </div>
+                    </form>
+                </section>
+
+                <section class="settings-panel-card mt-3">
+                    <div class="settings-panel-heading">
+                        <h6><i class="fas fa-volume-up me-2"></i>Voz do sistema</h6>
+                        <p>Escolha a voz usada nos avisos falados do sistema.</p>
+                    </div>
+                    <div class="form-check form-switch mb-3">
+                        <input class="form-check-input" type="checkbox" role="switch" id="voiceFeedbackEnabled">
+                        <label class="form-check-label" for="voiceFeedbackEnabled">Ativar avisos falados</label>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label" for="voiceFeedbackSelect">Voz disponivel</label>
+                        <select class="form-select" id="voiceFeedbackSelect"></select>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-outline-primary" id="voiceFeedbackTestButton">
+                            <i class="fas fa-play me-1"></i>Testar voz
+                        </button>
+                    </div>
+                </section>
+
+                <section class="settings-panel-card mt-3">
+                    <div class="settings-panel-heading">
+                        <h6><i class="fas fa-key me-2"></i>Senha</h6>
+                        <p>Use o fluxo seguro de recuperacao para redefinir sua senha.</p>
+                    </div>
+                    <div class="d-grid">
+                        <a
+                            href="<?= htmlspecialchars(app_url('forgot-password.php?from=settings'), ENT_QUOTES, 'UTF-8') ?>"
+                            class="btn btn-outline-secondary"
+                        >
+                            <i class="fas fa-unlock-alt me-1"></i>Mudar senha
+                        </a>
+                    </div>
+                </section>
+            </div>
+        </div>
+        <script src="<?= htmlspecialchars(app_url('assets/js/user_settings_panel.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
+        <?php endif; ?>

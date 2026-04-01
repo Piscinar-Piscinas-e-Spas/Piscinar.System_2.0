@@ -393,6 +393,17 @@ include '../includes/header.php';
             renderRows();
         });
 
+        const getActionVerb = (label) => {
+            const normalizedLabel = String(label || '').toLowerCase();
+            if (normalizedLabel.includes('editar')) {
+                return 'Editar';
+            }
+            if (normalizedLabel.includes('excluir')) {
+                return 'Excluir';
+            }
+            return 'continuar';
+        };
+
         const modalElement = document.getElementById('confirmacaoSenhaModal');
         if (!modalElement || typeof bootstrap === 'undefined' || !bootstrap.Modal) {
             return;
@@ -439,6 +450,9 @@ include '../includes/header.php';
                 const actionLabel = botao.getAttribute('data-action-label') || 'executar esta aÃ§Ã£o';
                 if (descricao) {
                     descricao.textContent = `Digite sua senha para ${actionLabel}.`;
+                }
+                if (window.AppSpeechFeedback) {
+                    window.AppSpeechFeedback.speakText(`Digite sua senha para ${getActionVerb(actionLabel)}.`);
                 }
                 resetModal();
                 modal.show();
