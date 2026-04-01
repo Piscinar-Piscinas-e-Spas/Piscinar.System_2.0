@@ -1,3 +1,63 @@
+:root {
+  --app-body-bg: #f8f9fa;
+  --app-surface-1: #ffffff;
+  --app-surface-2: #f8fbff;
+  --app-surface-3: #f3f7ff;
+  --app-border-color: #dbe5ff;
+  --app-card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --app-card-shadow-strong: 0 10px 24px rgba(13, 56, 117, 0.08);
+  --app-muted-color: #5f6f8e;
+  --app-heading-color: #1148a8;
+  --app-menu-bg: oklch(95% 0.01 253);
+  --app-menu-shadow: 5px 5px 10px rgba(0, 0, 0, 0.15);
+  --app-glass-bg: rgba(255, 255, 255, 0.6);
+  --app-glass-border: rgba(255, 255, 255, 0.8);
+  --app-glass-shadow:
+    0 0 4px rgba(255, 255, 255, 0.4),
+    0 0 8px rgba(255, 255, 255, 0.2);
+  --app-panel-bg:
+    radial-gradient(circle at top right, rgba(18, 151, 244, 0.12), transparent 24%),
+    linear-gradient(180deg, #f7fbff 0%, #ffffff 28%);
+  --app-panel-border: rgba(13, 110, 253, 0.12);
+  --app-panel-card-bg: rgba(255, 255, 255, 0.92);
+  --app-panel-card-border: #d7e5ff;
+  --app-panel-status-bg: rgba(13, 110, 253, 0.08);
+  --app-panel-status-color: #37527d;
+  --app-soft-info-bg: linear-gradient(135deg, #f8faff 0%, #f3f6ff 100%);
+  --app-soft-success-bg: linear-gradient(135deg, #f8fbff 0%, #f2f7ff 100%);
+  --app-soft-success-border: #dbe9ff;
+}
+
+[data-bs-theme="dark"] {
+  --app-body-bg: #07111f;
+  --app-surface-1: #0d1727;
+  --app-surface-2: #10203a;
+  --app-surface-3: #132844;
+  --app-border-color: rgba(137, 168, 216, 0.24);
+  --app-card-shadow: 0 14px 32px rgba(0, 0, 0, 0.32);
+  --app-card-shadow-strong: 0 18px 42px rgba(0, 0, 0, 0.4);
+  --app-muted-color: #99abca;
+  --app-heading-color: #8bc3ff;
+  --app-menu-bg: linear-gradient(135deg, rgba(8, 19, 39, 0.96), rgba(18, 34, 60, 0.92));
+  --app-menu-shadow: 0 18px 40px rgba(0, 0, 0, 0.32);
+  --app-glass-bg: rgba(14, 30, 53, 0.74);
+  --app-glass-border: rgba(137, 181, 255, 0.18);
+  --app-glass-shadow:
+    0 0 0 1px rgba(137, 181, 255, 0.08),
+    0 16px 32px rgba(0, 0, 0, 0.26);
+  --app-panel-bg:
+    radial-gradient(circle at top right, rgba(18, 151, 244, 0.16), transparent 26%),
+    linear-gradient(180deg, #08121f 0%, #0d1727 30%, #101c30 100%);
+  --app-panel-border: rgba(109, 168, 255, 0.16);
+  --app-panel-card-bg: rgba(12, 25, 44, 0.94);
+  --app-panel-card-border: rgba(137, 168, 216, 0.22);
+  --app-panel-status-bg: rgba(64, 131, 255, 0.14);
+  --app-panel-status-color: #c3ddff;
+  --app-soft-info-bg: linear-gradient(135deg, rgba(17, 32, 55, 0.98) 0%, rgba(16, 29, 48, 0.96) 100%);
+  --app-soft-success-bg: linear-gradient(135deg, rgba(10, 25, 44, 0.98) 0%, rgba(14, 31, 53, 0.96) 100%);
+  --app-soft-success-border: rgba(137, 168, 216, 0.24);
+}
+
 .navbar-light .navbar-nav .nav-link {
   /* O menu principal usa gradient no texto para dar identidade visual
      sem pesar o restante do layout com blocos muito coloridos. */
@@ -13,11 +73,14 @@
 
 body {
   padding-top: 20px;
-  background-color: #f8f9fa;
+  background-color: var(--app-body-bg);
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 .card {
   margin-bottom: 20px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--app-card-shadow);
+  border-color: var(--app-border-color);
+  transition: background-color 0.25s ease, border-color 0.25s ease, box-shadow 0.25s ease;
 }
 
 .navbar-light .navbar-nav .nav-link:hover {
@@ -33,15 +96,13 @@ body {
 
 .navbar-light .navbar-nav .nav-item:hover {
   /* Aumenta a cor de fundo e diminui a transparência */
-  background-color: rgba(255, 255, 255, 0.6);
+  background-color: var(--app-glass-bg);
   border-radius: 100px; /* Cria o formato de pílula/cápsula */
   backdrop-filter: blur(10px); 
   padding: 0 0.1omparem; /* Pequeno preenchimento horizontal para destacar o efeito */
 
   /* Adiciona o efeito de brilho (glow) */
-  box-shadow:
-    0 0 4px rgba(255, 255, 255, 0.4),
-    0 0 8px rgba(255, 255, 255, 0.2);
+  box-shadow: var(--app-glass-shadow);
 
   transform: translateY(-1px); /* Pequeno efeito de elevação */
 }
@@ -675,4 +736,239 @@ tr.estoque-critico > td {
   .promotion-grid {
     grid-template-columns: 1fr;
   }
+}
+
+.menu {
+  background: var(--app-menu-bg);
+  box-shadow: var(--app-menu-shadow);
+}
+
+#userShow {
+  background-color: var(--app-glass-bg);
+  border: 1px solid var(--app-glass-border);
+}
+
+.user-settings-offcanvas {
+  background: var(--app-panel-bg);
+  border-left: 1px solid var(--app-panel-border);
+}
+
+.user-settings-eyebrow {
+  color: var(--app-muted-color);
+}
+
+.settings-panel-card {
+  border-color: var(--app-panel-card-border);
+  background: var(--app-panel-card-bg);
+  box-shadow: var(--app-card-shadow-strong);
+}
+
+.settings-panel-heading h6,
+.sales-block-title {
+  color: var(--app-heading-color);
+}
+
+.settings-panel-heading p,
+.context-tip {
+  color: var(--app-muted-color);
+}
+
+.theme-preference-status {
+  margin-top: 0.85rem;
+  padding: 0.8rem 0.9rem;
+  border-radius: 14px;
+  background: var(--app-panel-status-bg);
+  color: var(--app-panel-status-color);
+  font-size: 0.88rem;
+}
+
+.estoque-box {
+  border-color: var(--app-border-color);
+  background: var(--app-soft-info-bg);
+}
+
+.campos-estoque {
+  background-color: var(--app-surface-1);
+  border-color: var(--app-border-color);
+}
+
+.resumo-card {
+  background: var(--app-soft-success-bg);
+  border-color: var(--app-soft-success-border);
+}
+
+.financial-summary-panel {
+  border-color: var(--app-border-color);
+  background: linear-gradient(180deg, var(--app-surface-2) 0%, var(--app-surface-1) 100%);
+}
+
+[data-bs-theme="dark"] .mobile-tablet-fixed-nav {
+  --bs-navbar-toggler-border-color: rgba(195, 221, 255, 0.2);
+  --bs-navbar-toggler-icon-bg: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28243, 248, 255, 0.92%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+
+[data-bs-theme="dark"] .navbar-brand {
+  color: #8bc3ff !important;
+}
+
+[data-bs-theme="dark"] .navbar-light .navbar-nav .nav-item:hover {
+  background-color: var(--app-glass-bg);
+  box-shadow: var(--app-glass-shadow);
+}
+
+[data-bs-theme="dark"] .navbar-light .navbar-nav .nav-link#btn-soft-danger {
+  -webkit-text-fill-color: #ffadad !important;
+}
+
+[data-bs-theme="dark"] .navbar-light .navbar-nav .nav-link#btn-soft-danger:hover {
+  background-color: rgba(229, 115, 115, 0.88) !important;
+}
+
+[data-bs-theme="dark"] .site-footer {
+  background: linear-gradient(135deg, #041a42 0%, #0a3171 42%, #0f5db3 100%);
+  box-shadow: 0 18px 36px rgba(0, 0, 0, 0.38);
+}
+
+[data-bs-theme="dark"] .bg-light,
+[data-bs-theme="dark"] .card-header.bg-light,
+[data-bs-theme="dark"] .text-bg-light {
+  background-color: var(--app-surface-2) !important;
+  color: var(--bs-body-color) !important;
+  border-color: var(--app-border-color) !important;
+}
+
+[data-bs-theme="dark"] .bg-light.text-dark,
+[data-bs-theme="dark"] .text-bg-light.text-secondary {
+  color: var(--bs-body-color) !important;
+}
+
+[data-bs-theme="dark"] .text-dark {
+  color: #eef4ff !important;
+}
+
+[data-bs-theme="dark"] .border,
+[data-bs-theme="dark"] .table,
+[data-bs-theme="dark"] .table > :not(caption) > * > * {
+  border-color: var(--app-border-color);
+}
+
+[data-bs-theme="dark"] .table-light {
+  --bs-table-color: #e8f1ff;
+  --bs-table-bg: #16253a;
+  --bs-table-border-color: rgba(137, 168, 216, 0.22);
+  --bs-table-striped-bg: #1a2b44;
+  --bs-table-hover-bg: #20324d;
+}
+
+[data-bs-theme="dark"] .table-hover > tbody > tr:hover > * {
+  --bs-table-accent-bg: rgba(95, 145, 219, 0.12);
+  color: inherit;
+}
+
+[data-bs-theme="dark"] .btn-outline-dark {
+  --bs-btn-color: #d5e3f8;
+  --bs-btn-border-color: rgba(137, 168, 216, 0.34);
+  --bs-btn-hover-color: #08121f;
+  --bs-btn-hover-bg: #9fc8ff;
+  --bs-btn-hover-border-color: #9fc8ff;
+  --bs-btn-active-color: #08121f;
+  --bs-btn-active-bg: #9fc8ff;
+  --bs-btn-active-border-color: #9fc8ff;
+}
+
+[data-bs-theme="dark"] .index-side-menu-title {
+  color: #abc0de;
+}
+
+[data-bs-theme="dark"] .index-side-menu-section + .index-side-menu-section {
+  border-top-color: rgba(137, 168, 216, 0.16);
+}
+
+[data-bs-theme="dark"] .index-kpi-card {
+  border-color: rgba(137, 168, 216, 0.18);
+  background: linear-gradient(135deg, rgba(11, 24, 42, 0.98) 0%, rgba(15, 31, 53, 0.96) 100%);
+}
+
+[data-bs-theme="dark"] .financial-kpi-revenue {
+  border-color: rgba(92, 147, 255, 0.32);
+  background: linear-gradient(135deg, rgba(10, 29, 58, 0.98) 0%, rgba(14, 39, 73, 0.96) 100%);
+}
+
+[data-bs-theme="dark"] .financial-kpi-paid {
+  border-color: rgba(69, 177, 120, 0.3);
+  background: linear-gradient(135deg, rgba(9, 34, 39, 0.98) 0%, rgba(11, 48, 41, 0.96) 100%);
+}
+
+[data-bs-theme="dark"] .financial-kpi-expense {
+  border-color: rgba(255, 143, 126, 0.3);
+  background: linear-gradient(135deg, rgba(47, 18, 25, 0.98) 0%, rgba(60, 22, 30, 0.96) 100%);
+}
+
+[data-bs-theme="dark"] .financial-kpi-balance-positive {
+  border-color: rgba(69, 177, 120, 0.3);
+  background: linear-gradient(135deg, rgba(8, 33, 36, 0.98) 0%, rgba(11, 46, 43, 0.96) 100%);
+}
+
+[data-bs-theme="dark"] .financial-kpi-balance-negative {
+  border-color: rgba(255, 143, 126, 0.3);
+  background: linear-gradient(135deg, rgba(44, 17, 24, 0.98) 0%, rgba(59, 22, 30, 0.96) 100%);
+}
+
+[data-bs-theme="dark"] .financial-source-toggle {
+  border-color: rgba(137, 168, 216, 0.18);
+  background: rgba(12, 24, 42, 0.82);
+}
+
+[data-bs-theme="dark"] .financial-legend,
+[data-bs-theme="dark"] .financial-month-label {
+  color: #98abc8;
+}
+
+[data-bs-theme="dark"] .financial-heatmap-table th,
+[data-bs-theme="dark"] .financial-heatmap-table td {
+  border-color: rgba(137, 168, 216, 0.16);
+}
+
+[data-bs-theme="dark"] .financial-heatmap-table thead th {
+  background: #182a43;
+  color: #dbe8ff;
+}
+
+[data-bs-theme="dark"] .financial-heatmap-table tfoot th,
+[data-bs-theme="dark"] .financial-heatmap-table tfoot td {
+  background: #0d1c31;
+  color: #f4f8ff;
+}
+
+[data-bs-theme="dark"] .financial-average-cell {
+  background: rgba(134, 96, 10, 0.28);
+  color: #ffd988;
+}
+
+[data-bs-theme="dark"] .financial-indicator-positive {
+  background: rgba(22, 101, 52, 0.22);
+  color: #91f0b3;
+  border-color: rgba(34, 197, 94, 0.22);
+}
+
+[data-bs-theme="dark"] .financial-indicator-neutral {
+  background: rgba(13, 110, 253, 0.18);
+  color: #b7d2ff;
+  border-color: rgba(88, 147, 255, 0.22);
+}
+
+[data-bs-theme="dark"] .financial-indicator-negative {
+  background: rgba(180, 35, 24, 0.18);
+  color: #ffb1ab;
+  border-color: rgba(246, 114, 105, 0.2);
+}
+
+[data-bs-theme="dark"] .promotion-pill-low {
+  background: rgba(180, 35, 24, 0.18);
+  color: #ffb1ab;
+}
+
+[data-bs-theme="dark"] .promotion-pill-high {
+  background: rgba(22, 101, 52, 0.2);
+  color: #9fe0b6;
 }

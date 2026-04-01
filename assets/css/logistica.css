@@ -70,3 +70,70 @@
     justify-self: center;
   }
 }
+
+[data-bs-theme="dark"] .logistics-card {
+  border-color: rgba(137, 168, 216, 0.2);
+  background: linear-gradient(180deg, rgba(10, 24, 42, 0.98) 0%, rgba(14, 29, 49, 0.96) 100%);
+}
+
+[data-bs-theme="dark"] .inventory-table thead th {
+  border-bottom-color: rgba(137, 168, 216, 0.18);
+  color: #a8bddb;
+}
+
+[data-bs-theme="dark"] .inventory-table tbody tr {
+  border-color: rgba(137, 168, 216, 0.12);
+}
+
+[data-bs-theme="dark"] .transfer-side {
+  border-color: rgba(137, 168, 216, 0.18);
+  background: rgba(12, 24, 42, 0.82);
+}
+
+[data-bs-theme="dark"] .transfer-item-row {
+  background: rgba(11, 21, 37, 0.88);
+  border-color: rgba(137, 168, 216, 0.14) !important;
+}
+
+[data-bs-theme="dark"] .select2-container--default .select2-selection--single {
+  background-color: #0f1b2d;
+  border-color: rgba(137, 168, 216, 0.24);
+  color: #eef4ff;
+}
+
+[data-bs-theme="dark"] .select2-container--default .select2-selection--single .select2-selection__rendered {
+  color: #eef4ff;
+}
+
+[data-bs-theme="dark"] .select2-container--default .select2-selection--single .select2-selection__placeholder {
+  color: #8ea4c4;
+}
+
+[data-bs-theme="dark"] .select2-container--default .select2-selection--single .select2-selection__arrow b {
+  border-color: #c7dcff transparent transparent transparent;
+}
+
+[data-bs-theme="dark"] .select2-dropdown {
+  background-color: #0f1b2d;
+  border-color: rgba(137, 168, 216, 0.24);
+}
+
+[data-bs-theme="dark"] .select2-search--dropdown .select2-search__field {
+  background-color: #091120;
+  border-color: rgba(137, 168, 216, 0.24);
+  color: #eef4ff;
+}
+
+[data-bs-theme="dark"] .select2-container--default .select2-results__option {
+  color: #e5efff;
+}
+
+[data-bs-theme="dark"] .select2-container--default .select2-results__option--highlighted.select2-results__option--selectable {
+  background-color: #1c467e;
+  color: #f4f8ff;
+}
+
+[data-bs-theme="dark"] .select2-container--default .select2-results__option--selected {
+  background-color: #142742;
+  color: #d6e6ff;
+}

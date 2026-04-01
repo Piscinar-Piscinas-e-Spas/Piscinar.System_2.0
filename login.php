@@ -65,14 +65,38 @@ $messages = [
 $infoMessage = $messages[$reason] ?? null;
 ?>
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt-BR" data-bs-theme="light" data-theme-preference="auto">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Piscinar System 2.0</title>
+    <script>
+    (function () {
+        var storageKey = 'piscinar.theme.preference';
+        var preference = 'auto';
+
+        try {
+            var storedPreference = window.localStorage ? window.localStorage.getItem(storageKey) : null;
+            if (storedPreference === 'light' || storedPreference === 'dark' || storedPreference === 'auto') {
+                preference = storedPreference;
+            }
+        } catch (error) {
+            preference = 'auto';
+        }
+
+        var resolvedTheme = preference === 'auto'
+            ? ((window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light')
+            : preference;
+
+        document.documentElement.setAttribute('data-theme-preference', preference);
+        document.documentElement.setAttribute('data-bs-theme', resolvedTheme);
+        document.documentElement.style.colorScheme = resolvedTheme;
+    })();
+    </script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <link rel="stylesheet" href="<?= htmlspecialchars(app_url('assets/css/login.css'), ENT_QUOTES, 'UTF-8') ?>">
+    <script src="<?= htmlspecialchars(app_url('assets/js/theme_preference.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
 </head>
 <body class="login-page">
 <div class="login-wrap">

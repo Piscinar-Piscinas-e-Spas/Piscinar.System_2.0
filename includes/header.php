@@ -27,11 +27,35 @@
 ?>
 
 <!DOCTYPE html>
-<html lang="pt-BR" data-bs-theme="light">
+<html lang="pt-BR" data-bs-theme="light" data-theme-preference="auto">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sistema de Piscinas</title>
+
+    <script>
+        (function () {
+            var storageKey = 'piscinar.theme.preference';
+            var preference = 'auto';
+
+            try {
+                var storedPreference = window.localStorage ? window.localStorage.getItem(storageKey) : null;
+                if (storedPreference === 'light' || storedPreference === 'dark' || storedPreference === 'auto') {
+                    preference = storedPreference;
+                }
+            } catch (error) {
+                preference = 'auto';
+            }
+
+            var resolvedTheme = preference === 'auto'
+                ? ((window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light')
+                : preference;
+
+            document.documentElement.setAttribute('data-theme-preference', preference);
+            document.documentElement.setAttribute('data-bs-theme', resolvedTheme);
+            document.documentElement.style.colorScheme = resolvedTheme;
+        })();
+    </script>
 
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-sRIl4kxILFvY47J16cr9ZwB07vP4J8+LH7qKQnuqkuIAvNWLzeN8tE5YBujZqJLB" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
@@ -43,6 +67,7 @@
     <?php endif; ?>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js" integrity="sha384-FKyoEForCGlyvwx9Hj09JcYn3nv7wiPVlz7YYwJrWVcXK/BmnVDxM+D2scQbITxI" crossorigin="anonymous"></script>
+    <script src="<?= htmlspecialchars(app_url('assets/js/theme_preference.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
     <script src="<?= htmlspecialchars(app_url('assets/js/app_speech_feedback.js'), ENT_QUOTES, 'UTF-8') ?>"></script>
 </head>
 <body>
@@ -167,6 +192,22 @@
                             </button>
                         </div>
                     </form>
+                </section>
+
+                <section class="settings-panel-card mt-3">
+                    <div class="settings-panel-heading">
+                        <h6><i class="fas fa-circle-half-stroke me-2"></i>Aparencia</h6>
+                        <p>O tema segue o navegador por padrao, mas voce pode fixar a exibicao deste navegador.</p>
+                    </div>
+                    <div class="mb-2">
+                        <label class="form-label" for="themePreferenceSelect">Tema do sistema</label>
+                        <select class="form-select" id="themePreferenceSelect" aria-describedby="themePreferenceStatus">
+                            <option value="auto">Automatico (usar tema do navegador)</option>
+                            <option value="light">Claro</option>
+                            <option value="dark">Escuro</option>
+                        </select>
+                    </div>
+                    <p class="theme-preference-status mb-0" id="themePreferenceStatus"></p>
                 </section>
 
                 <section class="settings-panel-card mt-3">

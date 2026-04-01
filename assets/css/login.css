@@ -229,3 +229,61 @@
         letter-spacing: 0.08em;
     }
 }
+
+[data-bs-theme="dark"] .login-page {
+    background-color: #07111f;
+    background-image:
+      linear-gradient(rgba(67, 104, 173, 0.16) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(24, 145, 224, 0.14) 1px, transparent 1px);
+}
+
+[data-bs-theme="dark"] .login-card {
+    background: rgba(11, 22, 39, 0.94);
+    border-color: rgba(137, 168, 216, 0.2);
+    box-shadow: 0 22px 48px rgba(0, 0, 0, 0.36);
+}
+
+[data-bs-theme="dark"] .login-brand h1 {
+    color: #eef4ff;
+}
+
+[data-bs-theme="dark"] .login-brand p,
+[data-bs-theme="dark"] .form-label {
+    color: #a6b9d7;
+}
+
+[data-bs-theme="dark"] .lp-logo-ring {
+    background: rgba(11, 22, 39, 0.82);
+    border-color: rgba(74, 135, 231, 0.28);
+    box-shadow:
+      0 10px 36px rgba(9, 18, 34, 0.42),
+      0 0 0 6px rgba(32, 86, 167, 0.1);
+}
+
+[data-bs-theme="dark"] .lp-orbit {
+    border-color: rgba(126, 173, 255, 0.2);
+}
+
+[data-bs-theme="dark"] .field-wrap .form-control,
+[data-bs-theme="dark"] .field-wrap .input-group .btn {
+    background-color: #0f1b2d;
+    border-color: rgba(137, 168, 216, 0.24);
+    color: #eef4ff;
+}
+
+[data-bs-theme="dark"] .field-wrap .form-control::placeholder {
+    color: #7e93b1;
+}
+
+[data-bs-theme="dark"] .field-wrap .form-control:focus {
+    border-color: #5d95ff;
+    box-shadow: 0 0 0 0.22rem rgba(46, 125, 246, 0.18);
+}
+
+[data-bs-theme="dark"] hr {
+    border-color: rgba(137, 168, 216, 0.14);
+}
+
+[data-bs-theme="dark"] .forgot-password-link {
+    color: #8bc3ff;
+}

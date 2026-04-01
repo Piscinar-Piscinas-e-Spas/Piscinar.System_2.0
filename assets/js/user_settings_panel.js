@@ -13,6 +13,8 @@
   var saveLabel = saveButton ? saveButton.querySelector('.js-btn-label') : null;
   var usernameInput = document.getElementById('userSettingsUsuario');
   var displayNameInput = document.getElementById('userSettingsNomeExibicao');
+  var themePreferenceSelect = document.getElementById('themePreferenceSelect');
+  var themePreferenceStatus = document.getElementById('themePreferenceStatus');
   var voiceEnabledInput = document.getElementById('voiceFeedbackEnabled');
   var voiceSelect = document.getElementById('voiceFeedbackSelect');
   var voiceTestButton = document.getElementById('voiceFeedbackTestButton');
@@ -57,6 +59,27 @@
     }
 
     label.innerHTML = '<i class="fas fa-user-circle"></i> ' + displayName;
+  }
+
+  function getThemeLabel(theme) {
+    return theme === 'dark' ? 'escuro' : 'claro';
+  }
+
+  function refreshThemePreference() {
+    if (!themePreferenceSelect || !themePreferenceStatus || !window.AppThemePreference) {
+      return;
+    }
+
+    var preference = window.AppThemePreference.getPreference();
+    var resolvedTheme = window.AppThemePreference.getResolvedTheme();
+    themePreferenceSelect.value = preference;
+
+    if (preference === 'auto') {
+      themePreferenceStatus.textContent = 'Automatico ativo. O sistema esta seguindo o navegador e agora usa o modo ' + getThemeLabel(resolvedTheme) + '.';
+      return;
+    }
+
+    themePreferenceStatus.textContent = 'Tema fixado manualmente neste navegador: modo ' + getThemeLabel(resolvedTheme) + '.';
   }
 
   function refreshVoiceOptions() {
@@ -113,6 +136,18 @@
     clearFeedback();
   });
 
+  if (themePreferenceSelect) {
+    themePreferenceSelect.addEventListener('change', function () {
+      if (!window.AppThemePreference) {
+        return;
+      }
+
+      window.AppThemePreference.setPreference(themePreferenceSelect.value);
+      refreshThemePreference();
+      clearFeedback();
+    });
+  }
+
   voiceTestButton.addEventListener('click', function () {
     if (!window.AppSpeechFeedback) {
       return;
@@ -126,9 +161,12 @@
   }
 
   panel.addEventListener('show.bs.offcanvas', function () {
+    refreshThemePreference();
     refreshVoiceOptions();
     clearFeedback();
   });
+
+  window.addEventListener('app-theme-change', refreshThemePreference);
 
   form.addEventListener('submit', async function (event) {
     event.preventDefault();
@@ -176,5 +214,6 @@
     }
   });
 
+  refreshThemePreference();
   refreshVoiceOptions();
 })();
