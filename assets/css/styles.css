@@ -1,4 +1,6 @@
 :root {
+  --app-font-body: "Segoe UI", "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --app-font-heading: "Segoe UI", "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
   --app-body-bg: #f8f9fa;
   --app-surface-1: #ffffff;
   --app-surface-2: #f8fbff;
@@ -74,8 +76,35 @@
 body {
   padding-top: 20px;
   background-color: var(--app-body-bg);
+  color: var(--bs-body-color, inherit);
+  font-family: var(--app-font-body);
   transition: background-color 0.25s ease, color 0.25s ease;
 }
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6,
+.offcanvas-title,
+.settings-panel-heading h6,
+.card-header h1,
+.card-header h2,
+.card-header h3,
+.card-header h4,
+.card-header h5,
+.card-header h6,
+.index-side-menu-title {
+  font-family: var(--app-font-heading);
+}
+
 .card {
   margin-bottom: 20px;
   box-shadow: var(--app-card-shadow);
@@ -1115,295 +1144,558 @@ tr.estoque-critico > td {
 }
 
 [data-app-theme="wellbeing"] {
-  --app-body-bg: #f3eee4;
-  --app-surface-1: #fbf7ef;
-  --app-surface-2: #f4ede0;
-  --app-surface-3: #ece4d2;
-  --app-border-color: #d8ccb8;
-  --app-card-shadow: 0 12px 28px rgba(96, 82, 58, 0.08);
-  --app-card-shadow-strong: 0 18px 36px rgba(96, 82, 58, 0.12);
-  --app-muted-color: #6d6857;
-  --app-heading-color: #596b46;
-  --app-menu-bg: linear-gradient(135deg, #f8f2e7 0%, #eadfcd 100%);
-  --app-menu-shadow: 0 14px 30px rgba(110, 96, 69, 0.12);
-  --app-glass-bg: rgba(251, 246, 236, 0.84);
-  --app-glass-border: rgba(160, 148, 120, 0.22);
-  --app-glass-shadow: 0 14px 28px rgba(126, 112, 84, 0.12);
-  --app-panel-bg: radial-gradient(circle at top right, rgba(117, 142, 92, 0.13), transparent 28%), linear-gradient(180deg, #fcf7ef 0%, #f3ecdf 100%);
-  --app-panel-border: rgba(121, 139, 95, 0.16);
-  --app-panel-card-bg: rgba(252, 248, 240, 0.95);
-  --app-panel-card-border: #d8ccb8;
-  --app-panel-status-bg: rgba(89, 107, 70, 0.08);
-  --app-panel-status-color: #5d624b;
-  --app-soft-info-bg: linear-gradient(135deg, #f8f1e7 0%, #efe7d8 100%);
-  --app-soft-success-bg: linear-gradient(135deg, #f6f1e8 0%, #ebe3d3 100%);
-  --app-soft-success-border: #d9cfbd;
-  --app-nav-gradient: linear-gradient(0deg, #5a6a47 0%, #7b8d63 48%, #9b8e68 100%);
-  --app-nav-gradient-hover: linear-gradient(180deg, #45573a 0%, #5b7650 55%, #8a7a58 100%);
-  --app-nav-gradient-active: linear-gradient(45deg, #4f5c3d 0%, #6f8457 50%, #8f7a55 100%);
-  --app-nav-border-gradient: linear-gradient(0deg, rgba(89, 107, 70, 0.28) 0%, rgba(123, 141, 99, 0.32) 45%, rgba(155, 142, 104, 0.36) 100%);
-  --app-brand-color: #657a50;
-  --app-soft-danger-color: #9f625d;
-  --app-soft-danger-hover-bg: #8a524b;
-  --app-footer-bg: linear-gradient(135deg, #4b5d43 0%, #746a4d 55%, #8f7a57 100%);
-  --app-footer-title-color: #f5e6be;
-  --app-footer-muted-color: rgba(251, 243, 225, 0.72);
-  --app-index-side-title: #6c6552;
-  --app-index-section-border: #ded2c0;
-  --app-index-kpi-border: #ddd1c0;
-  --app-index-kpi-bg: linear-gradient(135deg, #fbf6ee 0%, #efe5d6 100%);
-  --app-financial-kicker: #657b53;
-  --app-financial-muted-strong: #786f5d;
-  --app-financial-source-toggle-border: #d7ccb9;
-  --app-financial-source-toggle-bg: #f7f1e7;
-  --app-financial-legend-color: #7a745f;
-  --app-financial-heatmap-border: #d8cebd;
-  --app-financial-heatmap-head-bg: #ebe4d6;
-  --app-financial-heatmap-head-color: #5f624a;
-  --app-financial-heatmap-foot-bg: #5b6144;
-  --app-financial-heatmap-foot-color: #faf8f0;
-  --app-financial-average-bg: #f3e1b9;
-  --app-financial-average-color: #6e5730;
-  --app-financial-revenue-border: #d9d6bc;
-  --app-financial-revenue-bg: linear-gradient(135deg, #fbf7ef 0%, #f1ebde 100%);
-  --app-financial-paid-border: #cdd9c3;
-  --app-financial-paid-bg: linear-gradient(135deg, #f4f7ef 0%, #e8efe0 100%);
-  --app-financial-expense-border: #e2c9bc;
-  --app-financial-expense-bg: linear-gradient(135deg, #fbf3ef 0%, #f4e4dd 100%);
-  --app-financial-balance-positive-border: #cbd7c0;
-  --app-financial-balance-positive-bg: linear-gradient(135deg, #f3f6ef 0%, #e6eee0 100%);
-  --app-financial-balance-negative-border: #e2c9bc;
-  --app-financial-balance-negative-bg: linear-gradient(135deg, #faf1ee 0%, #f0dfd7 100%);
-  --app-indicator-positive-bg: #e4ecdc;
-  --app-indicator-positive-color: #4f6a37;
-  --app-indicator-positive-border: #c8d6bb;
-  --app-indicator-neutral-bg: #ece6d6;
-  --app-indicator-neutral-color: #756248;
-  --app-indicator-neutral-border: #d8ccb5;
-  --app-indicator-negative-bg: #f3e2db;
-  --app-indicator-negative-color: #8b4f47;
-  --app-indicator-negative-border: #e0beb2;
-  --app-promotion-low-bg: #f2ddd4;
-  --app-promotion-low-color: #8a5048;
-  --app-promotion-high-bg: #e3eadb;
-  --app-promotion-high-color: #50643d;
-  --app-table-light-bg: #ede4d7;
-  --app-table-light-border: #d4c8b7;
-  --app-table-light-striped: #e7ddd0;
-  --app-table-light-hover: #e2d8c8;
-  --app-outline-dark-color: #5a5c43;
-  --app-outline-dark-border: #8e7a58;
-  --app-outline-dark-hover-color: #fbf7ef;
-  --app-outline-dark-hover-bg: #7e6a49;
-  --app-outline-dark-active-color: #fbf7ef;
-  --app-outline-dark-active-bg: #7e6a49;
-  --app-outline-dark-active-border: #7e6a49;
+  --app-font-body: "Nunito", "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --app-font-heading: "Lora", Georgia, "Times New Roman", serif;
+  --app-body-bg: oklch(97.93% 0.003 84.56);
+  --app-surface-1: oklch(98.80% 0.004 84.56);
+  --app-surface-2: oklch(96.70% 0.007 82.60);
+  --app-surface-3: oklch(94.55% 0.010 79.80);
+  --app-border-color: oklch(89.60% 0.010 80.00);
+  --app-card-shadow: 0 8px 24px oklch(29% 0 90 / 0.12);
+  --app-card-shadow-strong: 0 14px 32px oklch(29% 0 90 / 0.14);
+  --app-muted-color: oklch(49.20% 0.006 80.10);
+  --app-heading-color: oklch(43.50% 0.020 145.18);
+  --app-menu-bg: linear-gradient(135deg, oklch(98.80% 0.004 84.56) 0%, oklch(96.60% 0.009 79.50) 55%, oklch(94.80% 0.012 76.10) 100%);
+  --app-menu-shadow: 0 12px 28px oklch(29% 0 90 / 0.10);
+  --app-glass-bg: oklch(98.45% 0.004 84.56 / 0.78);
+  --app-glass-border: oklch(88.30% 0.014 76.10 / 0.72);
+  --app-glass-shadow: 0 8px 24px oklch(29% 0 90 / 0.09);
+  --app-panel-bg: radial-gradient(circle at top right, oklch(61.80% 0.032 145.18 / 0.12), transparent 28%), linear-gradient(180deg, oklch(98.80% 0.004 84.56) 0%, oklch(96.70% 0.007 82.60) 100%);
+  --app-panel-border: oklch(88.30% 0.014 76.10 / 0.72);
+  --app-panel-card-bg: oklch(98.75% 0.004 84.56 / 0.95);
+  --app-panel-card-border: oklch(89.60% 0.010 80.00);
+  --app-panel-status-bg: oklch(91.00% 0.017 76.10 / 0.72);
+  --app-panel-status-color: oklch(39.60% 0.008 82.00);
+  --app-soft-info-bg: linear-gradient(135deg, oklch(98.20% 0.004 84.56) 0%, oklch(95.70% 0.009 82.60) 100%);
+  --app-soft-success-bg: linear-gradient(135deg, oklch(98.10% 0.004 84.56) 0%, oklch(95.50% 0.011 76.10) 100%);
+  --app-soft-success-border: oklch(88.30% 0.014 76.10);
+  --app-nav-gradient: linear-gradient(0deg, oklch(43.50% 0.020 145.18) 0%, oklch(52.00% 0.026 145.18) 54%, oklch(58.60% 0.022 122.00) 100%);
+  --app-nav-gradient-hover: linear-gradient(180deg, oklch(37.50% 0.018 145.18) 0%, oklch(46.20% 0.023 145.18) 54%, oklch(56.80% 0.018 110.00) 100%);
+  --app-nav-gradient-active: linear-gradient(45deg, oklch(40.40% 0.019 145.18) 0%, oklch(52.80% 0.028 145.18) 50%, oklch(61.40% 0.020 108.00) 100%);
+  --app-nav-border-gradient: linear-gradient(0deg, oklch(43.50% 0.020 145.18 / 0.26) 0%, oklch(52.00% 0.026 145.18 / 0.30) 45%, oklch(61.00% 0.017 76.10 / 0.36) 100%);
+  --app-brand-color: oklch(43.50% 0.020 145.18);
+  --app-soft-danger-color: oklch(53.20% 0.050 25.00);
+  --app-soft-danger-hover-bg: linear-gradient(135deg, oklch(58.00% 0.048 24.00) 0%, oklch(51.80% 0.044 20.00) 100%);
+  --app-soft-danger-hover-color: oklch(98.80% 0.003 84.56);
+  --app-footer-bg: linear-gradient(135deg, oklch(34.00% 0.013 145.18) 0%, oklch(39.50% 0.012 110.00) 55%, oklch(45.50% 0.013 76.10) 100%);
+  --app-footer-color: oklch(96.40% 0.004 84.56);
+  --app-footer-title-color: oklch(93.80% 0.019 96.00);
+  --app-footer-link-color: oklch(98.20% 0.004 84.56);
+  --app-footer-muted-color: oklch(92.50% 0.008 82.00 / 0.74);
+  --app-version-badge-bg: oklch(98.20% 0.004 84.56 / 0.12);
+  --app-version-badge-border: oklch(98.20% 0.004 84.56 / 0.18);
+  --app-version-badge-color: oklch(98.20% 0.004 84.56);
+  --app-index-side-title: oklch(44.80% 0.008 80.00);
+  --app-index-section-border: oklch(89.60% 0.010 80.00);
+  --app-index-kpi-border: oklch(88.80% 0.011 79.00);
+  --app-index-kpi-bg: linear-gradient(135deg, oklch(98.60% 0.004 84.56) 0%, oklch(95.90% 0.010 79.20) 100%);
+  --app-financial-kicker: oklch(46.20% 0.023 145.18);
+  --app-financial-muted-strong: oklch(48.40% 0.006 80.10);
+  --app-financial-source-toggle-border: oklch(88.30% 0.014 76.10);
+  --app-financial-source-toggle-bg: oklch(97.30% 0.006 82.60);
+  --app-financial-legend-color: oklch(47.80% 0.006 80.50);
+  --app-financial-heatmap-border: oklch(88.70% 0.011 79.50);
+  --app-financial-heatmap-head-bg: linear-gradient(135deg, oklch(95.80% 0.010 79.80) 0%, oklch(92.20% 0.017 76.10) 100%);
+  --app-financial-heatmap-head-color: oklch(34.85% 0 0);
+  --app-financial-heatmap-foot-bg: oklch(41.20% 0.014 110.00);
+  --app-financial-heatmap-foot-color: oklch(97.80% 0.004 84.56);
+  --app-financial-average-bg: oklch(92.40% 0.019 88.00);
+  --app-financial-average-color: oklch(43.00% 0.013 80.00);
+  --app-financial-revenue-border: oklch(88.80% 0.010 80.00);
+  --app-financial-revenue-bg: linear-gradient(135deg, oklch(98.60% 0.004 84.56) 0%, oklch(95.70% 0.009 82.60) 100%);
+  --app-financial-paid-border: oklch(87.60% 0.016 138.00);
+  --app-financial-paid-bg: linear-gradient(135deg, oklch(98.40% 0.004 84.56) 0%, oklch(95.20% 0.014 138.00) 100%);
+  --app-financial-expense-border: oklch(87.40% 0.018 35.00);
+  --app-financial-expense-bg: linear-gradient(135deg, oklch(98.40% 0.004 84.56) 0%, oklch(95.10% 0.015 35.00) 100%);
+  --app-financial-balance-positive-border: oklch(87.60% 0.016 138.00);
+  --app-financial-balance-positive-bg: linear-gradient(135deg, oklch(98.30% 0.004 84.56) 0%, oklch(95.00% 0.013 138.00) 100%);
+  --app-financial-balance-negative-border: oklch(87.40% 0.018 35.00);
+  --app-financial-balance-negative-bg: linear-gradient(135deg, oklch(98.30% 0.004 84.56) 0%, oklch(95.00% 0.015 35.00) 100%);
+  --app-indicator-positive-bg: oklch(92.80% 0.018 138.00);
+  --app-indicator-positive-color: oklch(40.50% 0.020 138.00);
+  --app-indicator-positive-border: oklch(86.00% 0.018 138.00);
+  --app-indicator-neutral-bg: oklch(91.00% 0.017 76.10);
+  --app-indicator-neutral-color: oklch(41.00% 0.010 82.00);
+  --app-indicator-neutral-border: oklch(88.30% 0.014 76.10);
+  --app-indicator-negative-bg: oklch(92.80% 0.017 35.00);
+  --app-indicator-negative-color: oklch(43.50% 0.040 25.00);
+  --app-indicator-negative-border: oklch(86.00% 0.017 35.00);
+  --app-promotion-low-bg: oklch(93.40% 0.017 35.00);
+  --app-promotion-low-color: oklch(43.50% 0.040 25.00);
+  --app-promotion-high-bg: oklch(92.80% 0.018 138.00);
+  --app-promotion-high-color: oklch(40.50% 0.020 138.00);
+  --app-table-light-color: oklch(34.85% 0 0);
+  --app-table-light-bg: oklch(96.70% 0.007 82.60);
+  --app-table-light-border: oklch(88.70% 0.011 79.50);
+  --app-table-light-striped: oklch(95.20% 0.009 80.80);
+  --app-table-light-hover: oklch(93.60% 0.011 79.50);
+  --app-outline-dark-color: oklch(43.50% 0.020 145.18);
+  --app-outline-dark-border: oklch(68.00% 0.020 145.18);
+  --app-outline-dark-hover-color: oklch(98.80% 0.003 84.56);
+  --app-outline-dark-hover-bg: oklch(43.50% 0.020 145.18);
+  --app-outline-dark-active-color: oklch(98.80% 0.003 84.56);
+  --app-outline-dark-active-bg: oklch(40.00% 0.018 145.18);
+  --app-outline-dark-active-border: oklch(40.00% 0.018 145.18);
+  --app-wellbeing-primary: oklch(61.80% 0.032 145.18);
+  --app-wellbeing-primary-hover: oklch(57.50% 0.034 145.18);
+  --app-wellbeing-primary-active: oklch(53.80% 0.032 145.18);
+  --app-wellbeing-primary-contrast: oklch(98.80% 0.003 84.56);
+  --app-wellbeing-accent: oklch(91.00% 0.017 76.10);
+  --app-wellbeing-accent-strong: oklch(87.50% 0.020 76.10);
+  --app-wellbeing-structure-bg: linear-gradient(135deg, oklch(96.70% 0.007 82.60) 0%, oklch(91.00% 0.017 76.10) 100%);
+  --app-wellbeing-structure-border: oklch(88.30% 0.014 76.10);
+  --app-wellbeing-shadow-soft: 0 8px 24px oklch(29% 0 90 / 0.12);
+  --app-wellbeing-shadow-strong: 0 14px 32px oklch(29% 0 90 / 0.14);
+  --bs-body-bg: var(--app-body-bg);
+  --bs-body-color: oklch(34.85% 0 0);
+  --bs-emphasis-color: oklch(30.50% 0.002 84.56);
+  --bs-secondary-color: oklch(47.80% 0.006 80.50);
+  --bs-tertiary-bg: var(--app-surface-2);
+  --bs-border-color: var(--app-border-color);
 }
 
 [data-app-theme="neo-neon"] {
-  --app-body-bg: #06080c;
-  --app-surface-1: #0b1016;
-  --app-surface-2: #101720;
-  --app-surface-3: #151f2a;
-  --app-border-color: rgba(90, 255, 186, 0.22);
-  --app-card-shadow: 0 16px 36px rgba(0, 0, 0, 0.42);
-  --app-card-shadow-strong: 0 22px 46px rgba(0, 0, 0, 0.52);
-  --app-muted-color: #8cb6c2;
-  --app-heading-color: #72ffb8;
-  --app-menu-bg: linear-gradient(135deg, #06080c 0%, #0c1522 45%, #11192a 100%);
-  --app-menu-shadow: 0 20px 44px rgba(0, 0, 0, 0.46);
-  --app-glass-bg: rgba(9, 17, 26, 0.84);
-  --app-glass-border: rgba(109, 246, 255, 0.18);
-  --app-glass-shadow: 0 0 0 1px rgba(109, 246, 255, 0.08), 0 0 24px rgba(109, 246, 255, 0.12);
-  --app-panel-bg: radial-gradient(circle at top right, rgba(109, 246, 255, 0.18), transparent 26%), radial-gradient(circle at bottom left, rgba(255, 65, 181, 0.14), transparent 34%), linear-gradient(180deg, #071018 0%, #0b1118 50%, #111722 100%);
-  --app-panel-border: rgba(109, 246, 255, 0.16);
-  --app-panel-card-bg: rgba(10, 16, 24, 0.94);
-  --app-panel-card-border: rgba(109, 246, 255, 0.14);
-  --app-panel-status-bg: rgba(114, 255, 184, 0.12);
-  --app-panel-status-color: #c8ffe8;
-  --app-soft-info-bg: linear-gradient(135deg, rgba(7, 17, 31, 0.98) 0%, rgba(13, 27, 38, 0.96) 100%);
-  --app-soft-success-bg: linear-gradient(135deg, rgba(8, 19, 28, 0.98) 0%, rgba(12, 29, 35, 0.96) 100%);
-  --app-soft-success-border: rgba(109, 246, 255, 0.18);
-  --app-nav-gradient: linear-gradient(0deg, #72ffb8 0%, #67f4ff 48%, #5b8dff 100%);
-  --app-nav-gradient-hover: linear-gradient(180deg, #ff49c8 0%, #67f4ff 45%, #72ffb8 100%);
-  --app-nav-gradient-active: linear-gradient(45deg, #f4ffff 0%, #67f4ff 42%, #72ffb8 78%, #ff49c8 100%);
-  --app-nav-border-gradient: linear-gradient(0deg, rgba(114, 255, 184, 0.36) 0%, rgba(103, 244, 255, 0.32) 50%, rgba(255, 73, 200, 0.34) 100%);
-  --app-brand-color: #67f4ff;
-  --app-soft-danger-color: #ff8bd7;
-  --app-soft-danger-hover-bg: linear-gradient(135deg, #ff49c8 0%, #ff6f9e 100%);
-  --app-footer-bg: linear-gradient(135deg, #06121b 0%, #0a2741 45%, #11211e 100%);
-  --app-footer-title-color: #72ffb8;
-  --app-footer-link-color: #dbffff;
-  --app-footer-muted-color: rgba(185, 231, 239, 0.72);
-  --app-version-badge-bg: rgba(103, 244, 255, 0.12);
-  --app-version-badge-border: rgba(103, 244, 255, 0.28);
-  --app-version-badge-color: #b8ffff;
-  --app-index-side-title: #8ceae5;
-  --app-index-section-border: rgba(109, 246, 255, 0.16);
-  --app-index-kpi-border: rgba(114, 255, 184, 0.2);
-  --app-index-kpi-bg: linear-gradient(135deg, rgba(8, 18, 29, 0.98) 0%, rgba(10, 26, 32, 0.96) 100%);
-  --app-financial-kicker: #72ffb8;
-  --app-financial-muted-strong: #8cb6c2;
-  --app-financial-source-toggle-border: rgba(109, 246, 255, 0.16);
-  --app-financial-source-toggle-bg: rgba(7, 18, 25, 0.88);
-  --app-financial-legend-color: #95c7d2;
-  --app-financial-heatmap-border: rgba(103, 244, 255, 0.14);
-  --app-financial-heatmap-head-bg: #102332;
-  --app-financial-heatmap-head-color: #d4ffff;
-  --app-financial-heatmap-foot-bg: #0a1620;
-  --app-financial-heatmap-foot-color: #d7fff7;
-  --app-financial-average-bg: rgba(103, 244, 255, 0.14);
-  --app-financial-average-color: #9ffffc;
+  --app-font-body: "Space Grotesk", "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --app-font-heading: "JetBrains Mono", "Fira Code", "Courier New", monospace;
+  --app-body-bg: oklch(15.51% 0.009 274.28);
+  --app-surface-1: oklch(18.20% 0.010 271.00);
+  --app-surface-2: oklch(20.60% 0.012 266.00);
+  --app-surface-3: oklch(24.40% 0.016 262.00);
+  --app-border-color: oklch(87.18% 0.255 147.64 / 0.20);
+  --app-card-shadow: 0 0 0 1px oklch(87.18% 0.255 147.64 / 0.08), 0 16px 36px oklch(6% 0.004 270 / 0.56);
+  --app-card-shadow-strong: 0 0 0 1px oklch(87.18% 0.255 147.64 / 0.12), 0 22px 46px oklch(6% 0.004 270 / 0.64);
+  --app-muted-color: oklch(70.00% 0.010 247.84);
+  --app-heading-color: oklch(87.18% 0.255 147.64);
+  --app-menu-bg: linear-gradient(135deg, oklch(14.60% 0.010 274.28) 0%, oklch(18.60% 0.020 258.00) 48%, oklch(20.40% 0.024 302.00) 100%);
+  --app-menu-shadow: 0 18px 40px oklch(6% 0.004 270 / 0.62);
+  --app-glass-bg: oklch(18.70% 0.012 266.00 / 0.88);
+  --app-glass-border: oklch(90.80% 0.128 188.42 / 0.20);
+  --app-glass-shadow: 0 0 0 1px oklch(90.80% 0.128 188.42 / 0.08), 0 0 18px oklch(87.18% 0.255 147.64 / 0.10);
+  --app-panel-bg: radial-gradient(circle at top right, oklch(90.80% 0.128 188.42 / 0.16), transparent 24%), radial-gradient(circle at bottom left, oklch(70.17% 0.322 328.36 / 0.12), transparent 32%), linear-gradient(180deg, oklch(15.80% 0.010 274.28) 0%, oklch(18.20% 0.010 271.00) 52%, oklch(21.20% 0.014 262.00) 100%);
+  --app-panel-border: oklch(90.80% 0.128 188.42 / 0.16);
+  --app-panel-card-bg: oklch(17.80% 0.010 270.00 / 0.95);
+  --app-panel-card-border: oklch(90.80% 0.128 188.42 / 0.16);
+  --app-panel-status-bg: oklch(87.18% 0.255 147.64 / 0.10);
+  --app-panel-status-color: oklch(88.00% 0.040 188.42);
+  --app-soft-info-bg: linear-gradient(135deg, oklch(17.20% 0.010 270.00) 0%, oklch(20.40% 0.014 262.00) 100%);
+  --app-soft-success-bg: linear-gradient(135deg, oklch(17.80% 0.012 266.00) 0%, oklch(20.60% 0.014 258.00) 100%);
+  --app-soft-success-border: oklch(90.80% 0.128 188.42 / 0.18);
+  --app-nav-gradient: linear-gradient(0deg, oklch(87.18% 0.255 147.64) 0%, oklch(90.80% 0.128 188.42) 56%, oklch(70.17% 0.322 328.36) 100%);
+  --app-nav-gradient-hover: linear-gradient(180deg, oklch(98% 0.015 200) 0%, oklch(90.80% 0.128 188.42) 42%, oklch(87.18% 0.255 147.64) 76%, oklch(70.17% 0.322 328.36) 100%);
+  --app-nav-gradient-active: linear-gradient(45deg, oklch(96% 0.02 200) 0%, oklch(90.80% 0.128 188.42) 38%, oklch(87.18% 0.255 147.64) 68%, oklch(70.17% 0.322 328.36) 100%);
+  --app-nav-border-gradient: linear-gradient(0deg, oklch(87.18% 0.255 147.64 / 0.30) 0%, oklch(90.80% 0.128 188.42 / 0.26) 50%, oklch(70.17% 0.322 328.36 / 0.30) 100%);
+  --app-brand-color: oklch(90.80% 0.128 188.42);
+  --app-soft-danger-color: oklch(78.00% 0.180 330.00);
+  --app-soft-danger-hover-bg: linear-gradient(135deg, oklch(70.17% 0.322 328.36) 0%, oklch(62.00% 0.250 340.00) 100%);
+  --app-soft-danger-hover-color: oklch(15.51% 0.009 274.28);
+  --app-footer-bg: linear-gradient(135deg, oklch(13.60% 0.010 274.28) 0%, oklch(17.20% 0.018 260.00) 40%, oklch(18.40% 0.026 312.00) 100%);
+  --app-footer-color: oklch(82.61% 0.002 247.84);
+  --app-footer-title-color: oklch(87.18% 0.255 147.64);
+  --app-footer-link-color: oklch(90.80% 0.128 188.42);
+  --app-footer-muted-color: oklch(72.00% 0.010 247.84 / 0.78);
+  --app-version-badge-bg: oklch(90.80% 0.128 188.42 / 0.10);
+  --app-version-badge-border: oklch(87.18% 0.255 147.64 / 0.26);
+  --app-version-badge-color: oklch(91.80% 0.080 188.42);
+  --app-index-side-title: oklch(90.80% 0.128 188.42);
+  --app-index-section-border: oklch(90.80% 0.128 188.42 / 0.14);
+  --app-index-kpi-border: oklch(87.18% 0.255 147.64 / 0.16);
+  --app-index-kpi-bg: linear-gradient(135deg, oklch(17.20% 0.010 270.00) 0%, oklch(20.60% 0.014 262.00) 100%);
+  --app-financial-kicker: oklch(87.18% 0.255 147.64);
+  --app-financial-muted-strong: oklch(76.00% 0.010 247.84);
+  --app-financial-source-toggle-border: oklch(90.80% 0.128 188.42 / 0.16);
+  --app-financial-source-toggle-bg: oklch(17.40% 0.010 270.00 / 0.94);
+  --app-financial-legend-color: oklch(76.00% 0.010 247.84);
+  --app-financial-heatmap-border: oklch(90.80% 0.128 188.42 / 0.14);
+  --app-financial-heatmap-head-bg: oklch(22.40% 0.020 258.00);
+  --app-financial-heatmap-head-color: oklch(91.80% 0.080 188.42);
+  --app-financial-heatmap-foot-bg: oklch(15.60% 0.010 274.28);
+  --app-financial-heatmap-foot-color: oklch(88.00% 0.040 188.42);
+  --app-financial-average-bg: oklch(70.17% 0.322 328.36 / 0.14);
+  --app-financial-average-color: oklch(82.00% 0.080 320.00);
+  --app-financial-revenue-border: oklch(90.80% 0.128 188.42 / 0.18);
+  --app-financial-revenue-bg: linear-gradient(135deg, oklch(17.40% 0.010 270.00) 0%, oklch(20.80% 0.016 252.00) 100%);
+  --app-financial-paid-border: oklch(87.18% 0.255 147.64 / 0.18);
+  --app-financial-paid-bg: linear-gradient(135deg, oklch(17.20% 0.010 270.00) 0%, oklch(20.20% 0.018 220.00) 100%);
+  --app-financial-expense-border: oklch(70.17% 0.322 328.36 / 0.18);
+  --app-financial-expense-bg: linear-gradient(135deg, oklch(17.80% 0.012 274.00) 0%, oklch(21.40% 0.020 318.00) 100%);
+  --app-financial-balance-positive-border: oklch(87.18% 0.255 147.64 / 0.18);
+  --app-financial-balance-positive-bg: linear-gradient(135deg, oklch(17.00% 0.010 270.00) 0%, oklch(20.00% 0.018 220.00) 100%);
+  --app-financial-balance-negative-border: oklch(70.17% 0.322 328.36 / 0.18);
+  --app-financial-balance-negative-bg: linear-gradient(135deg, oklch(17.80% 0.012 274.00) 0%, oklch(21.40% 0.020 318.00) 100%);
+  --app-indicator-positive-bg: oklch(87.18% 0.255 147.64 / 0.10);
+  --app-indicator-positive-color: oklch(89.00% 0.160 160.00);
+  --app-indicator-positive-border: oklch(87.18% 0.255 147.64 / 0.20);
+  --app-indicator-neutral-bg: oklch(90.80% 0.128 188.42 / 0.10);
+  --app-indicator-neutral-color: oklch(88.00% 0.070 188.42);
+  --app-indicator-neutral-border: oklch(90.80% 0.128 188.42 / 0.18);
+  --app-indicator-negative-bg: oklch(70.17% 0.322 328.36 / 0.10);
+  --app-indicator-negative-color: oklch(80.00% 0.110 324.00);
+  --app-indicator-negative-border: oklch(70.17% 0.322 328.36 / 0.18);
+  --app-promotion-low-bg: oklch(70.17% 0.322 328.36 / 0.12);
+  --app-promotion-low-color: oklch(82.00% 0.090 320.00);
+  --app-promotion-high-bg: oklch(87.18% 0.255 147.64 / 0.12);
+  --app-promotion-high-color: oklch(88.00% 0.160 160.00);
+  --app-table-light-color: oklch(82.61% 0.002 247.84);
+  --app-table-light-bg: oklch(19.20% 0.010 268.00);
+  --app-table-light-border: oklch(90.80% 0.128 188.42 / 0.16);
+  --app-table-light-striped: oklch(22.20% 0.014 262.00);
+  --app-table-light-hover: oklch(24.40% 0.018 258.00);
+  --app-outline-dark-color: oklch(82.61% 0.002 247.84);
+  --app-outline-dark-border: oklch(90.80% 0.128 188.42 / 0.22);
+  --app-outline-dark-hover-color: oklch(15.51% 0.009 274.28);
+  --app-outline-dark-hover-bg: oklch(90.80% 0.128 188.42);
+  --app-outline-dark-active-color: oklch(15.51% 0.009 274.28);
+  --app-outline-dark-active-bg: oklch(87.18% 0.255 147.64);
+  --app-outline-dark-active-border: oklch(87.18% 0.255 147.64);
+  --app-neon-primary: oklch(90.80% 0.128 188.42);
+  --app-neon-primary-strong: oklch(87.18% 0.255 147.64);
+  --app-neon-primary-contrast: oklch(15.51% 0.009 274.28);
+  --app-neon-accent: oklch(70.17% 0.322 328.36);
+  --app-neon-structure-bg: linear-gradient(135deg, oklch(18.60% 0.012 270.00) 0%, oklch(21.20% 0.018 258.00) 100%);
+  --app-neon-structure-border: oklch(90.80% 0.128 188.42 / 0.18);
+  --app-neon-glow: 0 0 10px oklch(87.18% 0.255 147.64 / 0.72), 0 0 20px oklch(87.18% 0.255 147.64 / 0.48);
+  --bs-body-bg: var(--app-body-bg);
+  --bs-body-color: oklch(82.61% 0.002 247.84);
+  --bs-emphasis-color: oklch(92% 0.020 188.42);
+  --bs-secondary-color: oklch(70.00% 0.010 247.84);
+  --bs-tertiary-bg: var(--app-surface-2);
+  --bs-border-color: var(--app-border-color);
 }
 
 [data-app-theme="sunwash"] {
-  --app-body-bg: #f8f1eb;
-  --app-surface-1: #fffaf6;
-  --app-surface-2: #f4ebe3;
-  --app-surface-3: #efe4dd;
-  --app-border-color: #dbcfc6;
-  --app-card-shadow: 0 12px 28px rgba(122, 92, 79, 0.08);
-  --app-card-shadow-strong: 0 18px 36px rgba(122, 92, 79, 0.12);
-  --app-muted-color: #7a6d67;
-  --app-heading-color: #7185a3;
-  --app-menu-bg: linear-gradient(135deg, #fff2ec 0%, #f0e3db 52%, #ebe1d2 100%);
-  --app-menu-shadow: 0 14px 30px rgba(135, 113, 101, 0.12);
-  --app-glass-bg: rgba(255, 248, 242, 0.82);
-  --app-glass-border: rgba(175, 157, 147, 0.22);
-  --app-glass-shadow: 0 14px 28px rgba(135, 113, 101, 0.12);
-  --app-panel-bg: radial-gradient(circle at top right, rgba(201, 143, 132, 0.13), transparent 26%), linear-gradient(180deg, #fff8f3 0%, #f3ebe2 100%);
-  --app-panel-border: rgba(180, 160, 149, 0.18);
-  --app-panel-card-bg: rgba(255, 250, 245, 0.94);
-  --app-panel-card-border: #dfd1c9;
-  --app-panel-status-bg: rgba(113, 133, 163, 0.08);
-  --app-panel-status-color: #6a7287;
-  --app-soft-info-bg: linear-gradient(135deg, #fcf5ef 0%, #f2e7df 100%);
-  --app-soft-success-bg: linear-gradient(135deg, #fbf3ee 0%, #efe7e1 100%);
-  --app-soft-success-border: #ddcfc7;
-  --app-nav-gradient: linear-gradient(0deg, #c38278 0%, #879bb8 52%, #8d8e67 100%);
-  --app-nav-gradient-hover: linear-gradient(180deg, #b26e67 0%, #7a8faa 48%, #7a855e 100%);
-  --app-nav-gradient-active: linear-gradient(45deg, #c7867a 0%, #8398b7 45%, #8c8c66 100%);
-  --app-nav-border-gradient: linear-gradient(0deg, rgba(195, 130, 120, 0.32) 0%, rgba(135, 155, 184, 0.3) 45%, rgba(141, 142, 103, 0.28) 100%);
-  --app-brand-color: #c77d71;
-  --app-soft-danger-color: #b86f66;
-  --app-soft-danger-hover-bg: #b06d63;
-  --app-footer-bg: linear-gradient(135deg, #a5635e 0%, #7f90a7 48%, #8b7a62 100%);
-  --app-footer-title-color: #ffe3cd;
-  --app-footer-muted-color: rgba(255, 239, 226, 0.72);
-  --app-index-side-title: #8a6f68;
-  --app-index-section-border: #e1d5cf;
-  --app-index-kpi-border: #e2d4ca;
-  --app-index-kpi-bg: linear-gradient(135deg, #fff5ef 0%, #f3e7e0 100%);
-  --app-financial-kicker: #879bb8;
-  --app-financial-muted-strong: #897d76;
-  --app-financial-revenue-border: #d7dce6;
-  --app-financial-revenue-bg: linear-gradient(135deg, #faf6f4 0%, #ecf0f6 100%);
-  --app-financial-paid-border: #d8dfd0;
-  --app-financial-paid-bg: linear-gradient(135deg, #f7f5ef 0%, #edf1e7 100%);
-  --app-financial-expense-border: #edd3cf;
-  --app-financial-expense-bg: linear-gradient(135deg, #fcf3f0 0%, #f5e6e0 100%);
-  --app-financial-balance-positive-border: #d8e0d2;
-  --app-financial-balance-positive-bg: linear-gradient(135deg, #f6f5ef 0%, #ecf0e8 100%);
-  --app-financial-balance-negative-border: #ecd2cd;
-  --app-financial-balance-negative-bg: linear-gradient(135deg, #fbf2ef 0%, #f3e4dd 100%);
+  --app-font-body: "Space Grotesk", "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --app-font-heading: "Fraunces", "Lora", Georgia, "Times New Roman", serif;
+  --app-body-bg: oklch(97.26% 0.009 67.73);
+  --app-surface-1: oklch(98.60% 0.008 67.73);
+  --app-surface-2: oklch(95.80% 0.014 58.00);
+  --app-surface-3: oklch(93.20% 0.020 46.00);
+  --app-border-color: oklch(84.20% 0.020 56.00);
+  --app-card-shadow: 4px 4px 0 oklch(63.52% 0.029 114.16 / 0.52);
+  --app-card-shadow-strong: 6px 6px 0 oklch(63.52% 0.029 114.16 / 0.56);
+  --app-muted-color: oklch(55.20% 0.013 32.00);
+  --app-heading-color: oklch(43.55% 0.016 23.47);
+  --app-menu-bg: linear-gradient(135deg, oklch(98.60% 0.008 67.73) 0%, oklch(94.70% 0.020 45.00) 52%, oklch(92.20% 0.020 182.00) 100%);
+  --app-menu-shadow: 4px 4px 0 oklch(63.52% 0.029 114.16 / 0.42);
+  --app-glass-bg: oklch(98.20% 0.008 67.73 / 0.84);
+  --app-glass-border: oklch(76.20% 0.015 180.57 / 0.44);
+  --app-glass-shadow: 4px 4px 0 oklch(63.52% 0.029 114.16 / 0.32);
+  --app-panel-bg:
+    radial-gradient(circle at 12% 18%, oklch(70.22% 0.101 39.64 / 0.12) 0 12%, transparent 13%),
+    radial-gradient(circle at 74% 26%, oklch(76.20% 0.015 180.57 / 0.16) 0 10%, transparent 11%),
+    radial-gradient(circle at 40% 78%, oklch(63.52% 0.029 114.16 / 0.10) 0 8%, transparent 9%),
+    linear-gradient(180deg, oklch(98.50% 0.008 67.73) 0%, oklch(95.20% 0.015 58.00) 100%);
+  --app-panel-border: oklch(84.20% 0.020 56.00);
+  --app-panel-card-bg: oklch(98.40% 0.008 67.73 / 0.96);
+  --app-panel-card-border: oklch(84.20% 0.020 56.00);
+  --app-panel-status-bg: oklch(76.20% 0.015 180.57 / 0.18);
+  --app-panel-status-color: oklch(43.55% 0.016 23.47);
+  --app-soft-info-bg: linear-gradient(135deg, oklch(98.20% 0.008 67.73) 0%, oklch(94.80% 0.016 180.57) 100%);
+  --app-soft-success-bg: linear-gradient(135deg, oklch(98.10% 0.008 67.73) 0%, oklch(92.50% 0.020 45.00) 100%);
+  --app-soft-success-border: oklch(63.52% 0.029 114.16);
+  --app-nav-gradient: linear-gradient(0deg, oklch(70.22% 0.101 39.64) 0%, oklch(76.20% 0.015 180.57) 52%, oklch(63.52% 0.029 114.16) 100%);
+  --app-nav-gradient-hover: linear-gradient(180deg, oklch(64.20% 0.088 39.64) 0%, oklch(72.50% 0.018 180.57) 48%, oklch(57.80% 0.032 114.16) 100%);
+  --app-nav-gradient-active: linear-gradient(45deg, oklch(72.00% 0.096 39.64) 0%, oklch(75.60% 0.015 180.57) 45%, oklch(61.20% 0.030 114.16) 100%);
+  --app-nav-border-gradient: linear-gradient(0deg, oklch(70.22% 0.101 39.64 / 0.34) 0%, oklch(76.20% 0.015 180.57 / 0.28) 45%, oklch(63.52% 0.029 114.16 / 0.34) 100%);
+  --app-brand-color: oklch(70.22% 0.101 39.64);
+  --app-soft-danger-color: oklch(58.00% 0.060 28.00);
+  --app-soft-danger-hover-bg: linear-gradient(135deg, oklch(63.20% 0.090 38.00) 0%, oklch(58.00% 0.055 28.00) 100%);
+  --app-soft-danger-hover-color: oklch(98.20% 0.008 67.73);
+  --app-footer-bg: linear-gradient(135deg, oklch(56.00% 0.060 30.00) 0%, oklch(69.50% 0.018 180.57) 48%, oklch(57.80% 0.032 114.16) 100%);
+  --app-footer-color: oklch(97.20% 0.009 67.73);
+  --app-footer-title-color: oklch(98.00% 0.010 67.73);
+  --app-footer-link-color: oklch(97.50% 0.008 67.73);
+  --app-footer-muted-color: oklch(95.20% 0.009 67.73 / 0.76);
+  --app-version-badge-bg: oklch(98.40% 0.008 67.73 / 0.16);
+  --app-version-badge-border: oklch(98.40% 0.008 67.73 / 0.28);
+  --app-version-badge-color: oklch(97.40% 0.009 67.73);
+  --app-index-side-title: oklch(53.60% 0.018 24.00);
+  --app-index-section-border: oklch(84.20% 0.020 56.00);
+  --app-index-kpi-border: oklch(84.20% 0.020 56.00);
+  --app-index-kpi-bg: linear-gradient(135deg, oklch(98.20% 0.008 67.73) 0%, oklch(94.60% 0.020 45.00) 100%);
+  --app-financial-kicker: oklch(76.20% 0.015 180.57);
+  --app-financial-muted-strong: oklch(55.20% 0.013 32.00);
+  --app-financial-source-toggle-border: oklch(84.20% 0.020 56.00);
+  --app-financial-source-toggle-bg: oklch(97.10% 0.010 67.73);
+  --app-financial-legend-color: oklch(55.20% 0.013 32.00);
+  --app-financial-heatmap-border: oklch(84.20% 0.020 56.00);
+  --app-financial-heatmap-head-bg: linear-gradient(135deg, oklch(94.80% 0.016 180.57) 0%, oklch(92.50% 0.020 45.00) 100%);
+  --app-financial-heatmap-head-color: oklch(43.55% 0.016 23.47);
+  --app-financial-heatmap-foot-bg: oklch(63.52% 0.029 114.16);
+  --app-financial-heatmap-foot-color: oklch(98.00% 0.010 67.73);
+  --app-financial-average-bg: oklch(92.80% 0.028 48.00);
+  --app-financial-average-color: oklch(47.00% 0.022 30.00);
+  --app-financial-revenue-border: oklch(76.20% 0.015 180.57);
+  --app-financial-revenue-bg: linear-gradient(135deg, oklch(98.10% 0.008 67.73) 0%, oklch(94.80% 0.016 180.57) 100%);
+  --app-financial-paid-border: oklch(63.52% 0.029 114.16);
+  --app-financial-paid-bg: linear-gradient(135deg, oklch(98.00% 0.008 67.73) 0%, oklch(94.20% 0.020 114.16) 100%);
+  --app-financial-expense-border: oklch(70.22% 0.101 39.64);
+  --app-financial-expense-bg: linear-gradient(135deg, oklch(98.00% 0.008 67.73) 0%, oklch(92.80% 0.028 48.00) 100%);
+  --app-financial-balance-positive-border: oklch(63.52% 0.029 114.16);
+  --app-financial-balance-positive-bg: linear-gradient(135deg, oklch(98.00% 0.008 67.73) 0%, oklch(94.20% 0.020 114.16) 100%);
+  --app-financial-balance-negative-border: oklch(70.22% 0.101 39.64);
+  --app-financial-balance-negative-bg: linear-gradient(135deg, oklch(98.00% 0.008 67.73) 0%, oklch(92.80% 0.028 48.00) 100%);
+  --app-indicator-positive-bg: oklch(93.80% 0.020 114.16);
+  --app-indicator-positive-color: oklch(44.80% 0.024 114.16);
+  --app-indicator-positive-border: oklch(63.52% 0.029 114.16);
+  --app-indicator-neutral-bg: oklch(94.80% 0.016 180.57);
+  --app-indicator-neutral-color: oklch(43.55% 0.016 23.47);
+  --app-indicator-neutral-border: oklch(76.20% 0.015 180.57);
+  --app-indicator-negative-bg: oklch(93.20% 0.028 48.00);
+  --app-indicator-negative-color: oklch(47.00% 0.022 30.00);
+  --app-indicator-negative-border: oklch(70.22% 0.101 39.64);
+  --app-promotion-low-bg: oklch(93.20% 0.028 48.00);
+  --app-promotion-low-color: oklch(47.00% 0.022 30.00);
+  --app-promotion-high-bg: oklch(93.80% 0.020 114.16);
+  --app-promotion-high-color: oklch(44.80% 0.024 114.16);
+  --app-table-light-color: oklch(43.55% 0.016 23.47);
+  --app-table-light-bg: oklch(96.00% 0.012 60.00);
+  --app-table-light-border: oklch(84.20% 0.020 56.00);
+  --app-table-light-striped: oklch(94.20% 0.016 58.00);
+  --app-table-light-hover: oklch(92.80% 0.020 55.00);
+  --app-outline-dark-color: oklch(43.55% 0.016 23.47);
+  --app-outline-dark-border: oklch(63.52% 0.029 114.16);
+  --app-outline-dark-hover-color: oklch(98.00% 0.010 67.73);
+  --app-outline-dark-hover-bg: oklch(63.52% 0.029 114.16);
+  --app-outline-dark-active-color: oklch(98.00% 0.010 67.73);
+  --app-outline-dark-active-bg: oklch(59.80% 0.030 114.16);
+  --app-outline-dark-active-border: oklch(59.80% 0.030 114.16);
+  --app-sunwash-primary: oklch(70.22% 0.101 39.64);
+  --app-sunwash-primary-contrast: oklch(98.00% 0.010 67.73);
+  --app-sunwash-accent-blue: oklch(76.20% 0.015 180.57);
+  --app-sunwash-accent-olive: oklch(63.52% 0.029 114.16);
+  --app-sunwash-solid-shadow: 4px 4px 0 oklch(63.52% 0.029 114.16);
+  --app-sunwash-structure-bg: linear-gradient(135deg, oklch(95.00% 0.015 180.57) 0%, oklch(92.80% 0.028 48.00) 100%);
+  --app-sunwash-noise:
+    radial-gradient(circle at 18% 22%, oklch(63.52% 0.029 114.16 / 0.12) 0 1px, transparent 1.5px),
+    radial-gradient(circle at 68% 36%, oklch(76.20% 0.015 180.57 / 0.12) 0 1.2px, transparent 1.8px),
+    radial-gradient(circle at 42% 78%, oklch(70.22% 0.101 39.64 / 0.10) 0 1px, transparent 1.6px);
+  --bs-body-bg: var(--app-body-bg);
+  --bs-body-color: oklch(43.55% 0.016 23.47);
+  --bs-emphasis-color: oklch(37.60% 0.014 23.47);
+  --bs-secondary-color: oklch(55.20% 0.013 32.00);
+  --bs-tertiary-bg: var(--app-surface-2);
+  --bs-border-color: var(--app-border-color);
 }
 
 [data-app-theme="thermal"] {
-  --app-body-bg: #12061f;
-  --app-surface-1: #1a0b2c;
-  --app-surface-2: #24103a;
-  --app-surface-3: #311751;
-  --app-border-color: rgba(255, 138, 92, 0.24);
-  --app-card-shadow: 0 18px 40px rgba(0, 0, 0, 0.42);
-  --app-card-shadow-strong: 0 24px 48px rgba(0, 0, 0, 0.5);
-  --app-muted-color: #c1b0de;
-  --app-heading-color: #7cf7ff;
-  --app-menu-bg: linear-gradient(135deg, #1b0830 0%, #3f0f58 38%, #7a153e 72%, #ff7d39 100%);
-  --app-menu-shadow: 0 22px 46px rgba(0, 0, 0, 0.42);
-  --app-glass-bg: rgba(29, 11, 43, 0.82);
-  --app-glass-border: rgba(124, 247, 255, 0.18);
-  --app-glass-shadow: 0 0 0 1px rgba(124, 247, 255, 0.08), 0 0 26px rgba(255, 91, 113, 0.14);
-  --app-panel-bg: radial-gradient(circle at top right, rgba(124, 247, 255, 0.15), transparent 24%), radial-gradient(circle at bottom left, rgba(255, 105, 77, 0.18), transparent 32%), linear-gradient(180deg, #170628 0%, #210a38 52%, #2d0e48 100%);
-  --app-panel-border: rgba(255, 137, 93, 0.18);
-  --app-panel-card-bg: rgba(28, 10, 41, 0.92);
-  --app-panel-card-border: rgba(255, 137, 93, 0.18);
-  --app-panel-status-bg: rgba(124, 247, 255, 0.12);
-  --app-panel-status-color: #d4faff;
-  --app-soft-info-bg: linear-gradient(135deg, rgba(32, 11, 48, 0.98) 0%, rgba(49, 16, 63, 0.96) 100%);
-  --app-soft-success-bg: linear-gradient(135deg, rgba(42, 12, 50, 0.98) 0%, rgba(77, 20, 67, 0.96) 100%);
-  --app-soft-success-border: rgba(255, 137, 93, 0.22);
-  --app-nav-gradient: linear-gradient(0deg, #7cf7ff 0%, #ff6b87 48%, #ffb34d 100%);
-  --app-nav-gradient-hover: linear-gradient(180deg, #f2f7ff 0%, #7cf7ff 42%, #ff6b87 76%, #ffb34d 100%);
-  --app-nav-gradient-active: linear-gradient(45deg, #ffffff 0%, #7cf7ff 36%, #ff6b87 70%, #ffb34d 100%);
-  --app-nav-border-gradient: linear-gradient(0deg, rgba(124, 247, 255, 0.34) 0%, rgba(255, 107, 135, 0.34) 48%, rgba(255, 179, 77, 0.34) 100%);
-  --app-brand-color: #8ef9ff;
-  --app-soft-danger-color: #ffb2c3;
-  --app-soft-danger-hover-bg: linear-gradient(135deg, #ff5f74 0%, #ff9f45 100%);
-  --app-footer-bg: linear-gradient(135deg, #1c082f 0%, #5b1263 42%, #ff6b4a 100%);
-  --app-footer-title-color: #9ffffc;
-  --app-footer-link-color: #fff2fb;
-  --app-footer-muted-color: rgba(247, 224, 255, 0.72);
-  --app-version-badge-bg: rgba(124, 247, 255, 0.12);
-  --app-version-badge-border: rgba(124, 247, 255, 0.24);
-  --app-version-badge-color: #d1feff;
-  --app-index-side-title: #d6c2ff;
-  --app-index-section-border: rgba(255, 137, 93, 0.16);
-  --app-index-kpi-border: rgba(255, 137, 93, 0.22);
-  --app-index-kpi-bg: linear-gradient(135deg, rgba(31, 11, 47, 0.98) 0%, rgba(64, 16, 64, 0.96) 100%);
-  --app-financial-kicker: #7cf7ff;
-  --app-financial-muted-strong: #c6b7e3;
+  --app-font-body: "Syne", "Space Grotesk", "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --app-font-heading: "Anton", "Syne", "Impact", "Arial Black", sans-serif;
+  --app-body-bg: oklch(14.74% 0.077 303.51);
+  --app-surface-1: oklch(19.20% 0.050 299.00);
+  --app-surface-2: oklch(24.40% 0.065 302.00);
+  --app-surface-3: oklch(30.20% 0.088 306.00);
+  --app-border-color: oklch(100% 0 0 / 0.16);
+  --app-card-shadow: 0 20px 44px oklch(4% 0.010 300 / 0.34);
+  --app-card-shadow-strong: 0 26px 54px oklch(4% 0.010 300 / 0.42);
+  --app-muted-color: oklch(88% 0.020 312.00 / 0.84);
+  --app-heading-color: oklch(100% 0 0);
+  --app-menu-bg: linear-gradient(135deg, oklch(14.74% 0.077 303.51 / 0.82) 0%, oklch(58.04% 0.232 8.66 / 0.48) 44%, oklch(68.60% 0.210 41.14 / 0.42) 100%);
+  --app-menu-shadow: 0 22px 46px oklch(4% 0.010 300 / 0.34);
+  --app-glass-bg: oklch(100% 0 180 / 0.10);
+  --app-glass-border: oklch(100% 0 0 / 0.18);
+  --app-glass-shadow: 0 0 0 1px oklch(100% 0 0 / 0.06), 0 22px 46px oklch(4% 0.010 300 / 0.26);
+  --app-panel-bg:
+    radial-gradient(circle at 12% 22%, oklch(68.60% 0.210 41.14 / 0.50) 0, transparent 26%),
+    radial-gradient(circle at 82% 12%, oklch(58.04% 0.232 8.66 / 0.56) 0, transparent 30%),
+    radial-gradient(circle at 68% 78%, oklch(68.60% 0.210 41.14 / 0.30) 0, transparent 34%),
+    linear-gradient(140deg, oklch(14.74% 0.077 303.51) 0%, oklch(22.50% 0.118 318.00) 48%, oklch(30.00% 0.170 18.00) 100%);
+  --app-panel-border: oklch(100% 0 0 / 0.14);
+  --app-panel-card-bg: oklch(100% 0 180 / 0.10);
+  --app-panel-card-border: oklch(100% 0 0 / 0.16);
+  --app-panel-status-bg: oklch(100% 0 180 / 0.12);
+  --app-panel-status-color: oklch(100% 0 0);
+  --app-soft-info-bg: linear-gradient(135deg, oklch(100% 0 180 / 0.10) 0%, oklch(58.04% 0.232 8.66 / 0.18) 100%);
+  --app-soft-success-bg: linear-gradient(135deg, oklch(100% 0 180 / 0.10) 0%, oklch(68.60% 0.210 41.14 / 0.20) 100%);
+  --app-soft-success-border: oklch(100% 0 0 / 0.16);
+  --app-nav-gradient: linear-gradient(0deg, oklch(100% 0 0) 0%, oklch(68.60% 0.210 41.14) 44%, oklch(58.04% 0.232 8.66) 100%);
+  --app-nav-gradient-hover: linear-gradient(180deg, oklch(100% 0 0) 0%, oklch(68.60% 0.210 41.14) 42%, oklch(58.04% 0.232 8.66) 76%, oklch(100% 0 0) 100%);
+  --app-nav-gradient-active: linear-gradient(45deg, oklch(100% 0 0) 0%, oklch(68.60% 0.210 41.14) 38%, oklch(58.04% 0.232 8.66) 70%, oklch(100% 0 0) 100%);
+  --app-nav-border-gradient: linear-gradient(0deg, oklch(68.60% 0.210 41.14 / 0.34) 0%, oklch(58.04% 0.232 8.66 / 0.34) 48%, oklch(100% 0 0 / 0.26) 100%);
+  --app-brand-color: oklch(100% 0 0);
+  --app-soft-danger-color: oklch(96% 0.020 0);
+  --app-soft-danger-hover-bg: linear-gradient(135deg, oklch(58.04% 0.232 8.66) 0%, oklch(68.60% 0.210 41.14) 100%);
+  --app-soft-danger-hover-color: oklch(100% 0 0);
+  --app-footer-bg: linear-gradient(135deg, oklch(14.74% 0.077 303.51) 0%, oklch(58.04% 0.232 8.66 / 0.76) 44%, oklch(68.60% 0.210 41.14 / 0.74) 100%);
+  --app-footer-color: oklch(100% 0 0);
+  --app-footer-title-color: oklch(100% 0 0);
+  --app-footer-link-color: oklch(100% 0 0);
+  --app-footer-muted-color: oklch(100% 0 0 / 0.78);
+  --app-version-badge-bg: oklch(100% 0 180 / 0.14);
+  --app-version-badge-border: oklch(100% 0 0 / 0.18);
+  --app-version-badge-color: oklch(100% 0 0);
+  --app-index-side-title: oklch(100% 0 0);
+  --app-index-section-border: oklch(100% 0 0 / 0.12);
+  --app-index-kpi-border: oklch(100% 0 0 / 0.16);
+  --app-index-kpi-bg: linear-gradient(135deg, oklch(100% 0 180 / 0.12) 0%, oklch(58.04% 0.232 8.66 / 0.16) 48%, oklch(68.60% 0.210 41.14 / 0.16) 100%);
+  --app-financial-kicker: oklch(100% 0 0);
+  --app-financial-muted-strong: oklch(96% 0.010 0 / 0.84);
+  --app-financial-source-toggle-border: oklch(100% 0 0 / 0.14);
+  --app-financial-source-toggle-bg: oklch(100% 0 180 / 0.10);
+  --app-financial-legend-color: oklch(96% 0.010 0 / 0.82);
+  --app-financial-heatmap-border: oklch(100% 0 0 / 0.14);
+  --app-financial-heatmap-head-bg: linear-gradient(135deg, oklch(100% 0 180 / 0.14) 0%, oklch(58.04% 0.232 8.66 / 0.18) 100%);
+  --app-financial-heatmap-head-color: oklch(100% 0 0);
+  --app-financial-heatmap-foot-bg: oklch(14.74% 0.077 303.51 / 0.84);
+  --app-financial-heatmap-foot-color: oklch(100% 0 0);
+  --app-financial-average-bg: oklch(68.60% 0.210 41.14 / 0.22);
+  --app-financial-average-color: oklch(100% 0 0);
+  --app-financial-revenue-border: oklch(100% 0 0 / 0.16);
+  --app-financial-revenue-bg: linear-gradient(135deg, oklch(100% 0 180 / 0.10) 0%, oklch(68.60% 0.210 41.14 / 0.18) 100%);
+  --app-financial-paid-border: oklch(100% 0 0 / 0.16);
+  --app-financial-paid-bg: linear-gradient(135deg, oklch(100% 0 180 / 0.10) 0%, oklch(68.60% 0.210 41.14 / 0.16) 100%);
+  --app-financial-expense-border: oklch(100% 0 0 / 0.16);
+  --app-financial-expense-bg: linear-gradient(135deg, oklch(100% 0 180 / 0.10) 0%, oklch(58.04% 0.232 8.66 / 0.18) 100%);
+  --app-financial-balance-positive-border: oklch(100% 0 0 / 0.16);
+  --app-financial-balance-positive-bg: linear-gradient(135deg, oklch(100% 0 180 / 0.10) 0%, oklch(68.60% 0.210 41.14 / 0.18) 100%);
+  --app-financial-balance-negative-border: oklch(100% 0 0 / 0.16);
+  --app-financial-balance-negative-bg: linear-gradient(135deg, oklch(100% 0 180 / 0.10) 0%, oklch(58.04% 0.232 8.66 / 0.18) 100%);
+  --app-indicator-positive-bg: oklch(68.60% 0.210 41.14 / 0.22);
+  --app-indicator-positive-color: oklch(100% 0 0);
+  --app-indicator-positive-border: oklch(100% 0 0 / 0.16);
+  --app-indicator-neutral-bg: oklch(100% 0 180 / 0.12);
+  --app-indicator-neutral-color: oklch(100% 0 0);
+  --app-indicator-neutral-border: oklch(100% 0 0 / 0.16);
+  --app-indicator-negative-bg: oklch(58.04% 0.232 8.66 / 0.24);
+  --app-indicator-negative-color: oklch(100% 0 0);
+  --app-indicator-negative-border: oklch(100% 0 0 / 0.16);
+  --app-promotion-low-bg: oklch(58.04% 0.232 8.66 / 0.22);
+  --app-promotion-low-color: oklch(100% 0 0);
+  --app-promotion-high-bg: oklch(68.60% 0.210 41.14 / 0.22);
+  --app-promotion-high-color: oklch(100% 0 0);
+  --app-table-light-color: oklch(100% 0 0);
+  --app-table-light-bg: oklch(100% 0 180 / 0.10);
+  --app-table-light-border: oklch(100% 0 0 / 0.16);
+  --app-table-light-striped: oklch(100% 0 180 / 0.14);
+  --app-table-light-hover: oklch(100% 0 180 / 0.18);
+  --app-outline-dark-color: oklch(100% 0 0);
+  --app-outline-dark-border: oklch(100% 0 0 / 0.22);
+  --app-outline-dark-hover-color: oklch(14.74% 0.077 303.51);
+  --app-outline-dark-hover-bg: oklch(100% 0 0);
+  --app-outline-dark-active-color: oklch(14.74% 0.077 303.51);
+  --app-outline-dark-active-bg: oklch(100% 0 0);
+  --app-outline-dark-active-border: oklch(100% 0 0);
+  --app-thermal-gradient-1: oklch(68.60% 0.210 41.14);
+  --app-thermal-gradient-2: oklch(58.04% 0.232 8.66);
+  --app-thermal-glass-bg: oklch(100% 0 180 / 0.10);
+  --app-thermal-glass-border: oklch(100% 0 0 / 0.16);
+  --bs-body-bg: var(--app-body-bg);
+  --bs-body-color: oklch(100% 0 0);
+  --bs-emphasis-color: oklch(100% 0 0);
+  --bs-secondary-color: oklch(96% 0.010 0 / 0.82);
+  --bs-tertiary-bg: var(--app-surface-2);
+  --bs-border-color: var(--app-border-color);
 }
 
 [data-app-theme="walnut"] {
-  --app-body-bg: #efe2d3;
-  --app-surface-1: #fbf3ea;
-  --app-surface-2: #f3e6d8;
-  --app-surface-3: #ead7c3;
-  --app-border-color: #d4bfab;
-  --app-card-shadow: 0 12px 28px rgba(84, 59, 39, 0.1);
-  --app-card-shadow-strong: 0 18px 36px rgba(84, 59, 39, 0.14);
-  --app-muted-color: #6f5d50;
-  --app-heading-color: #6d4a31;
-  --app-menu-bg: linear-gradient(135deg, #f8ecdf 0%, #ead4be 52%, #d7b491 100%);
-  --app-menu-shadow: 0 14px 30px rgba(109, 74, 49, 0.14);
-  --app-glass-bg: rgba(251, 243, 234, 0.84);
-  --app-glass-border: rgba(133, 97, 66, 0.18);
-  --app-glass-shadow: 0 14px 28px rgba(109, 74, 49, 0.12);
-  --app-panel-bg: radial-gradient(circle at top right, rgba(196, 142, 92, 0.14), transparent 26%), linear-gradient(180deg, #fcf5ed 0%, #efe2d3 100%);
-  --app-panel-border: rgba(133, 97, 66, 0.18);
-  --app-panel-card-bg: rgba(252, 245, 237, 0.94);
-  --app-panel-card-border: #d7c1ae;
-  --app-panel-status-bg: rgba(109, 74, 49, 0.08);
-  --app-panel-status-color: #664935;
-  --app-soft-info-bg: linear-gradient(135deg, #faf1e7 0%, #f0e0d1 100%);
-  --app-soft-success-bg: linear-gradient(135deg, #faf1e8 0%, #ecdccf 100%);
-  --app-soft-success-border: #d7c1ae;
-  --app-nav-gradient: linear-gradient(0deg, #6d4a31 0%, #b07a4f 52%, #d4b38b 100%);
-  --app-nav-gradient-hover: linear-gradient(180deg, #533623 0%, #8a5b39 48%, #c79c72 100%);
-  --app-nav-gradient-active: linear-gradient(45deg, #5f3d28 0%, #9f6a43 48%, #d4b38b 100%);
-  --app-nav-border-gradient: linear-gradient(0deg, rgba(109, 74, 49, 0.32) 0%, rgba(176, 122, 79, 0.3) 48%, rgba(212, 179, 139, 0.3) 100%);
-  --app-brand-color: #8f5f3d;
-  --app-soft-danger-color: #b56d5c;
-  --app-soft-danger-hover-bg: #a85e4d;
-  --app-footer-bg: linear-gradient(135deg, #3e291c 0%, #6d4a31 48%, #b07a4f 100%);
-  --app-footer-title-color: #ffd8ad;
-  --app-footer-muted-color: rgba(255, 235, 216, 0.72);
-  --app-index-side-title: #7b614f;
-  --app-index-section-border: #d8c3af;
-  --app-index-kpi-border: #dbc5b2;
-  --app-index-kpi-bg: linear-gradient(135deg, #fbf1e7 0%, #efddcd 100%);
-  --app-financial-kicker: #8f5f3d;
-  --app-financial-muted-strong: #7c6655;
-  --app-financial-revenue-border: #dbcab9;
-  --app-financial-revenue-bg: linear-gradient(135deg, #fbf2ea 0%, #efe0d2 100%);
-  --app-financial-paid-border: #d5d4c5;
-  --app-financial-paid-bg: linear-gradient(135deg, #f8f3eb 0%, #ede6d9 100%);
-  --app-financial-expense-border: #e4cdbf;
-  --app-financial-expense-bg: linear-gradient(135deg, #fbf1eb 0%, #f1dfd2 100%);
-  --app-financial-balance-positive-border: #d5d1c2;
-  --app-financial-balance-positive-bg: linear-gradient(135deg, #f8f4eb 0%, #ebe4d8 100%);
-  --app-financial-balance-negative-border: #e3cbbc;
-  --app-financial-balance-negative-bg: linear-gradient(135deg, #faf0eb 0%, #efddd0 100%);
+  --app-font-body: "Space Grotesk", "Nunito", "Inter", "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+  --app-font-heading: "Playfair Display", "Fraunces", "Lora", Georgia, "Times New Roman", serif;
+  --app-body-bg: oklch(91.14% 0.027 69.28);
+  --app-surface-1: oklch(96.40% 0.012 72.00);
+  --app-surface-2: oklch(93.90% 0.018 69.50);
+  --app-surface-3: oklch(89.60% 0.028 64.00);
+  --app-border-color: oklch(81.20% 0.030 64.00);
+  --app-card-shadow: 0 14px 30px oklch(20.00% 0.028 60.00 / 0.10);
+  --app-card-shadow-strong: 0 20px 42px oklch(20.00% 0.028 60.00 / 0.14);
+  --app-muted-color: oklch(45.80% 0.020 60.80);
+  --app-heading-color: oklch(29.54% 0.039 60.56);
+  --app-menu-bg: linear-gradient(135deg, oklch(96.40% 0.012 72.00) 0%, oklch(91.14% 0.027 69.28) 56%, oklch(79.00% 0.060 61.00) 100%);
+  --app-menu-shadow: 0 16px 34px oklch(20.00% 0.028 60.00 / 0.12);
+  --app-glass-bg: oklch(96.40% 0.012 72.00 / 0.82);
+  --app-glass-border: oklch(81.20% 0.030 64.00 / 0.72);
+  --app-glass-shadow: 0 14px 28px oklch(20.00% 0.028 60.00 / 0.10);
+  --app-panel-bg:
+    radial-gradient(circle at 14% 18%, oklch(65.32% 0.120 57.87 / 0.16) 0, transparent 24%),
+    radial-gradient(circle at 82% 14%, oklch(35.13% 0.033 151.19 / 0.10) 0, transparent 28%),
+    linear-gradient(180deg, oklch(96.40% 0.012 72.00) 0%, oklch(91.14% 0.027 69.28) 100%);
+  --app-panel-border: oklch(81.20% 0.030 64.00 / 0.78);
+  --app-panel-card-bg: oklch(96.40% 0.012 72.00 / 0.94);
+  --app-panel-card-border: oklch(81.20% 0.030 64.00);
+  --app-panel-status-bg: oklch(35.13% 0.033 151.19 / 0.12);
+  --app-panel-status-color: oklch(31.00% 0.030 128.00);
+  --app-soft-info-bg: linear-gradient(135deg, oklch(96.20% 0.012 72.00) 0%, oklch(92.20% 0.022 69.00) 100%);
+  --app-soft-success-bg: linear-gradient(135deg, oklch(96.10% 0.012 72.00) 0%, oklch(92.60% 0.020 126.00) 100%);
+  --app-soft-success-border: oklch(35.13% 0.033 151.19 / 0.32);
+  --app-nav-gradient: linear-gradient(0deg, oklch(29.54% 0.039 60.56) 0%, oklch(65.32% 0.120 57.87) 56%, oklch(35.13% 0.033 151.19) 100%);
+  --app-nav-gradient-hover: linear-gradient(180deg, oklch(25.50% 0.030 60.56) 0%, oklch(58.00% 0.100 57.87) 50%, oklch(38.00% 0.036 151.19) 100%);
+  --app-nav-gradient-active: linear-gradient(45deg, oklch(29.54% 0.039 60.56) 0%, oklch(61.00% 0.110 57.87) 46%, oklch(35.13% 0.033 151.19) 100%);
+  --app-nav-border-gradient: linear-gradient(0deg, oklch(29.54% 0.039 60.56 / 0.28) 0%, oklch(65.32% 0.120 57.87 / 0.30) 50%, oklch(35.13% 0.033 151.19 / 0.30) 100%);
+  --app-brand-color: oklch(29.54% 0.039 60.56);
+  --app-soft-danger-color: oklch(53.20% 0.072 35.00);
+  --app-soft-danger-hover-bg: linear-gradient(135deg, oklch(58.00% 0.094 50.00) 0%, oklch(36.40% 0.050 28.00) 100%);
+  --app-soft-danger-hover-color: oklch(96.20% 0.012 75.00);
+  --app-footer-bg: linear-gradient(135deg, oklch(24.80% 0.032 60.56) 0%, oklch(35.13% 0.033 151.19) 48%, oklch(52.00% 0.086 57.87) 100%);
+  --app-footer-color: oklch(96.20% 0.012 75.00);
+  --app-footer-title-color: oklch(94.80% 0.020 74.00);
+  --app-footer-link-color: oklch(96.20% 0.012 75.00);
+  --app-footer-muted-color: oklch(95.40% 0.014 74.00 / 0.72);
+  --app-version-badge-bg: oklch(96.20% 0.012 75.00 / 0.16);
+  --app-version-badge-border: oklch(96.20% 0.012 75.00 / 0.26);
+  --app-version-badge-color: oklch(96.20% 0.012 75.00);
+  --app-index-side-title: oklch(39.00% 0.022 63.00);
+  --app-index-section-border: oklch(81.20% 0.030 64.00);
+  --app-index-kpi-border: oklch(81.20% 0.030 64.00);
+  --app-index-kpi-bg: linear-gradient(135deg, oklch(96.20% 0.012 72.00) 0%, oklch(92.10% 0.020 69.00) 100%);
+  --app-financial-kicker: oklch(65.32% 0.120 57.87);
+  --app-financial-muted-strong: oklch(45.80% 0.020 60.80);
+  --app-financial-source-toggle-border: oklch(81.20% 0.030 64.00);
+  --app-financial-source-toggle-bg: oklch(96.10% 0.012 72.00);
+  --app-financial-legend-color: oklch(45.80% 0.020 60.80);
+  --app-financial-heatmap-border: oklch(81.20% 0.030 64.00);
+  --app-financial-heatmap-head-bg: linear-gradient(135deg, oklch(94.80% 0.018 70.00) 0%, oklch(91.50% 0.026 67.00) 100%);
+  --app-financial-heatmap-head-color: oklch(29.54% 0.039 60.56);
+  --app-financial-heatmap-foot-bg: oklch(35.13% 0.033 151.19);
+  --app-financial-heatmap-foot-color: oklch(96.20% 0.012 75.00);
+  --app-financial-average-bg: oklch(90.40% 0.028 68.00);
+  --app-financial-average-color: oklch(38.00% 0.026 60.00);
+  --app-financial-revenue-border: oklch(81.20% 0.030 64.00);
+  --app-financial-revenue-bg: linear-gradient(135deg, oklch(96.10% 0.012 72.00) 0%, oklch(92.20% 0.022 69.00) 100%);
+  --app-financial-paid-border: oklch(35.13% 0.033 151.19 / 0.32);
+  --app-financial-paid-bg: linear-gradient(135deg, oklch(96.20% 0.012 72.00) 0%, oklch(92.60% 0.020 126.00) 100%);
+  --app-financial-expense-border: oklch(65.32% 0.120 57.87 / 0.42);
+  --app-financial-expense-bg: linear-gradient(135deg, oklch(96.10% 0.012 72.00) 0%, oklch(90.40% 0.028 68.00) 100%);
+  --app-financial-balance-positive-border: oklch(35.13% 0.033 151.19 / 0.32);
+  --app-financial-balance-positive-bg: linear-gradient(135deg, oklch(96.20% 0.012 72.00) 0%, oklch(92.60% 0.020 126.00) 100%);
+  --app-financial-balance-negative-border: oklch(65.32% 0.120 57.87 / 0.42);
+  --app-financial-balance-negative-bg: linear-gradient(135deg, oklch(96.10% 0.012 72.00) 0%, oklch(90.40% 0.028 68.00) 100%);
+  --app-indicator-positive-bg: oklch(92.60% 0.020 126.00);
+  --app-indicator-positive-color: oklch(31.00% 0.030 128.00);
+  --app-indicator-positive-border: oklch(35.13% 0.033 151.19 / 0.32);
+  --app-indicator-neutral-bg: oklch(94.00% 0.018 69.50);
+  --app-indicator-neutral-color: oklch(29.54% 0.039 60.56);
+  --app-indicator-neutral-border: oklch(81.20% 0.030 64.00);
+  --app-indicator-negative-bg: oklch(90.40% 0.028 68.00);
+  --app-indicator-negative-color: oklch(38.00% 0.052 42.00);
+  --app-indicator-negative-border: oklch(65.32% 0.120 57.87 / 0.42);
+  --app-promotion-low-bg: oklch(90.40% 0.028 68.00);
+  --app-promotion-low-color: oklch(38.00% 0.052 42.00);
+  --app-promotion-high-bg: oklch(92.60% 0.020 126.00);
+  --app-promotion-high-color: oklch(31.00% 0.030 128.00);
+  --app-table-light-color: oklch(29.54% 0.039 60.56);
+  --app-table-light-bg: oklch(94.80% 0.018 70.00);
+  --app-table-light-border: oklch(81.20% 0.030 64.00);
+  --app-table-light-striped: oklch(93.10% 0.020 68.80);
+  --app-table-light-hover: oklch(91.20% 0.024 67.00);
+  --app-outline-dark-color: oklch(29.54% 0.039 60.56);
+  --app-outline-dark-border: oklch(29.54% 0.039 60.56 / 0.32);
+  --app-outline-dark-hover-color: oklch(96.20% 0.012 75.00);
+  --app-outline-dark-hover-bg: oklch(29.54% 0.039 60.56);
+  --app-outline-dark-active-color: oklch(96.20% 0.012 75.00);
+  --app-outline-dark-active-bg: oklch(25.50% 0.030 60.56);
+  --app-outline-dark-active-border: oklch(25.50% 0.030 60.56);
+  --app-walnut-primary: oklch(65.32% 0.120 57.87);
+  --app-walnut-primary-hover: oklch(57.40% 0.096 56.50);
+  --app-walnut-primary-active: oklch(49.50% 0.074 55.00);
+  --app-walnut-primary-contrast: oklch(96.20% 0.012 75.00);
+  --app-walnut-accent: oklch(35.13% 0.033 151.19);
+  --app-walnut-structure-bg: linear-gradient(135deg, oklch(96.20% 0.012 72.00) 0%, oklch(93.40% 0.020 69.00) 100%);
+  --app-walnut-structure-border: oklch(81.20% 0.030 64.00);
+  --app-walnut-image-filter: sepia(0.08) saturate(0.94) hue-rotate(-8deg);
+  --bs-body-bg: var(--app-body-bg);
+  --bs-body-color: oklch(29.54% 0.039 60.56);
+  --bs-emphasis-color: oklch(24.80% 0.034 60.56);
+  --bs-secondary-color: oklch(45.80% 0.020 60.80);
+  --bs-tertiary-bg: var(--app-surface-2);
+  --bs-border-color: var(--app-border-color);
 }
 
 .navbar-light .navbar-nav .nav-link {
@@ -1589,27 +1881,245 @@ tr.estoque-critico > td {
 [data-app-theme="neo-neon"] .navbar-brand,
 [data-app-theme="neo-neon"] .settings-panel-heading h6,
 [data-app-theme="neo-neon"] .financial-summary-kicker,
-[data-app-theme="neo-neon"] .footer-title {
-  text-shadow: 0 0 14px rgba(103, 244, 255, 0.22);
+[data-app-theme="neo-neon"] .footer-title,
+[data-app-theme="neo-neon"] .card-header h1,
+[data-app-theme="neo-neon"] .card-header h3,
+[data-app-theme="neo-neon"] .card-header h4,
+[data-app-theme="neo-neon"] .index-side-menu-title {
+  text-shadow: var(--app-neon-glow);
+}
+
+[data-app-theme="neo-neon"] .card,
+[data-app-theme="neo-neon"] .settings-panel-card,
+[data-app-theme="neo-neon"] .financial-summary-panel,
+[data-app-theme="neo-neon"] .theme-preference-status,
+[data-app-theme="neo-neon"] .estoque-box,
+[data-app-theme="neo-neon"] .resumo-card,
+[data-app-theme="neo-neon"] .campos-estoque,
+[data-app-theme="neo-neon"] .index-kpi-card,
+[data-app-theme="neo-neon"] .financial-side-stack .card,
+[data-app-theme="neo-neon"] .financial-table-card.card,
+[data-app-theme="neo-neon"] .user-settings-offcanvas {
+  border-radius: 4px;
+}
+
+[data-app-theme="neo-neon"] .card-header,
+[data-app-theme="neo-neon"] .card .card-body,
+[data-app-theme="neo-neon"] .offcanvas-header,
+[data-app-theme="neo-neon"] .offcanvas-body,
+[data-app-theme="neo-neon"] .settings-panel-card,
+[data-app-theme="neo-neon"] .financial-summary-panel .card-body {
+  padding: clamp(0.95rem, 1.7vw, 1.2rem);
+}
+
+[data-app-theme="neo-neon"] .navbar-light,
+[data-app-theme="neo-neon"] .form-control,
+[data-app-theme="neo-neon"] .form-select,
+[data-app-theme="neo-neon"] .input-group-text,
+[data-app-theme="neo-neon"] .table,
+[data-app-theme="neo-neon"] .form-label {
+  font-family: var(--app-font-body);
+}
+
+[data-app-theme="neo-neon"] .btn,
+[data-app-theme="neo-neon"] .navbar-brand,
+[data-app-theme="neo-neon"] .navbar-light .navbar-nav .nav-link,
+[data-app-theme="neo-neon"] .theme-preference-status,
+[data-app-theme="neo-neon"] .financial-summary-kicker,
+[data-app-theme="neo-neon"] .index-side-menu-title,
+[data-app-theme="neo-neon"] .settings-panel-heading h6,
+[data-app-theme="neo-neon"] .offcanvas-title,
+[data-app-theme="neo-neon"] .card-header h1,
+[data-app-theme="neo-neon"] .card-header h2,
+[data-app-theme="neo-neon"] .card-header h3,
+[data-app-theme="neo-neon"] .card-header h4,
+[data-app-theme="neo-neon"] .card-header h5,
+[data-app-theme="neo-neon"] .card-header h6 {
+  font-family: var(--app-font-heading);
+}
+
+[data-app-theme="neo-neon"] .card-header.bg-primary,
+[data-app-theme="neo-neon"] .card-header.text-bg-primary,
+[data-app-theme="neo-neon"] .text-bg-primary:not(.btn),
+[data-app-theme="neo-neon"] .badge.text-bg-primary {
+  background: var(--app-neon-structure-bg) !important;
+  color: var(--bs-body-color) !important;
+  border-color: var(--app-neon-structure-border) !important;
+  box-shadow: inset 0 -1px 0 oklch(70.17% 0.322 328.36 / 0.28), 0 0 0 1px oklch(90.80% 0.128 188.42 / 0.06);
+}
+
+[data-app-theme="neo-neon"] .card-header.bg-primary > *,
+[data-app-theme="neo-neon"] .card-header.text-bg-primary > *,
+[data-app-theme="neo-neon"] .text-bg-primary:not(.btn) > * {
+  color: inherit !important;
 }
 
 [data-app-theme="neo-neon"] .btn-primary {
-  background: linear-gradient(135deg, #72ffb8 0%, #67f4ff 52%, #ff49c8 100%);
-  border-color: #72ffb8;
-  color: #071018;
-  box-shadow: 0 0 18px rgba(103, 244, 255, 0.18);
+  --bs-btn-color: var(--app-neon-primary);
+  --bs-btn-bg: transparent;
+  --bs-btn-border-color: oklch(87.18% 0.255 147.64 / 0.48);
+  --bs-btn-hover-color: var(--app-neon-primary-contrast);
+  --bs-btn-hover-bg: var(--app-neon-primary);
+  --bs-btn-hover-border-color: var(--app-neon-primary);
+  --bs-btn-active-color: var(--app-neon-primary-contrast);
+  --bs-btn-active-bg: var(--app-neon-primary-strong);
+  --bs-btn-active-border-color: var(--app-neon-primary-strong);
+  background: transparent;
+  border-color: oklch(87.18% 0.255 147.64 / 0.48);
+  color: var(--app-neon-primary);
+  box-shadow: inset 0 0 0 1px oklch(87.18% 0.255 147.64 / 0.16), 0 0 10px oklch(87.18% 0.255 147.64 / 0.12);
+  border-radius: 4px;
+  text-shadow: 0 0 10px oklch(87.18% 0.255 147.64 / 0.34);
 }
 
 [data-app-theme="neo-neon"] .btn-outline-primary {
-  color: #8cfbff;
-  border-color: rgba(103, 244, 255, 0.28);
-  box-shadow: inset 0 0 0 1px rgba(103, 244, 255, 0.08), 0 0 14px rgba(103, 244, 255, 0.08);
+  --bs-btn-color: oklch(90.80% 0.128 188.42);
+  --bs-btn-border-color: oklch(90.80% 0.128 188.42 / 0.34);
+  --bs-btn-hover-color: var(--app-neon-primary-contrast);
+  --bs-btn-hover-bg: oklch(90.80% 0.128 188.42);
+  --bs-btn-hover-border-color: oklch(90.80% 0.128 188.42);
+  --bs-btn-active-color: var(--app-neon-primary-contrast);
+  --bs-btn-active-bg: oklch(87.18% 0.255 147.64);
+  --bs-btn-active-border-color: oklch(87.18% 0.255 147.64);
+  background: transparent;
+  color: oklch(90.80% 0.128 188.42);
+  border-color: oklch(90.80% 0.128 188.42 / 0.34);
+  box-shadow: inset 0 0 0 1px oklch(90.80% 0.128 188.42 / 0.10), 0 0 10px oklch(90.80% 0.128 188.42 / 0.08);
+  border-radius: 4px;
 }
 
+[data-app-theme="neo-neon"] .btn-primary:hover,
+[data-app-theme="neo-neon"] .btn-primary:focus-visible,
 [data-app-theme="neo-neon"] .btn-outline-primary:hover {
-  background-color: rgba(103, 244, 255, 0.12);
-  color: #dfffff;
-  border-color: rgba(103, 244, 255, 0.38);
+  background-color: var(--app-neon-primary);
+  color: var(--app-neon-primary-contrast);
+  border-color: var(--app-neon-primary);
+  box-shadow: 0 0 14px oklch(87.18% 0.255 147.64 / 0.22), 0 0 28px oklch(70.17% 0.322 328.36 / 0.18);
+  text-shadow: none;
+}
+
+[data-app-theme="neo-neon"] .form-control,
+[data-app-theme="neo-neon"] .form-select,
+[data-app-theme="neo-neon"] .input-group-text,
+[data-app-theme="neo-neon"] .form-check-input {
+  background-color: var(--app-surface-1);
+  border-color: var(--app-border-color);
+  color: var(--bs-body-color);
+  border-radius: 4px;
+}
+
+[data-app-theme="neo-neon"] .form-control::placeholder,
+[data-app-theme="neo-neon"] .form-select::placeholder {
+  color: var(--app-muted-color);
+}
+
+[data-app-theme="neo-neon"] .form-control:focus,
+[data-app-theme="neo-neon"] .form-select:focus,
+[data-app-theme="neo-neon"] .form-check-input:focus {
+  background-color: var(--app-surface-1);
+  border-color: oklch(87.18% 0.255 147.64 / 0.52);
+  box-shadow: 0 0 0 0.18rem oklch(87.18% 0.255 147.64 / 0.14), 0 0 18px oklch(90.80% 0.128 188.42 / 0.08);
+}
+
+[data-app-theme="neo-neon"] .table-hover > tbody > tr:hover > * {
+  --bs-table-accent-bg: oklch(87.18% 0.255 147.64 / 0.08);
+  color: inherit;
+}
+
+@keyframes thermal-pan {
+  0% {
+    background-position: 0% 0%, 100% 0%, 50% 100%, 50% 50%;
+  }
+  50% {
+    background-position: 16% 14%, 84% 18%, 42% 76%, 46% 54%;
+  }
+  100% {
+    background-position: 4% 18%, 88% 4%, 56% 84%, 54% 48%;
+  }
+}
+
+[data-app-theme="thermal"] body,
+[data-app-theme="thermal"] .login-page {
+  background-image:
+    radial-gradient(circle at 18% 22%, oklch(68.60% 0.210 41.14 / 0.42) 0, transparent 24%),
+    radial-gradient(circle at 82% 16%, oklch(58.04% 0.232 8.66 / 0.46) 0, transparent 30%),
+    linear-gradient(140deg, oklch(14.74% 0.077 303.51) 0%, oklch(20.60% 0.112 318.00) 46%, oklch(28.40% 0.166 18.00) 100%);
+  background-size: auto, auto, 100% 100%;
+  background-attachment: scroll;
+  animation: none;
+}
+
+[data-app-theme="thermal"] .card,
+[data-app-theme="thermal"] .theme-preference-status,
+[data-app-theme="thermal"] .estoque-box,
+[data-app-theme="thermal"] .resumo-card,
+[data-app-theme="thermal"] .campos-estoque,
+[data-app-theme="thermal"] .index-kpi-card,
+[data-app-theme="thermal"] .financial-side-stack .card,
+[data-app-theme="thermal"] .financial-table-card.card,
+[data-app-theme="thermal"] .settings-panel-card,
+[data-app-theme="thermal"] .financial-summary-panel,
+[data-app-theme="thermal"] .user-settings-offcanvas {
+  background: linear-gradient(180deg, oklch(100% 0 180 / 0.08) 0%, oklch(100% 0 180 / 0.05) 100%);
+  border-color: var(--app-thermal-glass-border);
+  box-shadow: var(--app-card-shadow);
+}
+
+[data-app-theme="thermal"] .settings-panel-card,
+[data-app-theme="thermal"] .financial-summary-panel,
+[data-app-theme="thermal"] .user-settings-offcanvas {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+[data-app-theme="thermal"] .card-header,
+[data-app-theme="thermal"] .card .card-body,
+[data-app-theme="thermal"] .offcanvas-header,
+[data-app-theme="thermal"] .offcanvas-body,
+[data-app-theme="thermal"] .settings-panel-card,
+[data-app-theme="thermal"] .financial-summary-panel .card-body {
+  padding: clamp(1rem, 1.8vw, 1.25rem);
+}
+
+[data-app-theme="thermal"] .btn,
+[data-app-theme="thermal"] .navbar-brand,
+[data-app-theme="thermal"] .navbar-light .navbar-nav .nav-link,
+[data-app-theme="thermal"] .theme-preference-status,
+[data-app-theme="thermal"] .financial-summary-kicker,
+[data-app-theme="thermal"] .index-side-menu-title,
+[data-app-theme="thermal"] .settings-panel-heading h6,
+[data-app-theme="thermal"] .offcanvas-title,
+[data-app-theme="thermal"] .card-header h1,
+[data-app-theme="thermal"] .card-header h2,
+[data-app-theme="thermal"] .card-header h3,
+[data-app-theme="thermal"] .card-header h4,
+[data-app-theme="thermal"] .card-header h5,
+[data-app-theme="thermal"] .card-header h6 {
+  font-family: var(--app-font-heading);
+}
+
+[data-app-theme="thermal"] .form-control,
+[data-app-theme="thermal"] .form-select,
+[data-app-theme="thermal"] .input-group-text,
+[data-app-theme="thermal"] .table,
+[data-app-theme="thermal"] .form-label {
+  font-family: var(--app-font-body);
+}
+
+[data-app-theme="thermal"] .card-header.bg-primary,
+[data-app-theme="thermal"] .card-header.text-bg-primary,
+[data-app-theme="thermal"] .text-bg-primary:not(.btn),
+[data-app-theme="thermal"] .badge.text-bg-primary {
+  background:
+    linear-gradient(135deg, oklch(58.04% 0.232 8.66 / 0.34) 0%, oklch(68.60% 0.210 41.14 / 0.36) 100%) !important;
+  color: var(--bs-body-color) !important;
+  border-color: oklch(100% 0 0 / 0.18) !important;
+}
+
+[data-app-theme="thermal"] .card-header.bg-primary > *,
+[data-app-theme="thermal"] .card-header.text-bg-primary > *,
+[data-app-theme="thermal"] .text-bg-primary:not(.btn) > * {
+  color: inherit !important;
 }
 
 [data-app-theme="thermal"] .settings-panel-card,
@@ -1623,40 +2133,526 @@ tr.estoque-critico > td {
   content: "";
   position: absolute;
   inset: 0;
-  background: linear-gradient(120deg, rgba(124, 247, 255, 0.06), transparent 28%, rgba(255, 107, 135, 0.08), transparent 68%, rgba(255, 179, 77, 0.08));
+  background: linear-gradient(120deg, oklch(100% 0 180 / 0.10), transparent 26%, oklch(58.04% 0.232 8.66 / 0.12), transparent 66%, oklch(68.60% 0.210 41.14 / 0.12));
   pointer-events: none;
 }
 
 [data-app-theme="thermal"] .btn-primary {
-  background: linear-gradient(135deg, #7b2cff 0%, #ff5f74 52%, #ffb34d 100%);
-  border-color: rgba(255, 179, 77, 0.8);
-  color: #fff7ff;
-  box-shadow: 0 0 20px rgba(255, 107, 135, 0.18);
+  --bs-btn-color: oklch(100% 0 0);
+  --bs-btn-bg: transparent;
+  --bs-btn-border-color: oklch(100% 0 0 / 0.18);
+  --bs-btn-hover-color: oklch(100% 0 0);
+  --bs-btn-hover-bg: transparent;
+  --bs-btn-hover-border-color: oklch(100% 0 0 / 0.22);
+  --bs-btn-active-color: oklch(100% 0 0);
+  --bs-btn-active-bg: transparent;
+  --bs-btn-active-border-color: oklch(100% 0 0 / 0.22);
+  background: linear-gradient(135deg, oklch(68.60% 0.210 41.14 / 0.80) 0%, oklch(58.04% 0.232 8.66 / 0.82) 100%);
+  border-color: oklch(100% 0 0 / 0.18);
+  color: oklch(100% 0 0);
+  box-shadow: 0 12px 26px oklch(58.04% 0.232 8.66 / 0.14);
 }
 
 [data-app-theme="thermal"] .btn-outline-primary {
-  color: #bffcff;
-  border-color: rgba(124, 247, 255, 0.28);
-  box-shadow: inset 0 0 0 1px rgba(124, 247, 255, 0.08), 0 0 14px rgba(124, 247, 255, 0.08);
+  --bs-btn-color: oklch(100% 0 0);
+  --bs-btn-border-color: oklch(100% 0 0 / 0.20);
+  --bs-btn-hover-color: oklch(100% 0 0);
+  --bs-btn-hover-bg: transparent;
+  --bs-btn-hover-border-color: oklch(100% 0 0 / 0.24);
+  --bs-btn-active-color: oklch(100% 0 0);
+  --bs-btn-active-bg: transparent;
+  --bs-btn-active-border-color: oklch(100% 0 0 / 0.24);
+  background: oklch(100% 0 180 / 0.08);
+  color: oklch(100% 0 0);
+  border-color: oklch(100% 0 0 / 0.20);
+  box-shadow: inset 0 0 0 1px oklch(100% 0 0 / 0.06), 0 12px 24px oklch(4% 0.010 300 / 0.12);
 }
 
+[data-app-theme="thermal"] .btn-primary:hover,
+[data-app-theme="thermal"] .btn-primary:focus-visible,
 [data-app-theme="thermal"] .btn-outline-primary:hover {
-  background-color: rgba(124, 247, 255, 0.12);
-  color: #fff5ff;
-  border-color: rgba(124, 247, 255, 0.4);
+  border-color: oklch(100% 0 0 / 0.24);
+  box-shadow: 0 16px 30px oklch(58.04% 0.232 8.66 / 0.16);
+}
+
+[data-app-theme="thermal"] .form-control,
+[data-app-theme="thermal"] .form-select,
+[data-app-theme="thermal"] .input-group-text,
+[data-app-theme="thermal"] .form-check-input {
+  background: oklch(100% 0 180 / 0.08);
+  border-color: oklch(100% 0 0 / 0.16);
+  color: var(--bs-body-color);
+}
+
+[data-app-theme="thermal"] .form-control::placeholder,
+[data-app-theme="thermal"] .form-select::placeholder {
+  color: var(--app-muted-color);
+}
+
+[data-app-theme="thermal"] .form-control:focus,
+[data-app-theme="thermal"] .form-select:focus,
+[data-app-theme="thermal"] .form-check-input:focus {
+  background: oklch(100% 0 180 / 0.10);
+  border-color: oklch(100% 0 0 / 0.22);
+  box-shadow: 0 0 0 0.18rem oklch(100% 0 0 / 0.10);
+}
+
+[data-app-theme="thermal"] .table-hover > tbody > tr:hover > * {
+  --bs-table-accent-bg: oklch(100% 0 180 / 0.10);
+  color: inherit;
+}
+
+[data-app-theme="wellbeing"] .card,
+[data-app-theme="wellbeing"] .settings-panel-card,
+[data-app-theme="wellbeing"] .financial-summary-panel,
+[data-app-theme="wellbeing"] .theme-preference-status,
+[data-app-theme="wellbeing"] .estoque-box,
+[data-app-theme="wellbeing"] .resumo-card,
+[data-app-theme="wellbeing"] .campos-estoque,
+[data-app-theme="wellbeing"] .index-kpi-card,
+[data-app-theme="wellbeing"] .financial-side-stack .card,
+[data-app-theme="wellbeing"] .financial-table-card.card {
+  border-radius: 12px;
+  box-shadow: var(--app-wellbeing-shadow-soft);
+}
+
+[data-app-theme="wellbeing"] .user-settings-offcanvas {
+  box-shadow: -24px 0 40px oklch(29% 0 90 / 0.12);
+}
+
+[data-app-theme="wellbeing"] .card-header,
+[data-app-theme="wellbeing"] .card .card-body,
+[data-app-theme="wellbeing"] .offcanvas-header,
+[data-app-theme="wellbeing"] .offcanvas-body,
+[data-app-theme="wellbeing"] .settings-panel-card,
+[data-app-theme="wellbeing"] .financial-summary-panel .card-body {
+  padding: clamp(1rem, 1.8vw, 1.3rem);
+}
+
+[data-app-theme="wellbeing"] .navbar-light,
+[data-app-theme="wellbeing"] .btn,
+[data-app-theme="wellbeing"] .form-control,
+[data-app-theme="wellbeing"] .form-select,
+[data-app-theme="wellbeing"] .input-group-text,
+[data-app-theme="wellbeing"] .table,
+[data-app-theme="wellbeing"] .form-label {
+  font-family: var(--app-font-body);
+}
+
+[data-app-theme="wellbeing"] h1,
+[data-app-theme="wellbeing"] h2,
+[data-app-theme="wellbeing"] h3,
+[data-app-theme="wellbeing"] h4,
+[data-app-theme="wellbeing"] h5,
+[data-app-theme="wellbeing"] h6,
+[data-app-theme="wellbeing"] .offcanvas-title,
+[data-app-theme="wellbeing"] .settings-panel-heading h6,
+[data-app-theme="wellbeing"] .card-header h1,
+[data-app-theme="wellbeing"] .card-header h2,
+[data-app-theme="wellbeing"] .card-header h3,
+[data-app-theme="wellbeing"] .card-header h4,
+[data-app-theme="wellbeing"] .card-header h5,
+[data-app-theme="wellbeing"] .card-header h6,
+[data-app-theme="wellbeing"] .index-side-menu-title {
+  font-family: var(--app-font-heading);
+  letter-spacing: 0.01em;
+}
+
+[data-app-theme="wellbeing"] .card-header.bg-primary,
+[data-app-theme="wellbeing"] .card-header.text-bg-primary,
+[data-app-theme="wellbeing"] .text-bg-primary:not(.btn),
+[data-app-theme="wellbeing"] .badge.text-bg-primary {
+  background: var(--app-wellbeing-structure-bg) !important;
+  color: var(--bs-body-color) !important;
+  border-color: var(--app-wellbeing-structure-border) !important;
+  box-shadow: inset 0 -1px 0 oklch(87.50% 0.020 76.10 / 0.65);
+}
+
+[data-app-theme="wellbeing"] .card-header.bg-primary > *,
+[data-app-theme="wellbeing"] .card-header.text-bg-primary > *,
+[data-app-theme="wellbeing"] .text-bg-primary:not(.btn) > * {
+  color: inherit !important;
 }
 
 [data-app-theme="wellbeing"] .btn-primary {
-  background: linear-gradient(135deg, #6f8457 0%, #8f7a55 100%);
-  border-color: #6f8457;
+  --bs-btn-color: var(--app-wellbeing-primary-contrast);
+  --bs-btn-bg: var(--app-wellbeing-primary);
+  --bs-btn-border-color: var(--app-wellbeing-primary);
+  --bs-btn-hover-color: var(--app-wellbeing-primary-contrast);
+  --bs-btn-hover-bg: var(--app-wellbeing-primary-hover);
+  --bs-btn-hover-border-color: var(--app-wellbeing-primary-hover);
+  --bs-btn-active-color: var(--app-wellbeing-primary-contrast);
+  --bs-btn-active-bg: var(--app-wellbeing-primary-active);
+  --bs-btn-active-border-color: var(--app-wellbeing-primary-active);
+  background: linear-gradient(135deg, var(--app-wellbeing-primary) 0%, oklch(58.20% 0.030 132.00) 100%);
+  border-color: var(--app-wellbeing-primary);
+  color: var(--app-wellbeing-primary-contrast);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px oklch(29% 0 90 / 0.10);
+}
+
+[data-app-theme="wellbeing"] .btn-primary:hover,
+[data-app-theme="wellbeing"] .btn-primary:focus-visible {
+  box-shadow: 0 10px 28px oklch(29% 0 90 / 0.14);
+  transform: translateY(-1px);
+}
+
+[data-app-theme="wellbeing"] .btn-outline-primary {
+  --bs-btn-color: oklch(45.50% 0.022 145.18);
+  --bs-btn-border-color: oklch(68.00% 0.020 145.18);
+  --bs-btn-hover-color: var(--bs-body-color);
+  --bs-btn-hover-bg: oklch(93.80% 0.011 80.00);
+  --bs-btn-hover-border-color: oklch(63.00% 0.022 145.18);
+  --bs-btn-active-color: var(--bs-body-color);
+  --bs-btn-active-bg: var(--app-wellbeing-accent);
+  --bs-btn-active-border-color: oklch(63.00% 0.022 145.18);
+  background-color: oklch(98.60% 0.004 84.56 / 0.72);
+  box-shadow: inset 0 0 0 1px oklch(68.00% 0.020 145.18 / 0.18);
+  border-radius: 12px;
+}
+
+[data-app-theme="wellbeing"] .form-control,
+[data-app-theme="wellbeing"] .form-select,
+[data-app-theme="wellbeing"] .input-group-text,
+[data-app-theme="wellbeing"] .form-check-input {
+  background-color: var(--app-surface-1);
+  border-color: var(--app-border-color);
+  color: var(--bs-body-color);
+  border-radius: 12px;
+}
+
+[data-app-theme="wellbeing"] .form-control::placeholder,
+[data-app-theme="wellbeing"] .form-select::placeholder {
+  color: var(--app-muted-color);
+}
+
+[data-app-theme="wellbeing"] .form-control:focus,
+[data-app-theme="wellbeing"] .form-select:focus,
+[data-app-theme="wellbeing"] .form-check-input:focus {
+  background-color: var(--app-surface-1);
+  border-color: oklch(68.00% 0.020 145.18);
+  box-shadow: 0 0 0 0.22rem oklch(61.80% 0.032 145.18 / 0.14);
+}
+
+[data-app-theme="wellbeing"] .table-hover > tbody > tr:hover > * {
+  --bs-table-accent-bg: oklch(93.80% 0.011 80.00);
+  color: inherit;
+}
+
+[data-app-theme="sunwash"] body,
+[data-app-theme="sunwash"] .login-page {
+  background-image: var(--app-sunwash-noise), linear-gradient(180deg, var(--app-body-bg) 0%, var(--app-surface-2) 100%);
+  background-size: 180px 180px, auto;
+}
+
+[data-app-theme="sunwash"] .card,
+[data-app-theme="sunwash"] .settings-panel-card,
+[data-app-theme="sunwash"] .financial-summary-panel,
+[data-app-theme="sunwash"] .theme-preference-status,
+[data-app-theme="sunwash"] .estoque-box,
+[data-app-theme="sunwash"] .resumo-card,
+[data-app-theme="sunwash"] .campos-estoque,
+[data-app-theme="sunwash"] .index-kpi-card,
+[data-app-theme="sunwash"] .financial-side-stack .card,
+[data-app-theme="sunwash"] .financial-table-card.card,
+[data-app-theme="sunwash"] .user-settings-offcanvas {
+  border-radius: 14px 10px 12px 8px;
+  box-shadow: var(--app-card-shadow);
+}
+
+[data-app-theme="sunwash"] .card-header,
+[data-app-theme="sunwash"] .card .card-body,
+[data-app-theme="sunwash"] .offcanvas-header,
+[data-app-theme="sunwash"] .offcanvas-body,
+[data-app-theme="sunwash"] .settings-panel-card,
+[data-app-theme="sunwash"] .financial-summary-panel .card-body {
+  padding: clamp(1rem, 1.7vw, 1.25rem);
+}
+
+[data-app-theme="sunwash"] .navbar-light,
+[data-app-theme="sunwash"] .form-control,
+[data-app-theme="sunwash"] .form-select,
+[data-app-theme="sunwash"] .input-group-text,
+[data-app-theme="sunwash"] .table,
+[data-app-theme="sunwash"] .form-label {
+  font-family: var(--app-font-body);
+}
+
+[data-app-theme="sunwash"] .btn,
+[data-app-theme="sunwash"] .navbar-brand,
+[data-app-theme="sunwash"] .navbar-light .navbar-nav .nav-link,
+[data-app-theme="sunwash"] .theme-preference-status,
+[data-app-theme="sunwash"] .financial-summary-kicker,
+[data-app-theme="sunwash"] .index-side-menu-title,
+[data-app-theme="sunwash"] .settings-panel-heading h6,
+[data-app-theme="sunwash"] .offcanvas-title,
+[data-app-theme="sunwash"] .card-header h1,
+[data-app-theme="sunwash"] .card-header h2,
+[data-app-theme="sunwash"] .card-header h3,
+[data-app-theme="sunwash"] .card-header h4,
+[data-app-theme="sunwash"] .card-header h5,
+[data-app-theme="sunwash"] .card-header h6 {
+  font-family: var(--app-font-heading);
+}
+
+[data-app-theme="sunwash"] .card-header.bg-primary,
+[data-app-theme="sunwash"] .card-header.text-bg-primary,
+[data-app-theme="sunwash"] .text-bg-primary:not(.btn),
+[data-app-theme="sunwash"] .badge.text-bg-primary {
+  background: var(--app-sunwash-structure-bg) !important;
+  color: var(--bs-body-color) !important;
+  border: 2px solid var(--app-sunwash-accent-olive) !important;
+  box-shadow: 4px 4px 0 oklch(63.52% 0.029 114.16 / 0.76);
+}
+
+[data-app-theme="sunwash"] .card-header.bg-primary > *,
+[data-app-theme="sunwash"] .card-header.text-bg-primary > *,
+[data-app-theme="sunwash"] .text-bg-primary:not(.btn) > * {
+  color: inherit !important;
 }
 
 [data-app-theme="sunwash"] .btn-primary {
-  background: linear-gradient(135deg, #c38278 0%, #879bb8 100%);
-  border-color: #c38278;
+  --bs-btn-color: var(--app-sunwash-primary-contrast);
+  --bs-btn-bg: var(--app-sunwash-primary);
+  --bs-btn-border-color: var(--app-sunwash-accent-olive);
+  --bs-btn-hover-color: var(--app-sunwash-primary-contrast);
+  --bs-btn-hover-bg: oklch(66.80% 0.090 39.64);
+  --bs-btn-hover-border-color: var(--app-sunwash-accent-olive);
+  --bs-btn-active-color: var(--app-sunwash-primary-contrast);
+  --bs-btn-active-bg: oklch(64.20% 0.086 39.64);
+  --bs-btn-active-border-color: var(--app-sunwash-accent-olive);
+  background: linear-gradient(135deg, var(--app-sunwash-primary) 0%, oklch(72.00% 0.020 180.57) 100%);
+  border: 2px solid var(--app-sunwash-accent-olive);
+  box-shadow: var(--app-sunwash-solid-shadow);
+  border-radius: 12px 8px 12px 6px;
+  color: var(--app-sunwash-primary-contrast);
+}
+
+[data-app-theme="sunwash"] .btn-primary:hover,
+[data-app-theme="sunwash"] .btn-primary:focus-visible {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 oklch(63.52% 0.029 114.16 / 0.82);
+}
+
+[data-app-theme="sunwash"] .btn-outline-primary {
+  --bs-btn-color: oklch(43.55% 0.016 23.47);
+  --bs-btn-border-color: var(--app-sunwash-accent-olive);
+  --bs-btn-hover-color: var(--app-sunwash-primary-contrast);
+  --bs-btn-hover-bg: var(--app-sunwash-primary);
+  --bs-btn-hover-border-color: var(--app-sunwash-accent-olive);
+  --bs-btn-active-color: var(--app-sunwash-primary-contrast);
+  --bs-btn-active-bg: oklch(66.80% 0.090 39.64);
+  --bs-btn-active-border-color: var(--app-sunwash-accent-olive);
+  background: linear-gradient(135deg, oklch(98.20% 0.008 67.73) 0%, oklch(95.20% 0.015 58.00) 100%);
+  border: 2px solid var(--app-sunwash-accent-olive);
+  box-shadow: 4px 4px 0 oklch(63.52% 0.029 114.16 / 0.72);
+  border-radius: 12px 8px 12px 6px;
+}
+
+[data-app-theme="sunwash"] .btn-outline-primary:hover {
+  transform: translate(2px, 2px);
+  box-shadow: 2px 2px 0 oklch(63.52% 0.029 114.16 / 0.82);
+}
+
+[data-app-theme="sunwash"] .form-control,
+[data-app-theme="sunwash"] .form-select,
+[data-app-theme="sunwash"] .input-group-text,
+[data-app-theme="sunwash"] .form-check-input {
+  background-color: var(--app-surface-1);
+  border: 2px solid var(--app-border-color);
+  color: var(--bs-body-color);
+  border-radius: 12px 8px 12px 6px;
+}
+
+[data-app-theme="sunwash"] .form-control::placeholder,
+[data-app-theme="sunwash"] .form-select::placeholder {
+  color: var(--app-muted-color);
+}
+
+[data-app-theme="sunwash"] .form-control:focus,
+[data-app-theme="sunwash"] .form-select:focus,
+[data-app-theme="sunwash"] .form-check-input:focus {
+  background-color: var(--app-surface-1);
+  border-color: var(--app-sunwash-primary);
+  box-shadow: 4px 4px 0 oklch(76.20% 0.015 180.57 / 0.52);
+}
+
+[data-app-theme="sunwash"] .table-hover > tbody > tr:hover > * {
+  --bs-table-accent-bg: oklch(94.80% 0.016 180.57);
+  color: inherit;
+}
+
+[data-app-theme="sunwash"] .btn-primary {
+  background: linear-gradient(135deg, var(--app-sunwash-primary) 0%, oklch(72.00% 0.020 180.57) 100%);
+  border-color: var(--app-sunwash-accent-olive);
+}
+
+[data-app-theme="walnut"] body {
+  background-image:
+    radial-gradient(circle at 14% 18%, oklch(65.32% 0.120 57.87 / 0.14) 0, transparent 24%),
+    radial-gradient(circle at 82% 14%, oklch(35.13% 0.033 151.19 / 0.08) 0, transparent 28%),
+    linear-gradient(180deg, oklch(94.80% 0.018 70.00) 0%, oklch(91.14% 0.027 69.28) 100%);
+}
+
+[data-app-theme="walnut"] .card,
+[data-app-theme="walnut"] .settings-panel-card,
+[data-app-theme="walnut"] .financial-summary-panel,
+[data-app-theme="walnut"] .theme-preference-status,
+[data-app-theme="walnut"] .estoque-box,
+[data-app-theme="walnut"] .resumo-card,
+[data-app-theme="walnut"] .campos-estoque,
+[data-app-theme="walnut"] .index-kpi-card,
+[data-app-theme="walnut"] .financial-side-stack .card,
+[data-app-theme="walnut"] .financial-table-card.card,
+[data-app-theme="walnut"] .user-settings-offcanvas {
+  background: linear-gradient(180deg, var(--app-surface-1) 0%, var(--app-surface-2) 100%);
+  border-color: var(--app-border-color);
+  border-radius: 16px;
+  box-shadow: var(--app-card-shadow);
+}
+
+[data-app-theme="walnut"] .card-header,
+[data-app-theme="walnut"] .card .card-body,
+[data-app-theme="walnut"] .offcanvas-header,
+[data-app-theme="walnut"] .offcanvas-body,
+[data-app-theme="walnut"] .settings-panel-card,
+[data-app-theme="walnut"] .financial-summary-panel .card-body {
+  padding: clamp(1rem, 1.75vw, 1.25rem);
+}
+
+[data-app-theme="walnut"] .navbar-light,
+[data-app-theme="walnut"] .btn,
+[data-app-theme="walnut"] .form-control,
+[data-app-theme="walnut"] .form-select,
+[data-app-theme="walnut"] .input-group-text,
+[data-app-theme="walnut"] .table,
+[data-app-theme="walnut"] .form-label {
+  font-family: var(--app-font-body);
+}
+
+[data-app-theme="walnut"] h1,
+[data-app-theme="walnut"] h2,
+[data-app-theme="walnut"] h3,
+[data-app-theme="walnut"] h4,
+[data-app-theme="walnut"] h5,
+[data-app-theme="walnut"] h6,
+[data-app-theme="walnut"] .navbar-brand,
+[data-app-theme="walnut"] .offcanvas-title,
+[data-app-theme="walnut"] .settings-panel-heading h6,
+[data-app-theme="walnut"] .card-header h1,
+[data-app-theme="walnut"] .card-header h2,
+[data-app-theme="walnut"] .card-header h3,
+[data-app-theme="walnut"] .card-header h4,
+[data-app-theme="walnut"] .card-header h5,
+[data-app-theme="walnut"] .card-header h6,
+[data-app-theme="walnut"] .index-side-menu-title {
+  font-family: var(--app-font-heading);
+  letter-spacing: 0.01em;
+}
+
+[data-app-theme="walnut"] .card-header.bg-primary,
+[data-app-theme="walnut"] .card-header.text-bg-primary,
+[data-app-theme="walnut"] .offcanvas-header.bg-primary,
+[data-app-theme="walnut"] aside.bg-primary,
+[data-app-theme="walnut"] .text-bg-primary:not(.btn),
+[data-app-theme="walnut"] .badge.text-bg-primary {
+  background: var(--app-walnut-structure-bg) !important;
+  color: var(--bs-body-color) !important;
+  border-color: var(--app-walnut-structure-border) !important;
+  box-shadow: inset 0 -1px 0 oklch(81.20% 0.030 64.00 / 0.72);
+}
+
+[data-app-theme="walnut"] .card-header.bg-primary > *,
+[data-app-theme="walnut"] .card-header.text-bg-primary > *,
+[data-app-theme="walnut"] .offcanvas-header.bg-primary > *,
+[data-app-theme="walnut"] aside.bg-primary > *,
+[data-app-theme="walnut"] .text-bg-primary:not(.btn) > * {
+  color: inherit !important;
 }
 
 [data-app-theme="walnut"] .btn-primary {
-  background: linear-gradient(135deg, #8f5f3d 0%, #c08a58 100%);
-  border-color: #8f5f3d;
+  --bs-btn-color: var(--app-walnut-primary-contrast);
+  --bs-btn-bg: var(--app-walnut-primary);
+  --bs-btn-border-color: oklch(49.50% 0.074 55.00);
+  --bs-btn-hover-color: var(--app-walnut-primary-contrast);
+  --bs-btn-hover-bg: var(--app-walnut-primary-hover);
+  --bs-btn-hover-border-color: oklch(43.20% 0.058 55.00);
+  --bs-btn-active-color: var(--app-walnut-primary-contrast);
+  --bs-btn-active-bg: var(--app-walnut-primary-active);
+  --bs-btn-active-border-color: oklch(40.60% 0.052 55.00);
+  background-color: var(--app-walnut-primary);
+  border-color: oklch(49.50% 0.074 55.00);
+  color: var(--app-walnut-primary-contrast);
+  border-radius: 14px;
+  box-shadow: 0 12px 26px oklch(20.00% 0.028 60.00 / 0.12);
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.25s ease, color 0.25s ease, transform 0.25s ease;
+}
+
+[data-app-theme="walnut"] .btn-primary:hover,
+[data-app-theme="walnut"] .btn-primary:focus-visible {
+  background-color: var(--app-walnut-primary-hover);
+  border-color: oklch(43.20% 0.058 55.00);
+  box-shadow: 0 16px 30px oklch(20.00% 0.028 60.00 / 0.16);
+  transform: translateY(-1px);
+}
+
+[data-app-theme="walnut"] .btn-outline-primary {
+  --bs-btn-color: oklch(29.54% 0.039 60.56);
+  --bs-btn-border-color: oklch(65.32% 0.120 57.87 / 0.54);
+  --bs-btn-hover-color: var(--app-walnut-primary-contrast);
+  --bs-btn-hover-bg: var(--app-walnut-primary);
+  --bs-btn-hover-border-color: oklch(49.50% 0.074 55.00);
+  --bs-btn-active-color: var(--app-walnut-primary-contrast);
+  --bs-btn-active-bg: var(--app-walnut-primary-hover);
+  --bs-btn-active-border-color: oklch(43.20% 0.058 55.00);
+  background-color: oklch(96.20% 0.012 72.00 / 0.78);
+  border-color: oklch(65.32% 0.120 57.87 / 0.54);
+  color: oklch(29.54% 0.039 60.56);
+  border-radius: 14px;
+  box-shadow: inset 0 0 0 1px oklch(65.32% 0.120 57.87 / 0.10);
+  transition: background-color 0.3s ease, border-color 0.3s ease, box-shadow 0.25s ease, color 0.25s ease, transform 0.25s ease;
+}
+
+[data-app-theme="walnut"] .btn-outline-primary:hover,
+[data-app-theme="walnut"] .btn-outline-primary:focus-visible {
+  background-color: var(--app-walnut-primary);
+  border-color: oklch(49.50% 0.074 55.00);
+  color: var(--app-walnut-primary-contrast);
+  box-shadow: 0 12px 26px oklch(20.00% 0.028 60.00 / 0.12);
+}
+
+[data-app-theme="walnut"] .form-control,
+[data-app-theme="walnut"] .form-select,
+[data-app-theme="walnut"] .input-group-text,
+[data-app-theme="walnut"] .form-check-input {
+  background-color: var(--app-surface-1);
+  border-color: var(--app-border-color);
+  color: var(--bs-body-color);
+  border-radius: 14px;
+}
+
+[data-app-theme="walnut"] .form-control::placeholder,
+[data-app-theme="walnut"] .form-select::placeholder {
+  color: var(--app-muted-color);
+}
+
+[data-app-theme="walnut"] .form-control:focus,
+[data-app-theme="walnut"] .form-select:focus,
+[data-app-theme="walnut"] .form-check-input:focus {
+  background-color: var(--app-surface-1);
+  border-color: oklch(65.32% 0.120 57.87 / 0.54);
+  box-shadow: 0 0 0 0.22rem oklch(65.32% 0.120 57.87 / 0.14);
+}
+
+[data-app-theme="walnut"] .table-hover > tbody > tr:hover > * {
+  --bs-table-accent-bg: oklch(92.10% 0.020 69.00);
+  color: inherit;
+}
+
+[data-app-theme="walnut"] .card img:not(.brand-logo):not(.login-logo),
+[data-app-theme="walnut"] .img-thumbnail,
+[data-app-theme="walnut"] .table img,
+[data-app-theme="walnut"] .modal-body img,
+[data-app-theme="walnut"] .offcanvas-body img {
+  filter: var(--app-walnut-image-filter);
 }
