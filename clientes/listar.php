@@ -47,9 +47,9 @@ $alert = $viewData['alert'];
                             <th>Nome</th>
                             <th>Telefone</th>
                             <th>CPF/CNPJ</th>
-                            <th>EndereÃ§o</th>
+                            <th>Endereço</th>
                             <th>E-mail</th>
-                            <th>AÃ§Ãµes</th>
+                            <th>Ações</th>
                         </tr>
                     </thead>
                     <tbody>

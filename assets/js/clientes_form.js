@@ -1,4 +1,6 @@
 (function () {
+    var maskHelpers = window.PiscinarMasks || {};
+
     function toTitleCaseName(value) {
         return value
             .toLowerCase()
@@ -10,23 +12,24 @@
     }
 
     function maskCpfCnpj(value) {
-        var digits = value.replace(/\D/g, '').slice(0, 14);
+        if (typeof maskHelpers.formatCpfCnpj === 'function') {
+            return maskHelpers.formatCpfCnpj(value);
+        }
+
+        var digits = String(value || '').replace(/\D/g, '').slice(0, 14);
 
         if (digits.length <= 11) {
-            digits = digits
+            return digits
                 .replace(/(\d{3})(\d)/, '$1.$2')
                 .replace(/(\d{3})(\d)/, '$1.$2')
                 .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
-            return digits;
         }
 
-        digits = digits
+        return digits
             .replace(/^(\d{2})(\d)/, '$1.$2')
             .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
             .replace(/\.(\d{3})(\d)/, '.$1/$2')
             .replace(/(\d{4})(\d)/, '$1-$2');
-
-        return digits;
     }
 
     function maskTelefoneBr(value) {
@@ -64,9 +67,12 @@
         }
 
         if (cpfCnpjInput) {
-            cpfCnpjInput.addEventListener('input', function () {
+            var applyCpfCnpjMask = function () {
                 cpfCnpjInput.value = maskCpfCnpj(cpfCnpjInput.value);
-            });
+            };
+
+            cpfCnpjInput.addEventListener('input', applyCpfCnpjMask);
+            applyCpfCnpjMask();
         }
 
         if (telefoneInput) {
@@ -107,6 +113,10 @@
             form.addEventListener('submit', function () {
                 if (nomeInput) {
                     nomeInput.value = toTitleCaseName(nomeInput.value);
+                }
+
+                if (cpfCnpjInput) {
+                    cpfCnpjInput.value = String(cpfCnpjInput.value || '').replace(/\D/g, '');
                 }
             });
         }

@@ -47,7 +47,7 @@ include '../includes/header.php';
                 <div class="col-md-6">
                     <div class="mb-3">
                         <label class="form-label" for="cliente-form-cpf-cnpj">CPF/CNPJ (opcional)</label>
-                        <input type="text" class="form-control" id="cliente-form-cpf-cnpj" name="cpf_cnpj" value="<?= htmlspecialchars((string) ($cliente['cpf_cnpj'] ?? '')) ?>" maxlength="18">
+                        <input type="text" class="form-control" id="cliente-form-cpf-cnpj" name="cpf_cnpj" value="<?= htmlspecialchars((string) ($cliente['cpf_cnpj'] ?? '')) ?>" maxlength="18" inputmode="numeric" placeholder="000.000.000-00 ou 00.000.000/0000-00">
                     </div>
                 </div>
                 <div class="col-md-6">
@@ -59,7 +59,7 @@ include '../includes/header.php';
             </div>
 
             <div class="mb-3">
-                <label class="form-label" for="cliente-form-endereco">EndereÃ§o</label>
+                <label class="form-label" for="cliente-form-endereco">Endereço</label>
                 <textarea class="form-control" id="cliente-form-endereco" name="endereco" rows="3"><?= htmlspecialchars((string) ($cliente['endereco'] ?? '')) ?></textarea>
             </div>
 
@@ -75,6 +75,7 @@ include '../includes/header.php';
     </div>
 </div>
 
+<script src="<?= app_url('assets/js/br_input_masks.js'); ?>"></script>
 <script src="<?= app_url('assets/js/clientes_form.js'); ?>"></script>
 <?php if ($clienteNomeFalado !== ''): ?>
 <script>

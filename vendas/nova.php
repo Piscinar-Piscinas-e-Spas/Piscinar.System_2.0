@@ -109,7 +109,7 @@ include '../includes/header.php';
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label" for="clienteCpfCnpj">CPF/CNPJ</label>
-                                <input type="text" class="form-control" id="clienteCpfCnpj" placeholder="Somente números">
+                                <input type="text" class="form-control" id="clienteCpfCnpj" inputmode="numeric" maxlength="18" placeholder="000.000.000-00 ou 00.000.000/0000-00">
                             </div>
                         </div>
                         <div class="row g-3 align-items-end" style="margin-top: 2px;">
@@ -341,6 +341,7 @@ include '../includes/header.php';
 </div>
 
 <script src="../assets/js/composicao_comercial.js"></script>
+<script src="<?= app_url('assets/js/br_input_masks.js'); ?>"></script>
 <script>
     const hojeSP = '<?= $hojeSaoPaulo ?>';
     const csrfToken = '<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8') ?>';
@@ -370,7 +371,40 @@ include '../includes/header.php';
     const vendedorSelect = document.getElementById('vendedorSelect');
     const usarDataRetroativaVenda = document.getElementById('usarDataRetroativaVenda');
     const dataRetroativaVenda = document.getElementById('dataRetroativaVenda');
+    const maskHelpers = window.PiscinarMasks || {};
     let clienteSelecionadoId = null;
+
+    function normalizarDigitos(value, maxLength = 14) {
+        if (typeof maskHelpers.onlyDigits === 'function') {
+            return maskHelpers.onlyDigits(value, maxLength);
+        }
+
+        return String(value ?? '').replace(/\D+/g, '').slice(0, maxLength);
+    }
+
+    function formatarCpfCnpj(value) {
+        if (typeof maskHelpers.formatCpfCnpj === 'function') {
+            return maskHelpers.formatCpfCnpj(value);
+        }
+
+        const digits = normalizarDigitos(value, 14);
+        if (digits.length <= 11) {
+            return digits
+                .replace(/(\d{3})(\d)/, '$1.$2')
+                .replace(/(\d{3})(\d)/, '$1.$2')
+                .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+        }
+
+        return digits
+            .replace(/^(\d{2})(\d)/, '$1.$2')
+            .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+            .replace(/\.(\d{3})(\d)/, '.$1/$2')
+            .replace(/(\d{4})(\d)/, '$1-$2');
+    }
+
+    function aplicarMascaraCpfCnpj() {
+        clienteCpfCnpj.value = formatarCpfCnpj(clienteCpfCnpj.value);
+    }
 
     const composicao = window.ComposicaoComercial.init({
         hoje: hojeSP,
@@ -476,7 +510,7 @@ include '../includes/header.php';
         clienteSelecionadoId = Number(cliente.id_cliente) || null;
         clienteNome.value = cliente.nome_cliente || '';
         clienteTelefone.value = cliente.telefone_contato || '';
-        clienteCpfCnpj.value = cliente.cpf_cnpj || '';
+        clienteCpfCnpj.value = formatarCpfCnpj(cliente.cpf_cnpj || '');
         clienteEmail.value = cliente.email_contato || '';
         clienteEndereco.value = cliente.endereco || '';
     }
@@ -489,11 +523,19 @@ include '../includes/header.php';
             .replace(/>/g, '&gt;');
     }
 
+    function normalizarNomeBusca(value) {
+        return String(value || '')
+            .normalize('NFD')
+            .replace(/[\u0300-\u036f]/g, '')
+            .trim()
+            .toLowerCase();
+    }
+
     function filtrarSugestoesClientes(valorDigitado) {
-        const termo = (valorDigitado || '').trim().toLowerCase();
+        const termo = normalizarNomeBusca(valorDigitado);
         const filtrados = clientesData.filter((cliente) => {
             if (!termo) return true;
-            return (cliente.nome_cliente || '').toLowerCase().includes(termo);
+            return normalizarNomeBusca(cliente.nome_cliente || '').includes(termo);
         });
 
         clientesSugestoes.innerHTML = filtrados
@@ -502,11 +544,11 @@ include '../includes/header.php';
     }
 
     function obterClienteSelecionadoPorInput(nomeDigitado) {
-        const nomeNormalizado = (nomeDigitado || '').trim().toLowerCase();
+        const nomeNormalizado = normalizarNomeBusca(nomeDigitado);
         if (!nomeNormalizado) return null;
 
         const opcoes = Array.from(clientesSugestoes.options);
-        const opcao = opcoes.find((item) => (item.value || '').trim().toLowerCase() === nomeNormalizado);
+        const opcao = opcoes.find((item) => normalizarNomeBusca(item.value || '') === nomeNormalizado);
         if (opcao && opcao.dataset.id) {
             const id = Number(opcao.dataset.id);
             if (Number.isInteger(id) && id > 0) {
@@ -518,11 +560,11 @@ include '../includes/header.php';
     }
 
     function buscarClientePorNome(nome) {
-        const nomeNormalizado = (nome || '').trim().toLowerCase();
+        const nomeNormalizado = normalizarNomeBusca(nome);
         if (!nomeNormalizado) return null;
 
         return clientesData.find(
-            (cliente) => (cliente.nome_cliente || '').trim().toLowerCase() === nomeNormalizado
+            (cliente) => normalizarNomeBusca(cliente.nome_cliente || '') === nomeNormalizado
         ) || null;
     }
 
@@ -665,7 +707,7 @@ include '../includes/header.php';
             cliente: {
                 nome: clienteNome.value.trim(),
                 telefone: clienteTelefone.value.trim(),
-                cpf_cnpj: clienteCpfCnpj.value.trim(),
+                cpf_cnpj: normalizarDigitos(clienteCpfCnpj.value, 14),
                 email: clienteEmail.value.trim(),
                 endereco: clienteEndereco.value.trim()
             },
@@ -770,7 +812,7 @@ include '../includes/header.php';
             csrf_token: csrfToken,
             nome_cliente: clienteNome.value.trim(),
             telefone_contato: clienteTelefone.value.trim(),
-            cpf_cnpj: clienteCpfCnpj.value.trim(),
+            cpf_cnpj: normalizarDigitos(clienteCpfCnpj.value, 14),
             email_contato: clienteEmail.value.trim(),
             endereco: clienteEndereco.value.trim()
         };
@@ -852,6 +894,8 @@ include '../includes/header.php';
         preencherDadosCliente(cliente);
     });
 
+    clienteCpfCnpj.addEventListener('input', aplicarMascaraCpfCnpj);
+
     btnSalvarCliente.addEventListener('click', salvarClienteRapido);
 
     document.getElementById('produtoSelect').addEventListener('change', (event) => {
@@ -907,7 +951,7 @@ include '../includes/header.php';
         clienteSelecionadoId = Number(vendaEdicaoData.cliente_id || 0) || null;
         clienteNome.value = vendaEdicaoData.cliente?.nome_cliente || '';
         clienteTelefone.value = vendaEdicaoData.cliente?.telefone_contato || '';
-        clienteCpfCnpj.value = vendaEdicaoData.cliente?.cpf_cnpj || '';
+        clienteCpfCnpj.value = formatarCpfCnpj(vendaEdicaoData.cliente?.cpf_cnpj || '');
         clienteEmail.value = vendaEdicaoData.cliente?.email_contato || '';
         clienteEndereco.value = vendaEdicaoData.cliente?.endereco || '';
         vendedorSelect.value = String(vendaEdicaoData.vendedor_id || vendedorLogadoPadrao.id || '');
@@ -954,6 +998,7 @@ include '../includes/header.php';
     });
 
     renderClientesSugestao('');
+    aplicarMascaraCpfCnpj();
     aplicarDadosEdicaoVenda();
 </script>
 

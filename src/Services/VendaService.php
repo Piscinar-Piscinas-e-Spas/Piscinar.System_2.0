@@ -60,15 +60,15 @@ class VendaService
         $vendedorNome = trim((string) ($dados['vendedor_nome'] ?? ''));
 
         if ($clienteId <= 0) {
-            return $this->error(422, 'Cliente invÃ¡lido para a venda.');
+            return $this->error(422, 'Cliente inválido para a venda.');
         }
 
         if (!in_array($condicaoPagamento, ['vista', 'parcelado'], true)) {
-            return $this->error(422, 'CondiÃ§Ã£o de pagamento invÃ¡lida.');
+            return $this->error(422, 'Condição de pagamento inválida.');
         }
 
         if (!$this->isValidDate($dataVenda)) {
-            return $this->error(422, 'Data da venda invÃƒÂ¡lida.');
+            return $this->error(422, 'Data da venda inválida.');
         }
 
         if (!$itens) {
@@ -117,7 +117,7 @@ class VendaService
             }
 
             if (!$this->produtoRepository->exists($itemNormalizado['produto_id'])) {
-                return $this->error(422, 'Produto invÃ¡lido na venda: ' . $itemNormalizado['produto_id']);
+                return $this->error(422, 'Produto inválido na venda: ' . $itemNormalizado['produto_id']);
             }
 
             $subtotalCalculado += $itemNormalizado['subtotal_item'];
@@ -250,16 +250,16 @@ class VendaService
     {
         // O fluxo comercial pode manter, atualizar ou criar cliente durante a venda.
         if (!in_array($clienteResolucao, ['manter', 'atualizar', 'novo'], true)) {
-            return ['error' => $this->error(422, 'Valor invÃ¡lido para cliente_resolucao.')];
+            return ['error' => $this->error(422, 'Valor inválido para cliente_resolucao.')];
         }
 
         if ($clienteResolucao !== 'novo' && !$this->clienteRepository->exists($clienteId)) {
-            return ['error' => $this->error(422, 'Cliente informado nÃ£o existe.')];
+            return ['error' => $this->error(422, 'Cliente informado não existe.')];
         }
 
         if ($clientePayload === null) {
             if ($clienteResolucao !== 'manter') {
-                return ['error' => $this->error(422, 'Dados do cliente sÃ£o obrigatÃ³rios para a resoluÃ§Ã£o solicitada.')];
+                return ['error' => $this->error(422, 'Dados do cliente são obrigatórios para a resolução solicitada.')];
             }
 
             return ['cliente_id' => $clienteId];
@@ -267,7 +267,7 @@ class VendaService
 
         $clienteNormalizado = $this->normalizarClientePayload($clientePayload);
         if ($clienteNormalizado['nome_cliente'] === '' || $clienteNormalizado['telefone_contato'] === '') {
-            return ['error' => $this->error(422, 'Nome e telefone do cliente sÃ£o obrigatÃ³rios.')];
+            return ['error' => $this->error(422, 'Nome e telefone do cliente são obrigatórios.')];
         }
 
         if ($clienteResolucao === 'novo') {
@@ -277,7 +277,7 @@ class VendaService
 
         $clienteBase = $this->clienteRepository->findById($clienteId);
         if (!$clienteBase) {
-            return ['error' => $this->error(422, 'Cliente informado nÃ£o existe.')];
+            return ['error' => $this->error(422, 'Cliente informado não existe.')];
         }
 
         $divergencias = $this->compararClienteBaseComPayload($clienteBase, $clienteNormalizado);
@@ -328,7 +328,7 @@ class VendaService
         $origemEstoque = trim((string) ($item['origem_estoque'] ?? ''));
 
         if ($produtoId <= 0 || $quantidade <= 0 || $valorUnitario < 0 || $descontoItem < 0 || $freteItem < 0) {
-            return ['error' => $this->error(422, 'Item invÃ¡lido na posiÃ§Ã£o ' . ($idx + 1) . '.')];
+            return ['error' => $this->error(422, 'Item inválido na posição ' . ($idx + 1) . '.')];
         }
 
         if (!in_array($origemEstoque, ['loja', 'estoque_auxiliar'], true)) {
@@ -363,12 +363,12 @@ class VendaService
         $totalParcelasInformado = $this->toDecimal($parcela['total_parcelas'] ?? $totalVenda);
 
         if ($numeroParcela <= 0 || $valorParcela < 0 || $tipoPagamento === '' || $vencimento === '') {
-            return ['error' => $this->error(422, 'Parcela invÃ¡lida na posiÃ§Ã£o ' . ($idx + 1) . '.')];
+            return ['error' => $this->error(422, 'Parcela inválida na posição ' . ($idx + 1) . '.')];
         }
 
         $data = \DateTime::createFromFormat('Y-m-d', $vencimento);
         if (!$data || $data->format('Y-m-d') !== $vencimento) {
-            return ['error' => $this->error(422, 'Data de vencimento invÃ¡lida na parcela ' . ($idx + 1) . '.')];
+            return ['error' => $this->error(422, 'Data de vencimento inválida na parcela ' . ($idx + 1) . '.')];
         }
 
         return [

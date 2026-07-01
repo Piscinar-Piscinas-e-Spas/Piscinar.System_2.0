@@ -39,9 +39,17 @@ class ClienteRepository
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
-    public function listForSales($limit = 300)
+    public function listForSales($limit = null)
     {
-        $stmt = $this->pdo->query('SELECT id_cliente, nome_cliente, telefone_contato, cpf_cnpj, endereco, email_contato FROM clientes ORDER BY nome_cliente LIMIT ' . (int) $limit);
+        $sql = 'SELECT id_cliente, nome_cliente, telefone_contato, cpf_cnpj, endereco, email_contato
+                FROM clientes
+                ORDER BY nome_cliente';
+
+        if (is_int($limit) && $limit > 0) {
+            $sql .= ' LIMIT ' . $limit;
+        }
+
+        $stmt = $this->pdo->query($sql);
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 

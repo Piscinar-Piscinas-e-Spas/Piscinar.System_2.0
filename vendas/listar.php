@@ -112,10 +112,10 @@ include '../includes/header.php';
                             </div>
 
                             <div class="col-md-3">
-                                <label for="dash_condicao_pagamento" class="form-label">CondiÃ§Ã£o de pagamento</label>
+                                <label for="dash_condicao_pagamento" class="form-label">Condição de pagamento</label>
                                 <select id="dash_condicao_pagamento" name="dash_condicao_pagamento" class="form-select">
                                     <option value="">Todas</option>
-                                    <option value="vista" <?= $filtrosDashboard['condicao_pagamento'] === 'vista' ? 'selected' : '' ?>>Ã€ vista</option>
+                                    <option value="vista" <?= $filtrosDashboard['condicao_pagamento'] === 'vista' ? 'selected' : '' ?>>À vista</option>
                                     <option value="parcelado" <?= $filtrosDashboard['condicao_pagamento'] === 'parcelado' ? 'selected' : '' ?>>Parcelado</option>
                                 </select>
                             </div>
@@ -126,12 +126,12 @@ include '../includes/header.php';
                             </div>
 
                             <div class="col-md-3">
-                                <label for="dash_valor_minimo" class="form-label">Valor mÃ­nimo</label>
+                                <label for="dash_valor_minimo" class="form-label">Valor mínimo</label>
                                 <input type="number" step="0.01" min="0" id="dash_valor_minimo" name="dash_valor_minimo" class="form-control" value="<?= htmlspecialchars($filtrosDashboard['valor_minimo']) ?>">
                             </div>
 
                             <div class="col-md-3">
-                                <label for="dash_valor_maximo" class="form-label">Valor mÃ¡ximo</label>
+                                <label for="dash_valor_maximo" class="form-label">Valor máximo</label>
                                 <input type="number" step="0.01" min="0" id="dash_valor_maximo" name="dash_valor_maximo" class="form-control" value="<?= htmlspecialchars($filtrosDashboard['valor_maximo']) ?>">
                             </div>
 
@@ -173,7 +173,7 @@ include '../includes/header.php';
                         <div class="col-md-6 col-lg-3">
                             <div class="card border-0 bg-white h-100">
                                 <div class="card-body p-3">
-                                    <small class="text-uppercase text-muted">Ticket mÃ©dio</small>
+                                    <small class="text-uppercase text-muted">Ticket médio</small>
                                     <h5 class="mb-0 fw-bold">R$ <?= number_format((float) $resumoKpis['ticket_medio'], 2, ',', '.') ?></h5>
                                 </div>
                             </div>
@@ -182,9 +182,9 @@ include '../includes/header.php';
                         <div class="col-md-6 col-lg-3">
                             <div class="card border-0 bg-white h-100">
                                 <div class="card-body p-3">
-                                    <small class="text-uppercase text-muted">Total parcelado vs Ã  vista</small>
+                                    <small class="text-uppercase text-muted">Total parcelado vs à vista</small>
                                     <div class="fw-semibold">Parcelado: R$ <?= number_format($totalParcelado, 2, ',', '.') ?> (<?= number_format($percentualParcelado, 1, ',', '.') ?>%)</div>
-                                    <div class="fw-semibold">Ã€ vista: R$ <?= number_format($totalVista, 2, ',', '.') ?> (<?= number_format($percentualVista, 1, ',', '.') ?>%)</div>
+                                    <div class="fw-semibold">À vista: R$ <?= number_format($totalVista, 2, ',', '.') ?> (<?= number_format($percentualVista, 1, ',', '.') ?>%)</div>
                                 </div>
                             </div>
                         </div>
@@ -193,7 +193,7 @@ include '../includes/header.php';
                     <div class="card border-0 bg-white mb-0 mt-3 d-none d-lg-block">
                         <div class="card-body">
                             <div class="d-flex justify-content-between align-items-center mb-2">
-                                <h6 class="mb-0">EvoluÃ§Ã£o do faturamento</h6>
+                                <h6 class="mb-0">Evolução do faturamento</h6>
                                 <small id="graficoAgrupamentoInfo" class="text-muted"></small>
                             </div>
                             <div class="grafico-faturamento-wrapper">
@@ -234,10 +234,10 @@ include '../includes/header.php';
                             </div>
 
                             <div class="col-md-3">
-                                <label for="lista_condicao_pagamento" class="form-label">CondiÃ§Ã£o de pagamento</label>
+                                <label for="lista_condicao_pagamento" class="form-label">Condição de pagamento</label>
                                 <select id="lista_condicao_pagamento" name="lista_condicao_pagamento" class="form-select">
                                     <option value="">Todas</option>
-                                    <option value="vista" <?= $filtrosLista['condicao_pagamento'] === 'vista' ? 'selected' : '' ?>>Ã€ vista</option>
+                                    <option value="vista" <?= $filtrosLista['condicao_pagamento'] === 'vista' ? 'selected' : '' ?>>À vista</option>
                                     <option value="parcelado" <?= $filtrosLista['condicao_pagamento'] === 'parcelado' ? 'selected' : '' ?>>Parcelado</option>
                                 </select>
                             </div>
@@ -248,12 +248,12 @@ include '../includes/header.php';
                             </div>
 
                             <div class="col-md-3">
-                                <label for="lista_valor_minimo" class="form-label">Valor mÃ­nimo</label>
+                                <label for="lista_valor_minimo" class="form-label">Valor mínimo</label>
                                 <input type="number" step="0.01" min="0" id="lista_valor_minimo" name="lista_valor_minimo" class="form-control" value="<?= htmlspecialchars($filtrosLista['valor_minimo']) ?>">
                             </div>
 
                             <div class="col-md-3">
-                                <label for="lista_valor_maximo" class="form-label">Valor mÃ¡ximo</label>
+                                <label for="lista_valor_maximo" class="form-label">Valor máximo</label>
                                 <input type="number" step="0.01" min="0" id="lista_valor_maximo" name="lista_valor_maximo" class="form-control" value="<?= htmlspecialchars($filtrosLista['valor_maximo']) ?>">
                             </div>
 
@@ -286,7 +286,7 @@ include '../includes/header.php';
                                     <th>Desconto Total</th>
                                     <th>Frete Total</th>
                                     <th>Total Geral</th>
-                                    <th>AÃ§Ãµes</th>
+                                    <th>Ações</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -481,16 +481,16 @@ include '../includes/header.php';
             })
                 .then((response) => {
                     if (!response.ok) {
-                        throw new Error('Falha ao carregar dados do grÃ¡fico.');
+                        throw new Error('Falha ao carregar dados do gráfico.');
                     }
                     return response.json();
                 })
                 .then((payload) => {
                     if (!payload || payload.status !== true || !Array.isArray(payload.labels)) {
-                        throw new Error('Resposta invÃ¡lida do servidor.');
+                        throw new Error('Resposta inválida do servidor.');
                     }
 
-                    const agrupamento = payload.agrupamento === 'mes' ? 'mensal' : 'diÃ¡rio';
+                    const agrupamento = payload.agrupamento === 'mes' ? 'mensal' : 'diário';
                     agrupamentoInfo.textContent = `Agrupamento ${agrupamento}`;
 
                     const tipoGrafico = payload.agrupamento === 'mes' ? 'bar' : 'line';
@@ -567,7 +567,7 @@ include '../includes/header.php';
                 })
                 .catch((error) => {
                     console.error(error);
-                    agrupamentoInfo.textContent = 'NÃ£o foi possÃ­vel carregar o grÃ¡fico.';
+                    agrupamentoInfo.textContent = 'Não foi possível carregar o gráfico.';
                 });
         };
 
@@ -629,7 +629,7 @@ include '../includes/header.php';
         document.querySelectorAll('.js-auth-action').forEach((botao) => {
             botao.addEventListener('click', () => {
                 targetUrl = botao.getAttribute('data-target-url') || '';
-                const actionLabel = botao.getAttribute('data-action-label') || 'executar esta aÃ§Ã£o';
+                const actionLabel = botao.getAttribute('data-action-label') || 'executar esta ação';
                 if (descricao) {
                     descricao.textContent = `Digite sua senha para ${actionLabel}.`;
                 }
@@ -676,7 +676,7 @@ include '../includes/header.php';
                 .then((response) => response.json().catch(() => ({})))
                 .then((payload) => {
                     if (!payload || payload.status !== true) {
-                        const mensagem = payload && payload.mensagem ? payload.mensagem : 'NÃ£o foi possÃ­vel validar sua senha.';
+                        const mensagem = payload && payload.mensagem ? payload.mensagem : 'Não foi possível validar sua senha.';
                         throw new Error(mensagem);
                     }
 
