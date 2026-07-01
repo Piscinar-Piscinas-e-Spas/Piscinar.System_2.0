@@ -15,6 +15,15 @@
         return Number(valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
     }
 
+    function renderizarOpcoesOrigemEstoque(valorAtual) {
+        const valor = String(valorAtual || '');
+        return [
+            `<option value="" ${valor === '' ? 'selected' : ''}>Escolher...</option>`,
+            `<option value="loja" ${valor === 'loja' ? 'selected' : ''}>Loja</option>`,
+            `<option value="estoque_auxiliar" ${valor === 'estoque_auxiliar' ? 'selected' : ''}>Estoque Auxiliar</option>`
+        ].join('');
+    }
+
     function criarComposicaoComercial(config) {
         const state = {
             itens_produto: [],
@@ -159,6 +168,11 @@
                 tr.innerHTML = `
                     <td>${index + 1}</td>
                     <td>${item.nome}</td>
+                    <td>
+                        <select class="form-select form-select-sm item-stock-origin" data-tipo="produto" data-index="${index}" aria-label="Origem de estoque do item ${index + 1}">
+                            ${renderizarOpcoesOrigemEstoque(item.origemEstoque)}
+                        </select>
+                    </td>
                     <td><input type="number" min="1" step="1" class="form-control form-control-sm item-qtd" data-tipo="produto" data-index="${index}" value="${item.quantidade}" aria-label="Quantidade do item ${index + 1}"></td>
                     <td><input type="text" inputmode="decimal" class="form-control form-control-sm item-unit" data-tipo="produto" data-index="${index}" value="${item.valorUnitario.toFixed(2).replace('.', ',')}" aria-label="Valor unitario do item ${index + 1}"></td>
                     <td>${moeda(item.subtotal)}</td>
@@ -447,6 +461,10 @@
             }
             if (target.classList.contains('item-frete')) {
                 itens[idx].freteItem = Math.max(0, valorNum(target.value));
+                return true;
+            }
+            if (target.classList.contains('item-stock-origin')) {
+                itens[idx].origemEstoque = String(target.value || '');
                 return true;
             }
             return false;

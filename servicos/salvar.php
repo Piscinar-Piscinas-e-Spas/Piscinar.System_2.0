@@ -3,6 +3,9 @@ include '../includes/db.php';
 require_login();
 require_once __DIR__ . '/_infra.php';
 
+use App\Services\DocumentStockException;
+use App\Services\DocumentStockService;
+
 // Esse endpoint e o save principal do modulo de servicos usado pela UI atual.
 // Ele trabalha com o modelo servicos_pedidos + servicos_itens + servicos_parcelas.
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
@@ -23,6 +26,7 @@ $clienteObrigatorio = servicos_cliente_obrigatorio();
 $vendedores = servicos_obter_vendedores($pdo);
 $servicoIdEdicao = (int) ($dados['id_servico'] ?? 0);
 $servicoAuditService = new \App\Services\ServicoAuditLogService($pdo);
+$documentStockService = new DocumentStockService($pdo);
 
 $clienteId = (int) ($dados['cliente_id'] ?? 0);
 $dataServico = trim((string) ($dados['data_servico'] ?? date('Y-m-d')));
@@ -61,14 +65,14 @@ $dataServicoObj = DateTime::createFromFormat('Y-m-d', $dataServico);
 if (!$dataServicoObj || $dataServicoObj->format('Y-m-d') !== $dataServico) {
     \App\Views\ApiResponse::send(422, [
         'status' => false,
-        'mensagem' => 'Data do serviço inválida.',
+        'mensagem' => 'Data do serviÃ§o invÃ¡lida.',
     ]);
 }
 
 if ($clienteObrigatorio && ($clienteId === null || $clienteId <= 0)) {
     \App\Views\ApiResponse::send(422, [
         'status' => false,
-        'mensagem' => 'Selecione ou salve um cliente antes de salvar o serviço.',
+        'mensagem' => 'Selecione ou salve um cliente antes de salvar o serviÃ§o.',
     ]);
 }
 
@@ -78,14 +82,42 @@ $parcelas = is_array($dados['parcelas'] ?? null) ? $dados['parcelas'] : [];
 
 // O servico pode ter produto, microservico ou os dois, mas nunca pode sair vazio.
 if (!$itensProduto && !$itensMicro) {
-    \App\Views\ApiResponse::send(422, ['status' => false, 'mensagem' => 'Informe ao menos um item de produto ou micro-serviço.']);
+    \App\Views\ApiResponse::send(422, ['status' => false, 'mensagem' => 'Informe ao menos um item de produto ou micro-serviÃ§o.']);
+}
+
+foreach ($itensProduto as $index => $item) {
+    $origemEstoque = trim((string) ($item['origem_estoque'] ?? ''));
+    if (!in_array($origemEstoque, ['loja', 'estoque_auxiliar'], true)) {
+        \App\Views\ApiResponse::send(422, [
+            'status' => false,
+            'mensagem' => 'Origem de estoque invalida no item de produto #' . ($index + 1) . '.',
+        ]);
+    }
 }
 
 try {
-    // A transacao protege cabecalho, itens, parcelas e auditoria do save.
+    // A transacao protege cabecalho, itens, parcelas, estoque e auditoria do save.
     $pdo->beginTransaction();
 
     if ($servicoIdEdicao > 0) {
+        $stmtServicoAtual = $pdo->prepare(
+            'SELECT id_servico, COALESCE(estoque_processado, 0) AS estoque_processado
+             FROM servicos_pedidos
+             WHERE id_servico = ?
+             LIMIT 1
+             FOR UPDATE'
+        );
+        $stmtServicoAtual->execute([$servicoIdEdicao]);
+        $servicoAtual = $stmtServicoAtual->fetch(PDO::FETCH_ASSOC);
+
+        if (!$servicoAtual) {
+            throw new RuntimeException('Servico nao encontrado para atualizacao.');
+        }
+
+        if ((int) ($servicoAtual['estoque_processado'] ?? 0) === 1) {
+            $documentStockService->revertDocumentStock('servico', $servicoIdEdicao);
+        }
+
         // Na edicao o cabecalho e atualizado e os filhos sao regravados.
         // E uma estrategia simples, mas reduz chance de estado misturado.
         $stmt = $pdo->prepare(
@@ -93,6 +125,7 @@ try {
              SET cliente_id = ?,
                  vendedor_id = ?,
                  vendedor_nome = ?,
+                 estoque_processado = ?,
                  data_servico = ?,
                  condicao_pagamento = ?,
                  subtotal_produtos = ?,
@@ -107,6 +140,7 @@ try {
             $clienteId,
             (int) $vendedorSelecionado['id_usuario'],
             $vendedorNome,
+            1,
             $dataServico,
             (string) ($dados['condicao_pagamento'] ?? 'vista'),
             (float) ($dados['subtotal_produtos'] ?? 0),
@@ -124,16 +158,17 @@ try {
     } else {
         $stmt = $pdo->prepare(
             'INSERT INTO servicos_pedidos (
-                cliente_id, vendedor_id, vendedor_nome, data_servico, condicao_pagamento,
+                cliente_id, vendedor_id, vendedor_nome, estoque_processado, data_servico, condicao_pagamento,
                 subtotal_produtos, subtotal_microservicos, desconto_total,
                 frete_total, total_geral
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
         );
 
         $stmt->execute([
             $clienteId,
             (int) $vendedorSelecionado['id_usuario'],
             $vendedorNome,
+            1,
             $dataServico,
             (string) ($dados['condicao_pagamento'] ?? 'vista'),
             (float) ($dados['subtotal_produtos'] ?? 0),
@@ -149,41 +184,75 @@ try {
     $stmtItem = $pdo->prepare(
         'INSERT INTO servicos_itens (
             servico_id, tipo_item, produto_id, descricao,
-            quantidade, valor_unitario, desconto_valor, frete_valor, total_item
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)'
+            quantidade, valor_unitario, desconto_valor, frete_valor, origem_estoque, total_item
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'
     );
 
-    $registrar = function (array $item, string $tipo) use ($stmtItem, $servicoId): void {
-        // Cada item recalcula subtotal/total no backend para nao depender
-        // so dos numeros enviados pela tela.
+    $itensProdutoPersistidos = [];
+    foreach ($itensProduto as $item) {
+        if (!is_array($item)) {
+            continue;
+        }
+
         $quantidade = max(1, (float) ($item['quantidade'] ?? 1));
         $valorUnitario = max(0, (float) ($item['valor_unitario'] ?? 0));
         $desconto = max(0, (float) ($item['desconto_valor'] ?? 0));
-        $frete = $tipo === 'produto' ? max(0, (float) ($item['frete_valor'] ?? 0)) : 0;
+        $frete = max(0, (float) ($item['frete_valor'] ?? 0));
         $subtotal = $quantidade * $valorUnitario;
         $total = max(0, $subtotal - min($desconto, $subtotal) + $frete);
+        $origemEstoque = trim((string) ($item['origem_estoque'] ?? ''));
+        $descricao = trim((string) ($item['descricao'] ?? 'Produto sem nome'));
 
         $stmtItem->execute([
             $servicoId,
-            $tipo,
-            $tipo === 'produto' ? (int) ($item['produto_id'] ?? 0) : null,
-            trim((string) ($item['descricao'] ?? ($tipo === 'produto' ? 'Produto sem nome' : 'Micro-serviço'))),
+            'produto',
+            (int) ($item['produto_id'] ?? 0),
+            $descricao,
             $quantidade,
             $valorUnitario,
             $desconto,
             $frete,
+            $origemEstoque,
             $total,
         ]);
-    };
 
-    foreach ($itensProduto as $item) {
-        if (!is_array($item)) { continue; }
-        $registrar($item, 'produto');
+        $itensProdutoPersistidos[] = [
+            'id_item' => (int) $pdo->lastInsertId(),
+            'produto_id' => (int) ($item['produto_id'] ?? 0),
+            'descricao' => $descricao,
+            'quantidade' => $quantidade,
+            'valor_unitario' => $valorUnitario,
+            'desconto_valor' => $desconto,
+            'frete_valor' => $frete,
+            'origem_estoque' => $origemEstoque,
+            'total_item' => $total,
+        ];
     }
 
     foreach ($itensMicro as $item) {
-        if (!is_array($item)) { continue; }
-        $registrar($item, 'microservico');
+        if (!is_array($item)) {
+            continue;
+        }
+
+        $quantidade = max(1, (float) ($item['quantidade'] ?? 1));
+        $valorUnitario = max(0, (float) ($item['valor_unitario'] ?? 0));
+        $desconto = max(0, (float) ($item['desconto_valor'] ?? 0));
+        $subtotal = $quantidade * $valorUnitario;
+        $total = max(0, $subtotal - min($desconto, $subtotal));
+        $descricao = trim((string) ($item['descricao'] ?? 'Micro-serviÃ§o'));
+
+        $stmtItem->execute([
+            $servicoId,
+            'microservico',
+            null,
+            $descricao,
+            $quantidade,
+            $valorUnitario,
+            $desconto,
+            0,
+            null,
+            $total,
+        ]);
     }
 
     $stmtParcela = $pdo->prepare(
@@ -205,7 +274,9 @@ try {
 
     $qtdParcelas = count($parcelas);
     foreach (array_values($parcelas) as $index => $parcela) {
-        if (!is_array($parcela)) { continue; }
+        if (!is_array($parcela)) {
+            continue;
+        }
         $stmtParcela->execute([
             $servicoId,
             $index + 1,
@@ -217,13 +288,20 @@ try {
         ]);
     }
 
+    $documentStockService->applyDocumentStock(
+        'servico',
+        $servicoId,
+        $itensProdutoPersistidos,
+        (int) (auth_user_id() ?? 0)
+    );
+
     try {
         // Falha de auditoria nao deve derrubar o save operacional.
         $servicoAuditService->logSaveFromCurrentFlow(
             $servicoId,
             $servicoIdEdicao > 0,
             $dados,
-            $itensProduto,
+            $itensProdutoPersistidos,
             $itensMicro,
             $parcelas,
             $clienteId,
@@ -237,8 +315,17 @@ try {
 
     \App\Views\ApiResponse::send($servicoIdEdicao > 0 ? 200 : 201, [
         'status' => true,
-        'mensagem' => $servicoIdEdicao > 0 ? 'Serviço atualizado com sucesso.' : 'Serviço salvo com sucesso.',
+        'mensagem' => $servicoIdEdicao > 0 ? 'ServiÃ§o atualizado com sucesso.' : 'ServiÃ§o salvo com sucesso.',
         'id_servico' => $servicoId,
+    ]);
+} catch (DocumentStockException $e) {
+    if ($pdo->inTransaction()) {
+        $pdo->rollBack();
+    }
+
+    \App\Views\ApiResponse::send($e->getStatusCode(), [
+        'status' => false,
+        'mensagem' => $e->getMessage(),
     ]);
 } catch (Throwable $e) {
     // Se qualquer parte falhar, a transacao volta inteira para evitar

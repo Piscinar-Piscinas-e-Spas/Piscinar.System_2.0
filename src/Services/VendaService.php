@@ -60,15 +60,15 @@ class VendaService
         $vendedorNome = trim((string) ($dados['vendedor_nome'] ?? ''));
 
         if ($clienteId <= 0) {
-            return $this->error(422, 'Cliente inválido para a venda.');
+            return $this->error(422, 'Cliente invÃ¡lido para a venda.');
         }
 
         if (!in_array($condicaoPagamento, ['vista', 'parcelado'], true)) {
-            return $this->error(422, 'Condição de pagamento inválida.');
+            return $this->error(422, 'CondiÃ§Ã£o de pagamento invÃ¡lida.');
         }
 
         if (!$this->isValidDate($dataVenda)) {
-            return $this->error(422, 'Data da venda invÃ¡lida.');
+            return $this->error(422, 'Data da venda invÃƒÂ¡lida.');
         }
 
         if (!$itens) {
@@ -117,7 +117,7 @@ class VendaService
             }
 
             if (!$this->produtoRepository->exists($itemNormalizado['produto_id'])) {
-                return $this->error(422, 'Produto inválido na venda: ' . $itemNormalizado['produto_id']);
+                return $this->error(422, 'Produto invÃ¡lido na venda: ' . $itemNormalizado['produto_id']);
             }
 
             $subtotalCalculado += $itemNormalizado['subtotal_item'];
@@ -144,16 +144,16 @@ class VendaService
             return [
                 'status_code' => 422,
                 'payload' => [
-                        'status' => false,
-                        'mensagem' => 'Totais inconsistentes no payload.',
-                        'totais_calculados' => [
-                            'subtotal' => round($subtotalCalculado, 2),
-                            'desconto_total' => round($descontoCalculado, 2),
-                            'frete_itens' => round($freteItensCalculado, 2),
-                            'frete_total' => $freteInformado,
-                            'total_geral' => round($totalCalculado, 2),
-                        ],
+                    'status' => false,
+                    'mensagem' => 'Totais inconsistentes no payload.',
+                    'totais_calculados' => [
+                        'subtotal' => round($subtotalCalculado, 2),
+                        'desconto_total' => round($descontoCalculado, 2),
+                        'frete_itens' => round($freteItensCalculado, 2),
+                        'frete_total' => $freteInformado,
+                        'total_geral' => round($totalCalculado, 2),
                     ],
+                ],
             ];
         }
 
@@ -231,6 +231,12 @@ class VendaService
                     'cliente_id' => $clienteId,
                 ],
             ];
+        } catch (DocumentStockException $e) {
+            if ($startedTransaction && $this->pdo->inTransaction()) {
+                $this->pdo->rollBack();
+            }
+
+            return $this->error($e->getStatusCode(), $e->getMessage());
         } catch (Throwable $e) {
             if ($startedTransaction && $this->pdo->inTransaction()) {
                 $this->pdo->rollBack();
@@ -244,16 +250,16 @@ class VendaService
     {
         // O fluxo comercial pode manter, atualizar ou criar cliente durante a venda.
         if (!in_array($clienteResolucao, ['manter', 'atualizar', 'novo'], true)) {
-            return ['error' => $this->error(422, 'Valor inválido para cliente_resolucao.')];
+            return ['error' => $this->error(422, 'Valor invÃ¡lido para cliente_resolucao.')];
         }
 
         if ($clienteResolucao !== 'novo' && !$this->clienteRepository->exists($clienteId)) {
-            return ['error' => $this->error(422, 'Cliente informado não existe.')];
+            return ['error' => $this->error(422, 'Cliente informado nÃ£o existe.')];
         }
 
         if ($clientePayload === null) {
             if ($clienteResolucao !== 'manter') {
-                return ['error' => $this->error(422, 'Dados do cliente são obrigatórios para a resolução solicitada.')];
+                return ['error' => $this->error(422, 'Dados do cliente sÃ£o obrigatÃ³rios para a resoluÃ§Ã£o solicitada.')];
             }
 
             return ['cliente_id' => $clienteId];
@@ -261,7 +267,7 @@ class VendaService
 
         $clienteNormalizado = $this->normalizarClientePayload($clientePayload);
         if ($clienteNormalizado['nome_cliente'] === '' || $clienteNormalizado['telefone_contato'] === '') {
-            return ['error' => $this->error(422, 'Nome e telefone do cliente são obrigatórios.')];
+            return ['error' => $this->error(422, 'Nome e telefone do cliente sÃ£o obrigatÃ³rios.')];
         }
 
         if ($clienteResolucao === 'novo') {
@@ -271,7 +277,7 @@ class VendaService
 
         $clienteBase = $this->clienteRepository->findById($clienteId);
         if (!$clienteBase) {
-            return ['error' => $this->error(422, 'Cliente informado não existe.')];
+            return ['error' => $this->error(422, 'Cliente informado nÃ£o existe.')];
         }
 
         $divergencias = $this->compararClienteBaseComPayload($clienteBase, $clienteNormalizado);
@@ -319,9 +325,14 @@ class VendaService
         $valorUnitario = $this->toDecimal($item['valor_unitario'] ?? 0);
         $descontoItem = $this->toDecimal($item['desconto_valor'] ?? 0);
         $freteItem = $this->toDecimal($item['frete_valor'] ?? 0);
+        $origemEstoque = trim((string) ($item['origem_estoque'] ?? ''));
 
         if ($produtoId <= 0 || $quantidade <= 0 || $valorUnitario < 0 || $descontoItem < 0 || $freteItem < 0) {
-            return ['error' => $this->error(422, 'Item inválido na posição ' . ($idx + 1) . '.')];
+            return ['error' => $this->error(422, 'Item invÃ¡lido na posiÃ§Ã£o ' . ($idx + 1) . '.')];
+        }
+
+        if (!in_array($origemEstoque, ['loja', 'estoque_auxiliar'], true)) {
+            return ['error' => $this->error(422, 'Origem de estoque invalida no item ' . ($idx + 1) . '.')];
         }
 
         $subtotalItem = round($quantidade * $valorUnitario, 2);
@@ -335,6 +346,7 @@ class VendaService
             'valor_unitario' => $valorUnitario,
             'desconto_valor' => $descontoItem,
             'frete_valor' => $freteItem,
+            'origem_estoque' => $origemEstoque,
             'total_item' => round($subtotalItem - $descontoItem + $freteItem, 2),
             'subtotal_item' => $subtotalItem,
         ];
@@ -351,12 +363,12 @@ class VendaService
         $totalParcelasInformado = $this->toDecimal($parcela['total_parcelas'] ?? $totalVenda);
 
         if ($numeroParcela <= 0 || $valorParcela < 0 || $tipoPagamento === '' || $vencimento === '') {
-            return ['error' => $this->error(422, 'Parcela inválida na posição ' . ($idx + 1) . '.')];
+            return ['error' => $this->error(422, 'Parcela invÃ¡lida na posiÃ§Ã£o ' . ($idx + 1) . '.')];
         }
 
         $data = \DateTime::createFromFormat('Y-m-d', $vencimento);
         if (!$data || $data->format('Y-m-d') !== $vencimento) {
-            return ['error' => $this->error(422, 'Data de vencimento inválida na parcela ' . ($idx + 1) . '.')];
+            return ['error' => $this->error(422, 'Data de vencimento invÃ¡lida na parcela ' . ($idx + 1) . '.')];
         }
 
         return [

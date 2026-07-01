@@ -36,6 +36,7 @@ if ($vendaIdEdicao > 0) {
         $itensEdicao[] = [
             'produtoId' => (int) ($item['id_produto'] ?? 0),
             'nome' => (string) ($item['produto_nome'] ?? ''),
+            'origemEstoque' => isset($item['origem_estoque']) ? (string) $item['origem_estoque'] : '',
             'quantidade' => (float) ($item['quantidade'] ?? 1),
             'valorUnitario' => (float) ($item['valor_unitario'] ?? 0),
             'desconto' => (float) ($item['desconto_valor'] ?? 0),
@@ -137,7 +138,7 @@ include '../includes/header.php';
                     <div class="card-header bg-light sales-block-title">2) Produtos da venda</div>
                     <div class="card-body">
                         <div class="row g-2 align-items-end mb-3">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label class="form-label" for="produtoSelect">Produto</label>
                                 <select class="form-select" id="produtoSelect">
                                     <option value="">Selecione um produto...</option>
@@ -158,6 +159,13 @@ include '../includes/header.php';
                                 <label class="form-label" for="produtoValorUnitario">Vlr. unitário</label>
                                 <input type="text" inputmode="decimal" class="form-control" id="produtoValorUnitario" value="0,00">
                             </div>
+                            <div class="col-md-2">
+                                <label class="form-label" for="produtoOrigemEstoque">Origem estoque</label>
+                                <select class="form-select" id="produtoOrigemEstoque">
+                                    <option value="loja" selected>Loja</option>
+                                    <option value="estoque_auxiliar">Estoque Auxiliar</option>
+                                </select>
+                            </div>
                             <div class="col-md-2 d-grid">
                                 <button type="button" class="btn btn-success" id="btnAdicionarProduto">
                                     <i class="fas fa-plus me-1"></i>Adicionar item
@@ -171,6 +179,7 @@ include '../includes/header.php';
                                     <tr>
                                         <th>Item</th>
                                         <th>Produto</th>
+                                        <th>Origem estoque</th>
                                         <th>Qtd.</th>
                                         <th>Vlr. unitário</th>
                                         <th>Vlr. total</th>
@@ -255,7 +264,7 @@ include '../includes/header.php';
                     <div class="card-header bg-light sales-block-title">Forma e condição de pagamento</div>
                     <div class="card-body">
                         <div class="row g-2 mb-3 align-items-end">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="form-check form-switch mt-2">
                                     <input class="form-check-input" type="checkbox" id="usarDataRetroativaVenda">
                                     <label class="form-check-label" for="usarDataRetroativaVenda">Ativar data retroativa</label>
@@ -451,6 +460,7 @@ include '../includes/header.php';
         document.getElementById('produtoSelect').value = '';
         document.getElementById('produtoQtd').value = '1';
         document.getElementById('produtoValorUnitario').value = '0,00';
+        document.getElementById('produtoOrigemEstoque').value = 'loja';
 
         usarDataRetroativaVenda.checked = false;
         dataRetroativaVenda.value = hojeSP;
@@ -624,6 +634,15 @@ include '../includes/header.php';
         }
 
         const resumo = composicao.getResumo();
+        const itensSemOrigem = estado.itens_produto
+            .map((item, index) => ({ item, index }))
+            .filter(({ item }) => !['loja', 'estoque_auxiliar'].includes(String(item.origemEstoque || '').trim()));
+        if (itensSemOrigem.length) {
+            throw criarErroInterface(
+                `Selecione a origem de estoque do item ${itensSemOrigem[0].index + 1} antes de salvar a venda.`,
+                'sales.save_error'
+            );
+        }
         const payloadParcelas = estado.parcelas.map((parcela, index) => ({
             numero_parcela: index + 1,
             vencimento: parcela.vencimento || hojeSP,
@@ -660,6 +679,7 @@ include '../includes/header.php';
             total_geral: Number(resumo.total_geral.toFixed(2)),
             itens: estado.itens_produto.map((item) => ({
                 produto_id: Number(item.produtoId),
+                origem_estoque: String(item.origemEstoque || '').trim(),
                 quantidade: Number(item.quantidade),
                 valor_unitario: Number(item.valorUnitario.toFixed(2)),
                 desconto_valor: Number(item.desconto.toFixed(2)),
@@ -851,11 +871,13 @@ include '../includes/header.php';
         composicao.addItem('produto', {
             produtoId: Number(opt.value),
             nome: opt.dataset.nome || opt.textContent,
+            origemEstoque: document.getElementById('produtoOrigemEstoque').value || 'loja',
             quantidade: Math.max(1, parseInt(document.getElementById('produtoQtd').value, 10) || 1),
             valorUnitario: Math.max(0, composicao.valorNum(document.getElementById('produtoValorUnitario').value)),
             desconto: 0,
             freteItem: 0
         });
+        document.getElementById('produtoOrigemEstoque').value = 'loja';
     });
 
     document.getElementById('btnZerarDescontos').addEventListener('click', () => {

@@ -37,6 +37,7 @@ if ($servicoIdEdicao > 0) {
         $normalizado = [
             'produto_id' => (int) ($item['produto_id'] ?? 0),
             'descricao' => (string) ($item['descricao'] ?? ''),
+            'origem_estoque' => isset($item['origem_estoque']) ? (string) $item['origem_estoque'] : '',
             'quantidade' => (float) ($item['quantidade'] ?? 1),
             'valor_unitario' => (float) ($item['valor_unitario'] ?? 0),
             'desconto_valor' => (float) ($item['desconto_valor'] ?? 0),
@@ -177,7 +178,7 @@ include '../includes/header.php';
                     <div class="card-header bg-light sales-block-title">2) Produtos e micro-serviços</div>
                     <div class="card-body">
                         <div class="row g-2 align-items-end mb-3">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <label class="form-label" for="produtoSelect">Produto</label>
                                 <select class="form-select" id="produtoSelect">
                                     <option value="">Selecione um produto...</option>
@@ -195,6 +196,13 @@ include '../includes/header.php';
                             <div class="col-md-2">
                                 <label class="form-label" for="produtoValorUnitario">Vlr. unitário</label>
                                 <input type="text" class="form-control" id="produtoValorUnitario" value="0,00">
+                            </div>
+                            <div class="col-md-2">
+                                <label class="form-label" for="produtoOrigemEstoque">Origem estoque</label>
+                                <select class="form-select" id="produtoOrigemEstoque">
+                                    <option value="loja" selected>Loja</option>
+                                    <option value="estoque_auxiliar">Estoque Auxiliar</option>
+                                </select>
                             </div>
                             <div class="col-md-2 d-grid">
                                 <button type="button" class="btn btn-success" id="btnAdicionarProduto"><i class="fas fa-plus me-1"></i>Produto</button>
@@ -322,7 +330,7 @@ include '../includes/header.php';
                     <div class="card-header bg-light sales-block-title">4) Forma e condição de pagamento</div>
                     <div class="card-body">
                         <div class="row g-2 mb-3 align-items-end">
-                            <div class="col-md-6">
+                            <div class="col-md-4">
                                 <div class="form-check form-switch mt-2">
                                     <input class="form-check-input" type="checkbox" id="usarDataRetroativaServico">
                                     <label class="form-check-label" for="usarDataRetroativaServico">Ativar data retroativa</label>
@@ -419,6 +427,13 @@ const descontoTotalInput = document.getElementById('descontoTotalInput');
 const descontoPercentInput = document.getElementById('descontoPercentInput');
 const usarDataRetroativaServico = document.getElementById('usarDataRetroativaServico');
 const dataRetroativaServico = document.getElementById('dataRetroativaServico');
+const itensProdutoHeaderRow = document.querySelector('#itensProdutoTable thead tr');
+
+if (itensProdutoHeaderRow && itensProdutoHeaderRow.children.length === 8) {
+  const origemHeader = document.createElement('th');
+  origemHeader.textContent = 'Origem estoque';
+  itensProdutoHeaderRow.insertBefore(origemHeader, itensProdutoHeaderRow.children[2] || null);
+}
 
 const composicao = window.ComposicaoComercial.init({
   hoje: hojeSP,
@@ -784,6 +799,13 @@ function renderTabelas({ skipComposicaoSync = false } = {}) {
   state.produtos.forEach((i, idx) => {
     b1.insertAdjacentHTML('beforeend', `<tr>
       <td>${idx+1}</td><td>${i.descricao}</td>
+      <td>
+        <select class="form-select form-control-sm" data-tipo="produto" data-campo="origem_estoque" data-idx="${idx}">
+          <option value="" ${String(i.origem_estoque || '') === '' ? 'selected' : ''}>Escolher...</option>
+          <option value="loja" ${i.origem_estoque === 'loja' ? 'selected' : ''}>Loja</option>
+          <option value="estoque_auxiliar" ${i.origem_estoque === 'estoque_auxiliar' ? 'selected' : ''}>Estoque Auxiliar</option>
+        </select>
+      </td>
       <td><input class="form-control form-control-sm" data-tipo="produto" data-campo="quantidade" data-idx="${idx}" value="${i.quantidade}"></td>
       <td><input class="form-control form-control-sm" data-tipo="produto" data-campo="valor_unitario" data-idx="${idx}" value="${Number(i.valor_unitario).toFixed(2).replace('.', ',')}"></td>
       <td><input class="form-control form-control-sm" data-tipo="produto" data-campo="desconto_valor" data-idx="${idx}" value="${Number(i.desconto_valor).toFixed(2).replace('.', ',')}"></td>
@@ -874,6 +896,7 @@ function limparFormularioServicoPosSucesso() {
   document.getElementById('produtoSelect').value = '';
   document.getElementById('produtoQtd').value = '1';
   document.getElementById('produtoValorUnitario').value = '0,00';
+  document.getElementById('produtoOrigemEstoque').value = 'loja';
 
   document.getElementById('microDescricao').value = '';
   document.getElementById('microQtd').value = '1';
@@ -978,11 +1001,13 @@ document.getElementById('btnAdicionarProduto').addEventListener('click', () => {
   state.produtos.push({
     produto_id: Number(opt.value),
     descricao: opt.dataset.nome || opt.textContent,
+    origem_estoque: document.getElementById('produtoOrigemEstoque').value || 'loja',
     quantidade: Math.max(1, parseInt(document.getElementById('produtoQtd').value, 10) || 1),
     valor_unitario: valorNum(document.getElementById('produtoValorUnitario').value),
     desconto_valor: 0,
     frete_valor: 0
   });
+  document.getElementById('produtoOrigemEstoque').value = 'loja';
   renderTabelas();
 });
 
@@ -1008,7 +1033,22 @@ document.getElementById('btnAdicionarMicro').addEventListener('click', () => {
     if (!state[tipo][idx]) return;
     if (tipo === 'microservicos' && state[tipo][idx].is_frete_embutido === true) return;
     const campo = el.dataset.campo;
-    state[tipo][idx][campo] = campo === 'quantidade' ? Math.max(1, parseInt(el.value, 10) || 1) : valorNum(el.value);
+    if (campo === 'quantidade') {
+      state[tipo][idx][campo] = Math.max(1, parseInt(el.value, 10) || 1);
+    } else if (campo === 'origem_estoque') {
+      state[tipo][idx][campo] = String(el.value || '');
+    } else {
+      state[tipo][idx][campo] = valorNum(el.value);
+    }
+    renderTabelas();
+  });
+  document.querySelector(sel).addEventListener('change', (e) => {
+    const el = e.target;
+    if (el.dataset.campo !== 'origem_estoque') return;
+    const idx = Number(el.dataset.idx); if (!Number.isInteger(idx)) return;
+    const tipo = el.dataset.tipo === 'micro' ? 'microservicos' : 'produtos';
+    if (!state[tipo][idx]) return;
+    state[tipo][idx].origem_estoque = String(el.value || '');
     renderTabelas();
   });
   document.querySelector(sel).addEventListener('click', (e) => {
@@ -1040,6 +1080,14 @@ async function salvarServico() {
 
   const resumo = composicao.getResumo();
   const composicaoState = composicao.getState();
+  const itemSemOrigemValido = state.produtos.findIndex((item) => !['loja', 'estoque_auxiliar'].includes(String(item.origem_estoque || '').trim()));
+  if (itemSemOrigemValido >= 0) {
+    return feedback('warning', `Selecione a origem de estoque do item ${itemSemOrigemValido + 1} antes de salvar o servico.`, 'services.save_error');
+  }
+  const itemSemOrigem = -1;
+  if (itemSemOrigem >= 0) {
+    return feedback('warning', `Selecione a origem de estoque do item ${itemSemOrigem + 1} antes de salvar o serviÃ§o.`, 'services.save_error');
+  }
 
   const payload = {
     csrf_token: csrfToken,

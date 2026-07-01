@@ -10,6 +10,7 @@ function servicos_ensure_schema(PDO $pdo): void
             cliente_id INT UNSIGNED NULL,
             vendedor_id INT UNSIGNED NULL,
             vendedor_nome VARCHAR(120) NULL,
+            estoque_processado TINYINT(1) NOT NULL DEFAULT 0,
             data_servico DATE NOT NULL,
             condicao_pagamento VARCHAR(20) NOT NULL DEFAULT 'vista',
             subtotal_produtos DECIMAL(12,2) NOT NULL DEFAULT 0,
@@ -45,6 +46,15 @@ function servicos_ensure_schema(PDO $pdo): void
         );
     }
 
+    $stmt = $pdo->query("SHOW COLUMNS FROM servicos_pedidos LIKE 'estoque_processado'");
+    $hasEstoqueProcessado = $stmt && $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$hasEstoqueProcessado) {
+        $pdo->exec(
+            "ALTER TABLE servicos_pedidos
+                ADD COLUMN estoque_processado TINYINT(1) NOT NULL DEFAULT 0 AFTER vendedor_nome"
+        );
+    }
+
     $pdo->exec(
         "CREATE TABLE IF NOT EXISTS servicos_itens (
             id_item INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -56,12 +66,22 @@ function servicos_ensure_schema(PDO $pdo): void
             valor_unitario DECIMAL(12,2) NOT NULL DEFAULT 0,
             desconto_valor DECIMAL(12,2) NOT NULL DEFAULT 0,
             frete_valor DECIMAL(12,2) NOT NULL DEFAULT 0,
+            origem_estoque VARCHAR(40) NULL,
             total_item DECIMAL(12,2) NOT NULL DEFAULT 0,
             created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
             CONSTRAINT fk_servicos_itens_pedido FOREIGN KEY (servico_id) REFERENCES servicos_pedidos(id_servico) ON DELETE CASCADE,
             INDEX idx_servicos_itens_tipo (tipo_item)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4"
     );
+
+    $stmt = $pdo->query("SHOW COLUMNS FROM servicos_itens LIKE 'origem_estoque'");
+    $hasOrigemEstoque = $stmt && $stmt->fetch(PDO::FETCH_ASSOC);
+    if (!$hasOrigemEstoque) {
+        $pdo->exec(
+            "ALTER TABLE servicos_itens
+                ADD COLUMN origem_estoque VARCHAR(40) NULL AFTER frete_valor"
+        );
+    }
 
     $pdo->exec(
         "CREATE TABLE IF NOT EXISTS servicos_parcelas (

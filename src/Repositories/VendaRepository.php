@@ -2,6 +2,7 @@
 
 namespace App\Repositories;
 
+use App\Services\DocumentStockService;
 use App\Support\AuditLogger;
 use PDO;
 use Throwable;
@@ -11,18 +12,20 @@ class VendaRepository
     // Repository focado em persistencia, leitura estruturada e auditoria de vendas.
     private $pdo;
     private $auditLogger;
+    private $documentStockService;
 
     public function __construct(PDO $pdo)
     {
         $this->pdo = $pdo;
-        // Compat layer para bases mais antigas que ainda nao receberam colunas de vendedor.
+        // Compat layer para bases mais antigas que ainda nao receberam colunas novas.
         $this->ensureSchema();
         $this->auditLogger = new AuditLogger($pdo);
+        $this->documentStockService = new DocumentStockService($pdo);
     }
 
     public function create(array $venda, array $itens, array $parcelas)
     {
-        // Salva cabecalho, itens, parcelas e auditoria em uma mesma transacao.
+        // Salva cabecalho, itens, parcelas, estoque e auditoria em uma mesma transacao.
         $startedTransaction = !$this->pdo->inTransaction();
 
         try {
@@ -34,6 +37,7 @@ class VendaRepository
                     id_cliente,
                     vendedor_id,
                     vendedor_nome,
+                    estoque_processado,
                     data_venda,
                     subtotal,
                     desconto_total,
@@ -46,6 +50,7 @@ class VendaRepository
                     :id_cliente,
                     :vendedor_id,
                     :vendedor_nome,
+                    :estoque_processado,
                     :data_venda,
                     :subtotal,
                     :desconto_total,
@@ -60,6 +65,7 @@ class VendaRepository
                 ':id_cliente' => $venda['cliente_id'],
                 ':vendedor_id' => $venda['vendedor_id'],
                 ':vendedor_nome' => $venda['vendedor_nome'],
+                ':estoque_processado' => 1,
                 ':data_venda' => $venda['data_venda'],
                 ':subtotal' => $venda['subtotal'],
                 ':desconto_total' => $venda['desconto_total'],
@@ -77,6 +83,7 @@ class VendaRepository
                     valor_unitario,
                     desconto_valor,
                     frete_valor,
+                    origem_estoque,
                     total_item,
                     created_at,
                     updated_at
@@ -87,11 +94,13 @@ class VendaRepository
                     :valor_unitario,
                     :desconto_valor,
                     :frete_valor,
+                    :origem_estoque,
                     :total_item,
                     NOW(),
                     NOW()
                 )');
 
+            $itensPersistidos = [];
             foreach ($itens as $item) {
                 $insertItem->execute([
                     ':id_venda' => $vendaId,
@@ -100,8 +109,11 @@ class VendaRepository
                     ':valor_unitario' => $item['valor_unitario'],
                     ':desconto_valor' => $item['desconto_valor'],
                     ':frete_valor' => $item['frete_valor'],
+                    ':origem_estoque' => $item['origem_estoque'],
                     ':total_item' => $item['total_item'],
                 ]);
+
+                $itensPersistidos[] = $item + ['id_venda_item' => (int) $this->pdo->lastInsertId()];
             }
 
             $insertParcela = $this->pdo->prepare('INSERT INTO venda_parcelas (
@@ -138,18 +150,26 @@ class VendaRepository
                 ]);
             }
 
+            $this->documentStockService->applyDocumentStock(
+                'venda',
+                $vendaId,
+                $itensPersistidos,
+                (int) (auth_user_id() ?? 0)
+            );
+
             // O log inclui os filhos para o historico explicar a venda inteira.
             $this->auditLogger->logCreate('venda', 'vendas', $vendaId, [
                 'id_cliente' => $venda['cliente_id'],
                 'vendedor_id' => $venda['vendedor_id'],
                 'vendedor_nome' => $venda['vendedor_nome'],
+                'estoque_processado' => 1,
                 'data_venda' => $venda['data_venda'],
                 'subtotal' => $venda['subtotal'],
                 'desconto_total' => $venda['desconto_total'],
                 'frete_total' => $venda['frete_total'],
                 'total_geral' => $venda['total_geral'],
                 'condicao_pagamento' => $venda['condicao_pagamento'],
-                'itens' => $itens,
+                'itens' => $itensPersistidos,
                 'parcelas' => $parcelas,
             ]);
 
@@ -171,21 +191,42 @@ class VendaRepository
     {
         // Na edicao o conjunto de itens/parcelas e regravado para manter consistencia.
         $startedTransaction = !$this->pdo->inTransaction();
-        $before = $this->findCompleteById($vendaId);
-
-        if (!$before) {
-            throw new \RuntimeException('Venda nao encontrada para atualizacao.');
-        }
 
         try {
             if ($startedTransaction) {
                 $this->pdo->beginTransaction();
             }
 
+            $stmtVendaAtual = $this->pdo->prepare(
+                'SELECT id_venda
+                 FROM vendas
+                 WHERE id_venda = :id_venda
+                 LIMIT 1
+                 FOR UPDATE'
+            );
+            $stmtVendaAtual->execute([':id_venda' => $vendaId]);
+            $vendaAtual = $stmtVendaAtual->fetch(PDO::FETCH_ASSOC);
+
+            if (!$vendaAtual) {
+                throw new \RuntimeException('Venda nao encontrada para atualizacao.');
+            }
+
+            $before = $this->findCompleteById($vendaId);
+            if (!$before) {
+                throw new \RuntimeException('Venda nao encontrada para atualizacao.');
+            }
+
+            $estoqueJaProcessado = (int) ($before['venda']['estoque_processado'] ?? 0) === 1;
+
+            if ($estoqueJaProcessado) {
+                $this->documentStockService->revertDocumentStock('venda', $vendaId);
+            }
+
             $updateVenda = $this->pdo->prepare('UPDATE vendas SET
                     id_cliente = :id_cliente,
                     vendedor_id = :vendedor_id,
                     vendedor_nome = :vendedor_nome,
+                    estoque_processado = :estoque_processado,
                     data_venda = :data_venda,
                     subtotal = :subtotal,
                     desconto_total = :desconto_total,
@@ -200,6 +241,7 @@ class VendaRepository
                 ':id_cliente' => $venda['cliente_id'],
                 ':vendedor_id' => $venda['vendedor_id'],
                 ':vendedor_nome' => $venda['vendedor_nome'],
+                ':estoque_processado' => 1,
                 ':data_venda' => $venda['data_venda'],
                 ':subtotal' => $venda['subtotal'],
                 ':desconto_total' => $venda['desconto_total'],
@@ -221,6 +263,7 @@ class VendaRepository
                     valor_unitario,
                     desconto_valor,
                     frete_valor,
+                    origem_estoque,
                     total_item,
                     created_at,
                     updated_at
@@ -231,11 +274,13 @@ class VendaRepository
                     :valor_unitario,
                     :desconto_valor,
                     :frete_valor,
+                    :origem_estoque,
                     :total_item,
                     NOW(),
                     NOW()
                 )');
 
+            $itensPersistidos = [];
             foreach ($itens as $item) {
                 // Os itens ja chegam validados pela service; aqui o foco e atomicidade.
                 $insertItem->execute([
@@ -245,8 +290,11 @@ class VendaRepository
                     ':valor_unitario' => $item['valor_unitario'],
                     ':desconto_valor' => $item['desconto_valor'],
                     ':frete_valor' => $item['frete_valor'],
+                    ':origem_estoque' => $item['origem_estoque'],
                     ':total_item' => $item['total_item'],
                 ]);
+
+                $itensPersistidos[] = $item + ['id_venda_item' => (int) $this->pdo->lastInsertId()];
             }
 
             $insertParcela = $this->pdo->prepare('INSERT INTO venda_parcelas (
@@ -283,6 +331,13 @@ class VendaRepository
                 ]);
             }
 
+            $this->documentStockService->applyDocumentStock(
+                'venda',
+                $vendaId,
+                $itensPersistidos,
+                (int) (auth_user_id() ?? 0)
+            );
+
             $after = [
                 // O diff compara o estado completo da venda, nao so o cabecalho.
                 'venda' => [
@@ -290,6 +345,7 @@ class VendaRepository
                     'id_cliente' => $venda['cliente_id'],
                     'vendedor_id' => $venda['vendedor_id'],
                     'vendedor_nome' => $venda['vendedor_nome'],
+                    'estoque_processado' => 1,
                     'data_venda' => $venda['data_venda'],
                     'subtotal' => $venda['subtotal'],
                     'desconto_total' => $venda['desconto_total'],
@@ -297,7 +353,7 @@ class VendaRepository
                     'total_geral' => $venda['total_geral'],
                     'condicao_pagamento' => $venda['condicao_pagamento'],
                 ],
-                'itens' => $itens,
+                'itens' => $itensPersistidos,
                 'parcelas' => $parcelas,
             ];
 
@@ -352,6 +408,7 @@ class VendaRepository
                 v.id_venda,
                 v.vendedor_id,
                 v.vendedor_nome,
+                COALESCE(v.estoque_processado, 0) AS estoque_processado,
                 v.data_venda,
                 v.subtotal,
                 v.desconto_total,
@@ -383,6 +440,7 @@ class VendaRepository
                 vi.valor_unitario,
                 vi.desconto_valor,
                 vi.frete_valor,
+                vi.origem_estoque,
                 vi.total_item
             FROM venda_itens vi
             LEFT JOIN produtos p ON p.id = vi.id_produto
@@ -495,6 +553,24 @@ class VendaRepository
             $this->pdo->exec(
                 "ALTER TABLE vendas
                     ADD COLUMN vendedor_nome VARCHAR(120) NULL AFTER vendedor_id"
+            );
+        }
+
+        $stmt = $this->pdo->query("SHOW COLUMNS FROM vendas LIKE 'estoque_processado'");
+        $hasEstoqueProcessado = $stmt && $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$hasEstoqueProcessado) {
+            $this->pdo->exec(
+                "ALTER TABLE vendas
+                    ADD COLUMN estoque_processado TINYINT(1) NOT NULL DEFAULT 0 AFTER vendedor_nome"
+            );
+        }
+
+        $stmt = $this->pdo->query("SHOW COLUMNS FROM venda_itens LIKE 'origem_estoque'");
+        $hasOrigemEstoque = $stmt && $stmt->fetch(PDO::FETCH_ASSOC);
+        if (!$hasOrigemEstoque) {
+            $this->pdo->exec(
+                "ALTER TABLE venda_itens
+                    ADD COLUMN origem_estoque VARCHAR(40) NULL AFTER frete_valor"
             );
         }
     }

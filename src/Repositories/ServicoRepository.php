@@ -219,6 +219,7 @@ class ServicoRepository
                 s.cliente_id,
                 s.vendedor_id,
                 s.vendedor_nome,
+                COALESCE(s.estoque_processado, 0) AS estoque_processado,
                 s.data_servico,
                 s.condicao_pagamento,
                 s.subtotal_produtos,
@@ -251,6 +252,7 @@ class ServicoRepository
                 valor_unitario,
                 desconto_valor,
                 frete_valor,
+                origem_estoque,
                 total_item
             FROM servicos_itens
             WHERE servico_id = :id_servico

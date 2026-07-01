@@ -85,7 +85,7 @@
 
       try {
         const count = await getCommitCount("Piscinar-Piscinas-e-Spas", "Piscinar.System_2.0");
-        const versao = "2.0" + count.toString().padStart(5, "0");
+        const versao = "2.0." + count.toString().padStart(5, "0");
         resultado.textContent = versao;
         mensagem.textContent = "Consulta realizada com sucesso.";
         mensagem.classList.add("text-info");

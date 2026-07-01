@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS vendas (
     id_cliente INT UNSIGNED NOT NULL,
     vendedor_id INT UNSIGNED NULL,
     vendedor_nome VARCHAR(120) DEFAULT NULL,
+    estoque_processado TINYINT(1) NOT NULL DEFAULT 0,
     data_venda DATE NOT NULL,
     subtotal DECIMAL(12,2) NOT NULL DEFAULT 0.00,
     desconto_total DECIMAL(12,2) NOT NULL DEFAULT 0.00,
