@@ -139,21 +139,18 @@ include '../includes/header.php';
                     <div class="card-body">
                         <div class="row g-2 align-items-end mb-3">
                             <div class="col-md-4">
-                                <label class="form-label" for="produtoSelect">Produto</label>
-                                <select class="form-select" id="produtoSelect">
-                                    <option value="">Selecione um produto...</option>
+                                <label class="form-label" for="produtoBusca">Produto</label>
+                                <input type="text" class="form-control" id="produtoBusca" list="produtosSugestoes" placeholder="Digite o nome do produto..." autocomplete="off">
+                                <datalist id="produtosSugestoes">
                                     <?php foreach ($produtos as $produto): ?>
-                                        <option value="<?= (int) $produto['id'] ?>"
-                                            data-nome="<?= htmlspecialchars($produto['nome']) ?>"
-                                            data-preco="<?= number_format((float) ($produto['preco1'] ?? 0), 2, '.', '') ?>">
-                                            <?= htmlspecialchars($produto['nome']) ?> (R$ <?= number_format((float) ($produto['preco1'] ?? 0), 2, ',', '.') ?>)
-                                        </option>
+                                        <option value="<?= htmlspecialchars((string) $produto['nome'] . ' (R$ ' . number_format((float) ($produto['preco1'] ?? 0), 2, ',', '.') . ')', ENT_QUOTES, 'UTF-8') ?>"></option>
                                     <?php endforeach; ?>
-                                </select>
+                                </datalist>
+                                
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label" for="produtoQtd">Qtd.</label>
-                                <input type="number" min="1" step="1" class="form-control" id="produtoQtd" value="1">
+                                <input type="number" min="1" step="1" class="form-control quantidade-adaptativa" id="produtoQtd" value="1">
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label" for="produtoValorUnitario">Vlr. unitário</label>
@@ -356,6 +353,7 @@ include '../includes/header.php';
         'Crédito Stone', 'Débito Infinite', 'Crédito Infinite'
     ];
     const clientesData = <?= json_encode($clientes, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+    const produtosData = <?= json_encode($produtos, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
 
     const formVenda = document.getElementById('formVenda');
     const feedbackBox = document.getElementById('vendaFeedback');
@@ -368,11 +366,20 @@ include '../includes/header.php';
     const clienteEmail = document.getElementById('clienteEmail');
     const clienteEndereco = document.getElementById('clienteEndereco');
     const clientesSugestoes = document.getElementById('clientesSugestoes');
+    const produtoBusca = document.getElementById('produtoBusca');
+    const produtosSugestoes = document.getElementById('produtosSugestoes');
+    const produtoQtd = document.getElementById('produtoQtd');
+    const produtoValorUnitario = document.getElementById('produtoValorUnitario');
+    const produtoOrigemEstoque = document.getElementById('produtoOrigemEstoque');
+    const btnAdicionarProduto = document.getElementById('btnAdicionarProduto');
     const vendedorSelect = document.getElementById('vendedorSelect');
     const usarDataRetroativaVenda = document.getElementById('usarDataRetroativaVenda');
     const dataRetroativaVenda = document.getElementById('dataRetroativaVenda');
     const maskHelpers = window.PiscinarMasks || {};
     let clienteSelecionadoId = null;
+    let produtoSelecionadoId = null;
+
+
 
     function normalizarDigitos(value, maxLength = 14) {
         if (typeof maskHelpers.onlyDigits === 'function') {
@@ -482,6 +489,91 @@ include '../includes/header.php';
         composicao.setBaseDate(obterDataVendaSelecionada());
     }
 
+// Ajusta apenas o step, sem mexer no valor
+function atualizarStep(input) {
+  let valorStr = input.value.trim();
+  if (valorStr === '') {
+    input.step = '1';
+    return;
+  }
+
+  valorStr = valorStr.replace(',', '.');
+  const numero = parseFloat(valorStr);
+  if (isNaN(numero)) {
+    input.step = '1';
+    return;
+  }
+
+  const partes = valorStr.split('.');
+  const casasDecimais = partes.length === 2 ? partes[1].length : 0;
+
+  if (casasDecimais >= 2) {
+    input.step = '0.01';
+  } else if (casasDecimais === 1) {
+    input.step = '0.1';
+  } else {
+    input.step = '1';
+  }
+}
+
+// Formata o valor conforme o step e preserva a posição do cursor
+function formatarComCursor(input) {
+  const pos = input.selectionStart;
+  const valorAntigo = input.value;
+
+  // Não formata se estiver vazio ou terminando com separador decimal (digitação incompleta)
+  if (valorAntigo.trim() === '' || valorAntigo.endsWith(',') || valorAntigo.endsWith('.')) {
+    return;
+  }
+
+  let valorStr = valorAntigo.replace(',', '.');
+  const numero = parseFloat(valorStr);
+  if (isNaN(numero)) return;
+
+  // Determina quantas casas decimais exibir com base no step atual
+  const stepAtual = parseFloat(input.step);
+  let casas = 0;
+  if (stepAtual === 0.01) casas = 2;
+  else if (stepAtual === 0.1) casas = 1;
+
+  // Formata o número (arredondado para o step correto)
+  const fator = Math.pow(10, casas);
+  const arredondado = Math.round(numero * fator) / fator;
+  const valorFormatado = casas > 0 ? arredondado.toFixed(casas) : Math.round(arredondado).toString();
+
+  // Compara normalizado (ponto e sem zeros desnecessários) para evitar loop
+  const normalizadoAntigo = parseFloat(valorAntigo.replace(',', '.')).toString();
+  const normalizadoNovo = parseFloat(valorFormatado).toString();
+  if (normalizadoNovo === normalizadoAntigo) return;
+
+  // Aplica o novo valor
+  input.value = valorFormatado;
+
+  // Reposiciona o cursor (ajusta pela diferença de comprimento)
+  const diff = valorFormatado.length - valorAntigo.length;
+  const novaPos = pos + diff;
+  input.setSelectionRange(novaPos, novaPos);
+}
+
+// Listener delegado (input + blur)
+document.addEventListener('input', function(e) {
+  if (e.target.classList.contains('quantidade-adaptativa')) {
+    atualizarStep(e.target);           // mantém step correto
+    formatarComCursor(e.target);       // formata sem travar
+  }
+});
+
+document.addEventListener('blur', function(e) {
+  if (e.target.classList.contains('quantidade-adaptativa')) {
+    formatarComCursor(e.target);       // garante formatação final
+    // (opcional) força mínimo 1 se necessário
+    if (e.target.value === '' || isNaN(parseFloat(e.target.value.replace(',', '.')))) {
+      e.target.value = '1';
+    }
+  }
+}, true);
+
+
     function limparFormularioVendaPosSucesso() {
         clienteSelecionadoId = null;
         clienteNome.value = '';
@@ -491,10 +583,11 @@ include '../includes/header.php';
         clienteEndereco.value = '';
         vendedorSelect.value = vendedorLogadoPadrao.id ? String(vendedorLogadoPadrao.id) : '';
 
-        document.getElementById('produtoSelect').value = '';
-        document.getElementById('produtoQtd').value = '1';
-        document.getElementById('produtoValorUnitario').value = '0,00';
-        document.getElementById('produtoOrigemEstoque').value = 'loja';
+        produtoSelecionadoId = null;
+        produtoBusca.value = '';
+        produtoQtd.value = '1';
+        produtoValorUnitario.value = '0,00';
+        produtoOrigemEstoque.value = 'loja';
 
         usarDataRetroativaVenda.checked = false;
         dataRetroativaVenda.value = hojeSP;
@@ -572,6 +665,68 @@ include '../includes/header.php';
         const id = Number(idCliente);
         if (!Number.isInteger(id) || id <= 0) return null;
         return clientesData.find((cliente) => Number(cliente.id_cliente) === id) || null;
+    }
+
+    function filtrarSugestoesProdutos(valorDigitado) {
+        const termo = normalizarNomeBusca(valorDigitado);
+        const filtrados = produtosData.filter((produto) => {
+            if (!termo) return true;
+            return normalizarNomeBusca(produto.nome || '').includes(termo);
+        });
+
+        produtosSugestoes.innerHTML = filtrados
+            .map((produto) => `<option value="${escapeHtmlAttr(formatarProdutoParaSugestao(produto))}" data-id="${Number(produto.id) || ''}"></option>`)
+            .join('');
+    }
+
+    function formatarProdutoParaSugestao(produto) {
+        const nome = String(produto?.nome || '').trim();
+        const preco = Number(produto?.preco1 || 0).toLocaleString('pt-BR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+
+        return `${nome} (R$ ${preco})`;
+    }
+
+    function extrairNomeProdutoDigitado(valor) {
+        return String(valor || '').replace(/\s+\(R\$\s*[\d.,]+\)\s*$/, '').trim();
+    }
+
+    function buscarProdutoPorNome(nome) {
+        const nomeNormalizado = normalizarNomeBusca(extrairNomeProdutoDigitado(nome));
+        if (!nomeNormalizado) return null;
+
+        return produtosData.find(
+            (produto) => normalizarNomeBusca(produto.nome || '') === nomeNormalizado
+        ) || null;
+    }
+
+    function obterProdutoSelecionadoPorInput(nomeDigitado) {
+        const nomeNormalizado = normalizarNomeBusca(nomeDigitado);
+        if (!nomeNormalizado) return null;
+
+        const opcoes = Array.from(produtosSugestoes.options);
+        const opcao = opcoes.find((item) => normalizarNomeBusca(item.value || '') === nomeNormalizado);
+        if (opcao && opcao.dataset.id) {
+            const id = Number(opcao.dataset.id);
+            if (Number.isInteger(id) && id > 0) {
+                return produtosData.find((produto) => Number(produto.id) === id) || null;
+            }
+        }
+
+        return buscarProdutoPorNome(nomeDigitado);
+    }
+
+    function preencherProdutoSelecionado(produto) {
+        if (!produto) {
+            produtoSelecionadoId = null;
+            return;
+        }
+
+        produtoSelecionadoId = Number(produto.id) || null;
+        produtoBusca.value = formatarProdutoParaSugestao(produto);
+        produtoValorUnitario.value = Number(produto.preco1 || 0).toFixed(2).replace('.', ',');
     }
 
     function normalizarTextoComparacao(valor) {
@@ -871,6 +1026,7 @@ include '../includes/header.php';
     }
 
     filtrarSugestoesClientes('');
+    filtrarSugestoesProdutos('');
 
     clienteNome.addEventListener('input', (event) => {
         clienteSelecionadoId = null;
@@ -898,30 +1054,58 @@ include '../includes/header.php';
 
     btnSalvarCliente.addEventListener('click', salvarClienteRapido);
 
-    document.getElementById('produtoSelect').addEventListener('change', (event) => {
-        const opt = event.target.selectedOptions[0];
-        document.getElementById('produtoValorUnitario').value = (composicao.valorNum(opt?.dataset?.preco)).toFixed(2).replace('.', ',');
+    // Reaproveita a mesma ideia do campo de cliente:
+    // filtramos em tempo real e só confirmamos um produto quando ele
+    // bater exatamente com um item existente no catálogo.
+    produtoBusca.addEventListener('input', (event) => {
+        const produto = obterProdutoSelecionadoPorInput(event.target.value);
+        produtoSelecionadoId = produto ? Number(produto.id) || null : null;
+        filtrarSugestoesProdutos(event.target.value);
     });
 
-    document.getElementById('btnAdicionarProduto').addEventListener('click', () => {
-        const select = document.getElementById('produtoSelect');
-        const opt = select.selectedOptions[0];
+    produtoBusca.addEventListener('change', (event) => {
+        const produto = obterProdutoSelecionadoPorInput(event.target.value);
+        if (produto) {
+            preencherProdutoSelecionado(produto);
+            return;
+        }
 
-        if (!opt || !opt.value) {
+        produtoSelecionadoId = null;
+    });
+
+    produtoBusca.addEventListener('keydown', (event) => {
+        if (event.key !== 'Enter') return;
+        const produto = obterProdutoSelecionadoPorInput(produtoBusca.value);
+        if (!produto) return;
+        event.preventDefault();
+        preencherProdutoSelecionado(produto);
+    });
+
+    btnAdicionarProduto.addEventListener('click', () => {
+        const produto = produtoSelecionadoId
+            ? produtosData.find((item) => Number(item.id) === Number(produtoSelecionadoId)) || null
+            : obterProdutoSelecionadoPorInput(produtoBusca.value);
+
+        if (!produto) {
             showBlockingAlert('Selecione um produto para adicionar.', 'sales.product_required');
             return;
         }
 
         composicao.addItem('produto', {
-            produtoId: Number(opt.value),
-            nome: opt.dataset.nome || opt.textContent,
-            origemEstoque: document.getElementById('produtoOrigemEstoque').value || 'loja',
-            quantidade: Math.max(1, parseInt(document.getElementById('produtoQtd').value, 10) || 1),
-            valorUnitario: Math.max(0, composicao.valorNum(document.getElementById('produtoValorUnitario').value)),
+            produtoId: Number(produto.id),
+            nome: produto.nome || '',
+            origemEstoque: produtoOrigemEstoque.value || 'loja',
+            quantidade: Math.max(1, parseFloat(produtoQtd.value) || 1),
+            valorUnitario: Math.max(0, composicao.valorNum(produtoValorUnitario.value)),
             desconto: 0,
             freteItem: 0
         });
-        document.getElementById('produtoOrigemEstoque').value = 'loja';
+        produtoSelecionadoId = null;
+        produtoBusca.value = '';
+        produtoQtd.value = '1';
+        produtoValorUnitario.value = '0,00';
+        produtoOrigemEstoque.value = 'loja';
+        filtrarSugestoesProdutos('');
     });
 
     document.getElementById('btnZerarDescontos').addEventListener('click', () => {
@@ -941,6 +1125,10 @@ include '../includes/header.php';
 
     function renderClientesSugestao(valorInicial) {
         filtrarSugestoesClientes(valorInicial || '');
+    }
+
+    function renderProdutosSugestao(valorInicial) {
+        filtrarSugestoesProdutos(valorInicial || '');
     }
 
     function aplicarDadosEdicaoVenda() {
@@ -966,6 +1154,7 @@ include '../includes/header.php';
         condicaoPagamento.dispatchEvent(new Event('change'));
         composicao.setItens(Array.isArray(vendaEdicaoData.itens) ? vendaEdicaoData.itens : [], []);
         renderClientesSugestao(vendaEdicaoData.cliente?.nome_cliente || '');
+        renderProdutosSugestao('');
 
         const parcelas = Array.isArray(vendaEdicaoData.parcelas) ? vendaEdicaoData.parcelas : [];
         if (parcelas.length) {
@@ -998,6 +1187,7 @@ include '../includes/header.php';
     });
 
     renderClientesSugestao('');
+    renderProdutosSugestao('');
     aplicarMascaraCpfCnpj();
     aplicarDadosEdicaoVenda();
 </script>

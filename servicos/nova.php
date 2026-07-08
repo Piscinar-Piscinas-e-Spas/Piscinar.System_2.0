@@ -179,19 +179,17 @@ include '../includes/header.php';
                     <div class="card-body">
                         <div class="row g-2 align-items-end mb-3">
                             <div class="col-md-4">
-                                <label class="form-label" for="produtoSelect">Produto</label>
-                                <select class="form-select" id="produtoSelect">
-                                    <option value="">Selecione um produto...</option>
+                                <label class="form-label" for="produtoBusca">Produto</label>
+                                <input type="text" class="form-control" id="produtoBusca" list="produtosSugestoes" placeholder="Digite o nome do produto..." autocomplete="off">
+                                <datalist id="produtosSugestoes">
                                     <?php foreach ($produtos as $produto): ?>
-                                        <option value="<?= (int) $produto['id'] ?>" data-nome="<?= htmlspecialchars($produto['nome']) ?>" data-preco="<?= number_format((float) ($produto['preco1'] ?? 0), 2, '.', '') ?>">
-                                            <?= htmlspecialchars($produto['nome']) ?> (R$ <?= number_format((float) ($produto['preco1'] ?? 0), 2, ',', '.') ?>)
-                                        </option>
+                                        <option value="<?= htmlspecialchars((string) $produto['nome'] . ' (R$ ' . number_format((float) ($produto['preco1'] ?? 0), 2, ',', '.') . ')', ENT_QUOTES, 'UTF-8') ?>"></option>
                                     <?php endforeach; ?>
-                                </select>
+                                </datalist>
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label" for="produtoQtd">Qtd.</label>
-                                <input type="number" min="1" class="form-control" id="produtoQtd" value="1">
+                                <input type="number" min="1" step="1" class="form-control quantidade-adaptativa" id="produtoQtd" value="1">
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label" for="produtoValorUnitario">Vlr. unitário</label>
@@ -241,7 +239,14 @@ include '../includes/header.php';
                         <div class="table-responsive mt-3">
                             <table class="table table-sm table-bordered align-middle" id="itensMicroTable">
                                 <thead style="background:#ffd79a;">
-                                    <tr><th>Item</th><th>Descrição</th><th>Qtd.</th><th>Vlr. unitário</th><th>Desconto</th><th>Total</th><th>Ação</th></tr>
+                                    <tr>
+                                      <th>Item</th>
+                                      <th>Descrição</th>
+                                      <th>Qtd.</th>
+                                      <th>Vlr. unitário</th>
+                                      <th>Desconto</th>
+                                      <th>Total</th>
+                                      <th>Ação</th></tr>
                                 </thead>
                                 <tbody></tbody>
                             </table>
@@ -397,6 +402,7 @@ include '../includes/header.php';
 const hojeSP = '<?= $hojeSaoPaulo ?>';
 const csrfToken = '<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8') ?>';
 const clientesData = <?= json_encode($clientes, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
+const produtosData = <?= json_encode($produtos, JSON_UNESCAPED_UNICODE | JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) ?>;
 const clienteObrigatorio = <?= $clienteObrigatorio ? 'true' : 'false' ?>;
 const servicoEdicaoData = <?= json_encode($servicoEdicaoPayload, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES | JSON_INVALID_UTF8_SUBSTITUTE) ?>;
 const vendedorLogadoPadrao = {
@@ -418,7 +424,14 @@ const moeda = (v) => Number(v || 0).toLocaleString('pt-BR', { style:'currency', 
 const valorNum = window.ComposicaoComercial.valorNum;
 
 let clienteSelecionadoId = null;
+let produtoSelecionadoId = null;
 const clientesSugestoes = document.getElementById('clientesSugestoes');
+const produtosSugestoes = document.getElementById('produtosSugestoes');
+const produtoBusca = document.getElementById('produtoBusca');
+const produtoQtd = document.getElementById('produtoQtd');
+const produtoValorUnitario = document.getElementById('produtoValorUnitario');
+const produtoOrigemEstoque = document.getElementById('produtoOrigemEstoque');
+const btnAdicionarProduto = document.getElementById('btnAdicionarProduto');
 const vendedorSelect = document.getElementById('vendedorSelect');
 const btnSalvarCliente = document.getElementById('btnSalvarCliente');
 const btnLimparServico = document.getElementById('btnLimparServico');
@@ -806,7 +819,7 @@ function renderTabelas({ skipComposicaoSync = false } = {}) {
           <option value="estoque_auxiliar" ${i.origem_estoque === 'estoque_auxiliar' ? 'selected' : ''}>Estoque Auxiliar</option>
         </select>
       </td>
-      <td><input class="form-control form-control-sm" data-tipo="produto" data-campo="quantidade" data-idx="${idx}" value="${i.quantidade}"></td>
+      <td><input class="form-control form-control-sm quantidade-adaptativa" data-tipo="produto" data-campo="quantidade" data-idx="${idx}" value="${i.quantidade}"></td>
       <td><input class="form-control form-control-sm" data-tipo="produto" data-campo="valor_unitario" data-idx="${idx}" value="${Number(i.valor_unitario).toFixed(2).replace('.', ',')}"></td>
       <td><input class="form-control form-control-sm" data-tipo="produto" data-campo="desconto_valor" data-idx="${idx}" value="${Number(i.desconto_valor).toFixed(2).replace('.', ',')}"></td>
       <td><input class="form-control form-control-sm" data-tipo="produto" data-campo="frete_valor" data-idx="${idx}" value="${Number(i.frete_valor).toFixed(2).replace('.', ',')}"></td>
@@ -869,6 +882,152 @@ function obterPrimeiraPalavra(value) {
   return String(value || '').trim().split(/\s+/).filter(Boolean)[0] || '';
 }
 
+function normalizarNomeBusca(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase();
+}
+
+function escapeHtmlAttr(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function formatarProdutoParaSugestao(produto) {
+  const nome = String(produto?.nome || '').trim();
+  const preco = Number(produto?.preco1 || 0).toLocaleString('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+
+  return `${nome} (R$ ${preco})`;
+}
+
+function extrairNomeProdutoDigitado(valor) {
+  return String(valor || '').replace(/\s+\(R\$\s*[\d.,]+\)\s*$/, '').trim();
+}
+
+function filtrarSugestoesProdutos(valorDigitado) {
+  const termo = normalizarNomeBusca(valorDigitado);
+  const filtrados = produtosData.filter((produto) => {
+    if (!termo) return true;
+    return normalizarNomeBusca(produto.nome || '').includes(termo);
+  });
+
+  produtosSugestoes.innerHTML = filtrados
+    .map((produto) => `<option value="${escapeHtmlAttr(formatarProdutoParaSugestao(produto))}" data-id="${Number(produto.id) || ''}"></option>`)
+    .join('');
+}
+
+function buscarProdutoPorNome(nome) {
+  const nomeNormalizado = normalizarNomeBusca(extrairNomeProdutoDigitado(nome));
+  if (!nomeNormalizado) return null;
+
+  return produtosData.find((produto) => normalizarNomeBusca(produto.nome || '') === nomeNormalizado) || null;
+}
+
+function obterProdutoSelecionadoPorInput(nomeDigitado) {
+  const nomeNormalizado = normalizarNomeBusca(nomeDigitado);
+  if (!nomeNormalizado) return null;
+
+  const opcoes = Array.from(produtosSugestoes.options);
+  const opcao = opcoes.find((item) => normalizarNomeBusca(item.value || '') === nomeNormalizado);
+  if (opcao && opcao.dataset.id) {
+    const id = Number(opcao.dataset.id);
+    if (Number.isInteger(id) && id > 0) {
+      return produtosData.find((produto) => Number(produto.id) === id) || null;
+    }
+  }
+
+  return buscarProdutoPorNome(nomeDigitado);
+}
+
+function preencherProdutoSelecionado(produto) {
+  if (!produto) {
+    produtoSelecionadoId = null;
+    return;
+  }
+
+  produtoSelecionadoId = Number(produto.id) || null;
+  produtoBusca.value = formatarProdutoParaSugestao(produto);
+  produtoValorUnitario.value = Number(produto.preco1 || 0).toFixed(2).replace('.', ',');
+}
+
+function atualizarStep(input) {
+  let valorStr = input.value.trim();
+  if (valorStr === '') {
+    input.step = '1';
+    return;
+  }
+
+  valorStr = valorStr.replace(',', '.');
+  const numero = parseFloat(valorStr);
+  if (isNaN(numero)) {
+    input.step = '1';
+    return;
+  }
+
+  const partes = valorStr.split('.');
+  const casasDecimais = partes.length === 2 ? partes[1].length : 0;
+
+  if (casasDecimais >= 2) input.step = '0.01';
+  else if (casasDecimais === 1) input.step = '0.1';
+  else input.step = '1';
+}
+
+function formatarComCursor(input) {
+  const pos = input.selectionStart;
+  const valorAntigo = input.value;
+
+  if (valorAntigo.trim() === '' || valorAntigo.endsWith(',') || valorAntigo.endsWith('.')) {
+    return;
+  }
+
+  let valorStr = valorAntigo.replace(',', '.');
+  const numero = parseFloat(valorStr);
+  if (isNaN(numero)) return;
+
+  const stepAtual = parseFloat(input.step);
+  let casas = 0;
+  if (stepAtual === 0.01) casas = 2;
+  else if (stepAtual === 0.1) casas = 1;
+
+  const fator = Math.pow(10, casas);
+  const arredondado = Math.round(numero * fator) / fator;
+  const valorFormatado = casas > 0 ? arredondado.toFixed(casas) : Math.round(arredondado).toString();
+
+  const normalizadoAntigo = parseFloat(valorAntigo.replace(',', '.')).toString();
+  const normalizadoNovo = parseFloat(valorFormatado).toString();
+  if (normalizadoNovo === normalizadoAntigo) return;
+
+  input.value = valorFormatado;
+
+  const diff = valorFormatado.length - valorAntigo.length;
+  const novaPos = pos + diff;
+  input.setSelectionRange(novaPos, novaPos);
+}
+
+document.addEventListener('input', function (e) {
+  if (e.target.classList.contains('quantidade-adaptativa')) {
+    atualizarStep(e.target);
+    formatarComCursor(e.target);
+  }
+});
+
+document.addEventListener('blur', function (e) {
+  if (e.target.classList.contains('quantidade-adaptativa')) {
+    formatarComCursor(e.target);
+    if (e.target.value === '' || isNaN(parseFloat(e.target.value.replace(',', '.')))) {
+      e.target.value = '1';
+    }
+  }
+}, true);
+
 function obterDataServicoSelecionada() {
   if (usarDataRetroativaServico.checked && dataRetroativaServico.value) {
     return dataRetroativaServico.value;
@@ -893,10 +1052,11 @@ function limparFormularioServicoPosSucesso() {
   document.getElementById('clienteEmail').value = '';
   document.getElementById('clienteEndereco').value = '';
 
-  document.getElementById('produtoSelect').value = '';
-  document.getElementById('produtoQtd').value = '1';
-  document.getElementById('produtoValorUnitario').value = '0,00';
-  document.getElementById('produtoOrigemEstoque').value = 'loja';
+  produtoSelecionadoId = null;
+  produtoBusca.value = '';
+  produtoQtd.value = '1';
+  produtoValorUnitario.value = '0,00';
+  produtoOrigemEstoque.value = 'loja';
 
   document.getElementById('microDescricao').value = '';
   document.getElementById('microQtd').value = '1';
@@ -921,6 +1081,7 @@ function limparFormularioServicoPosSucesso() {
   ultimaOrigemDesconto = 'valor';
 
   renderClientesSugestao('');
+  filtrarSugestoesProdutos('');
   renderTabelas();
   document.getElementById('condicaoPagamento').dispatchEvent(new Event('change'));
   limparFeedback();
@@ -990,24 +1151,52 @@ document.getElementById('freteComoMicroservicoCheck').addEventListener('change',
   renderTabelas();
 });
 
-document.getElementById('produtoSelect').addEventListener('change', (e) => {
-  const opt = e.target.selectedOptions[0];
-  document.getElementById('produtoValorUnitario').value = valorNum(opt?.dataset?.preco).toFixed(2).replace('.', ',');
+produtoBusca.addEventListener('input', (event) => {
+  const produto = obterProdutoSelecionadoPorInput(event.target.value);
+  produtoSelecionadoId = produto ? Number(produto.id) || null : null;
+  filtrarSugestoesProdutos(event.target.value);
 });
 
-document.getElementById('btnAdicionarProduto').addEventListener('click', () => {
-  const opt = document.getElementById('produtoSelect').selectedOptions[0];
-  if (!opt || !opt.value) return showBlockingAlert('Selecione um produto.', 'services.product_required');
+produtoBusca.addEventListener('change', (event) => {
+  const produto = obterProdutoSelecionadoPorInput(event.target.value);
+  if (produto) {
+    preencherProdutoSelecionado(produto);
+    return;
+  }
+
+  produtoSelecionadoId = null;
+});
+
+produtoBusca.addEventListener('keydown', (event) => {
+  if (event.key !== 'Enter') return;
+  const produto = obterProdutoSelecionadoPorInput(produtoBusca.value);
+  if (!produto) return;
+  event.preventDefault();
+  preencherProdutoSelecionado(produto);
+});
+
+btnAdicionarProduto.addEventListener('click', () => {
+  const produto = produtoSelecionadoId
+    ? produtosData.find((item) => Number(item.id) === Number(produtoSelecionadoId)) || null
+    : obterProdutoSelecionadoPorInput(produtoBusca.value);
+
+  if (!produto) return showBlockingAlert('Selecione um produto.', 'services.product_required');
+
   state.produtos.push({
-    produto_id: Number(opt.value),
-    descricao: opt.dataset.nome || opt.textContent,
-    origem_estoque: document.getElementById('produtoOrigemEstoque').value || 'loja',
-    quantidade: Math.max(1, parseInt(document.getElementById('produtoQtd').value, 10) || 1),
-    valor_unitario: valorNum(document.getElementById('produtoValorUnitario').value),
+    produto_id: Number(produto.id),
+    descricao: produto.nome || '',
+    origem_estoque: produtoOrigemEstoque.value || 'loja',
+    quantidade: Math.max(1, parseFloat(produtoQtd.value) || 1),
+    valor_unitario: valorNum(produtoValorUnitario.value),
     desconto_valor: 0,
     frete_valor: 0
   });
-  document.getElementById('produtoOrigemEstoque').value = 'loja';
+  produtoSelecionadoId = null;
+  produtoBusca.value = '';
+  produtoQtd.value = '1';
+  produtoValorUnitario.value = '0,00';
+  produtoOrigemEstoque.value = 'loja';
+  filtrarSugestoesProdutos('');
   renderTabelas();
 });
 
@@ -1034,7 +1223,10 @@ document.getElementById('btnAdicionarMicro').addEventListener('click', () => {
     if (tipo === 'microservicos' && state[tipo][idx].is_frete_embutido === true) return;
     const campo = el.dataset.campo;
     if (campo === 'quantidade') {
-      state[tipo][idx][campo] = Math.max(1, parseInt(el.value, 10) || 1);
+      const valorQuantidade = tipo === 'produtos'
+        ? parseFloat(String(el.value || '').replace(',', '.'))
+        : parseInt(el.value, 10);
+      state[tipo][idx][campo] = Math.max(1, valorQuantidade || 1);
     } else if (campo === 'origem_estoque') {
       state[tipo][idx][campo] = String(el.value || '');
     } else {
@@ -1202,6 +1394,7 @@ function aplicarDadosEdicaoServico() {
 }
 
 renderClientesSugestao('');
+filtrarSugestoesProdutos('');
 renderTabelas();
 document.getElementById('condicaoPagamento').dispatchEvent(new Event('change'));
 aplicarDadosEdicaoServico();

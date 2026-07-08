@@ -1,0 +1,33 @@
+{
+    "identificador": "inventario_loja_20260708_112122_b37c2d72.json",
+    "usuario": {
+        "id": 9,
+        "nome": "Rodrigo Carioca"
+    },
+    "data_hora": "2026-07-08 11:21:22",
+    "local": "loja",
+    "coluna_afetada": "qtdLoja",
+    "filtros": {
+        "busca": "SAUNA UMIDA",
+        "grupo": "",
+        "pagina": 1,
+        "por_pagina": 25
+    },
+    "resumo": {
+        "total_itens": 1,
+        "itens_alterados": 1,
+        "soma_diferencas_positivas": 0,
+        "soma_diferencas_negativas": -1
+    },
+    "itens": [
+        {
+            "id_produto": 452,
+            "produto_nome": "SAUNA UMIDA BRUSTEC 6KW 220V (COM PAINEL WIFI)",
+            "saldo_anterior": 2,
+            "saldo_informado": 1,
+            "diferenca": -1,
+            "coluna_afetada": "qtdLoja",
+            "local_inventario": "Loja"
+        }
+    ]
+}

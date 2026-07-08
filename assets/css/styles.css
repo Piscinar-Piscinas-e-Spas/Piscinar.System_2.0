@@ -2656,3 +2656,77 @@ tr.estoque-critico > td {
 [data-app-theme="walnut"] .offcanvas-body img {
   filter: var(--app-walnut-image-filter);
 }
+
+/* ===== Tabela de itens da venda ===== */
+#itensTable {
+  table-layout: fixed !important;
+  width: 100%;
+}
+
+#itensTable th,
+#itensTable td {
+  overflow: hidden;
+  white-space: normal;
+  word-wrap: break-word;
+  padding: 0.25rem !important;
+  vertical-align: middle;
+}
+
+/* ===== Largura de cada coluna ===== */
+#itensTable th:nth-child(1),
+#itensTable td:nth-child(1) { width: 3%; }   /* Item */
+
+#itensTable th:nth-child(2),
+#itensTable td:nth-child(2) { width: 22%; }  /* Produto */
+
+#itensTable th:nth-child(3),
+#itensTable td:nth-child(3) { width: 9%; }   /* Origem estoque */
+
+#itensTable th:nth-child(4),
+#itensTable td:nth-child(4) { width: 5%; }   /* Qtd. */
+
+#itensTable th:nth-child(5),
+#itensTable td:nth-child(5) { width: 7%; }   /* Vlr. unitário */
+
+#itensTable th:nth-child(6),
+#itensTable td:nth-child(6) { width: 8%; }   /* Vlr. total */
+
+#itensTable th:nth-child(7),
+#itensTable td:nth-child(7) { width: 6%; }   /* Desconto */
+
+#itensTable th:nth-child(8),
+#itensTable td:nth-child(8) { width: 8%; }   /* Vlr. unit. c/ desc */
+
+#itensTable th:nth-child(9),
+#itensTable td:nth-child(9) { width: 8%; }   /* Vlr. total c/ desc */
+
+#itensTable th:nth-child(10),
+#itensTable td:nth-child(10) { width: 6%; }  /* Frete item */
+
+#itensTable th:nth-child(11),
+#itensTable td:nth-child(11) { width: 8%; }  /* Total do item */
+
+#itensTable th:nth-child(12),
+#itensTable td:nth-child(12) { width: 4%; }  /* Ação */
+
+/* ===== Inputs numéricos (Qtd, Vlr. unitário, Desconto, Frete item) ===== */
+#itensTable input.item-qtd,
+#itensTable input.item-unit,
+#itensTable input.item-desc,
+#itensTable input.item-frete {
+  width: 100% !important;
+  min-width: 0 !important;
+  box-sizing: border-box !important;
+  padding: 0.25rem 0.4rem !important;
+}
+
+/* ===== Select de Origem estoque (mantém tamanho já bom, só garante ajuste à célula) ===== */
+#itensTable select.item-stock-origin {
+  width: 100% !important;
+  box-sizing: border-box !important;
+} 
+
+#itensTable input[type="number"]::-webkit-inner-spin-button,
+#itensTable input[type="number"]::-webkit-outer-spin-button {
+  cursor: pointer;
+}

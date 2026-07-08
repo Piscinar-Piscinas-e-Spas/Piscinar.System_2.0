@@ -47,7 +47,7 @@
 
         const estrategias = {
             produto(item) {
-                const quantidade = Math.max(1, parseInt(item.quantidade, 10) || 1);
+                const quantidade = Math.max(1, parseFloat(item.quantidade) || 1);
                 const valorUnitario = Math.max(0, valorNum(item.valorUnitario));
                 const subtotal = quantidade * valorUnitario;
                 const desconto = Math.max(0, Math.min(valorNum(item.desconto), subtotal));
@@ -173,7 +173,7 @@
                             ${renderizarOpcoesOrigemEstoque(item.origemEstoque)}
                         </select>
                     </td>
-                    <td><input type="number" min="1" step="1" class="form-control form-control-sm item-qtd" data-tipo="produto" data-index="${index}" value="${item.quantidade}" aria-label="Quantidade do item ${index + 1}"></td>
+                    <td><input type="number" min="1" step="1" class="form-control form-control-sm item-qtd quantidade-adaptativa" data-tipo="produto" data-index="${index}" value="${item.quantidade}" aria-label="Quantidade do item ${index + 1}"></td>
                     <td><input type="text" inputmode="decimal" class="form-control form-control-sm item-unit" data-tipo="produto" data-index="${index}" value="${item.valorUnitario.toFixed(2).replace('.', ',')}" aria-label="Valor unitario do item ${index + 1}"></td>
                     <td>${moeda(item.subtotal)}</td>
                     <td><input type="text" inputmode="decimal" class="form-control form-control-sm item-desc" data-tipo="produto" data-index="${index}" value="${item.desconto.toFixed(2).replace('.', ',')}" aria-label="Desconto do item ${index + 1}"></td>
@@ -183,7 +183,7 @@
                     <td>${moeda(item.total)}</td>
                     <td><button type="button" class="btn btn-sm btn-outline-danger item-remove" data-tipo="produto" data-index="${index}" aria-label="Remover item ${index + 1}"><i class="fas fa-trash"></i></button></td>
                 `;
-                dom.itensBody.appendChild(tr);
+                dom.itensBody.appendChild(tr);  
             });
 
             atualizarResumo();
@@ -448,7 +448,7 @@
             if (!Number.isInteger(idx) || !itens[idx]) return false;
 
             if (target.classList.contains('item-qtd')) {
-                itens[idx].quantidade = Math.max(1, parseInt(target.value, 10) || 1);
+                itens[idx].quantidade = Math.max(1, parseFloat(target.value) || 1);
                 return true;
             }
             if (target.classList.contains('item-unit')) {
