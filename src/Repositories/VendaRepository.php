@@ -596,6 +596,17 @@ class VendaRepository
             $params[':nome_cliente'] = '%' . $filters['nome_cliente'] . '%';
         }
 
+        if (!empty($filters['nome_produto'])) {
+            $conditions[] = 'EXISTS (
+                SELECT 1
+                FROM venda_itens vi_filtro
+                INNER JOIN produtos p_filtro ON p_filtro.id = vi_filtro.id_produto
+                WHERE vi_filtro.id_venda = v.id_venda
+                  AND p_filtro.nome LIKE :nome_produto
+            )';
+            $params[':nome_produto'] = '%' . $filters['nome_produto'] . '%';
+        }
+
         if (!empty($filters['condicao_pagamento']) && in_array($filters['condicao_pagamento'], ['vista', 'parcelado'], true)) {
             $conditions[] = 'v.condicao_pagamento = :condicao_pagamento';
             $params[':condicao_pagamento'] = $filters['condicao_pagamento'];

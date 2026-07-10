@@ -334,6 +334,28 @@ class ServicoRepository
             $params[':nome_cliente'] = '%' . $filters['nome_cliente'] . '%';
         }
 
+        if (!empty($filters['nome_produto'])) {
+            $conditions[] = 'EXISTS (
+                SELECT 1
+                FROM servicos_itens si_produto
+                WHERE si_produto.servico_id = s.id_servico
+                  AND si_produto.tipo_item = "produto"
+                  AND si_produto.descricao LIKE :nome_produto
+            )';
+            $params[':nome_produto'] = '%' . $filters['nome_produto'] . '%';
+        }
+
+        if (!empty($filters['nome_microservico'])) {
+            $conditions[] = 'EXISTS (
+                SELECT 1
+                FROM servicos_itens si_micro
+                WHERE si_micro.servico_id = s.id_servico
+                  AND si_micro.tipo_item = "microservico"
+                  AND si_micro.descricao LIKE :nome_microservico
+            )';
+            $params[':nome_microservico'] = '%' . $filters['nome_microservico'] . '%';
+        }
+
         if (!empty($filters['condicao_pagamento']) && in_array($filters['condicao_pagamento'], ['vista', 'parcelado'], true)) {
             $conditions[] = 's.condicao_pagamento = :condicao_pagamento';
             $params[':condicao_pagamento'] = $filters['condicao_pagamento'];

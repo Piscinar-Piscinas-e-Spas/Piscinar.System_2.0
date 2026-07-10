@@ -10,6 +10,7 @@ $filtros = [
     'data_inicial' => trim((string) ($_GET['data_inicial'] ?? '')),
     'data_final' => trim((string) ($_GET['data_final'] ?? '')),
     'nome_cliente' => trim((string) ($_GET['nome_cliente'] ?? '')),
+    'nome_produto' => trim((string) ($_GET['nome_produto'] ?? '')),
     'condicao_pagamento' => trim((string) ($_GET['condicao_pagamento'] ?? '')),
     'valor_minimo' => trim((string) ($_GET['valor_minimo'] ?? '')),
     'valor_maximo' => trim((string) ($_GET['valor_maximo'] ?? '')),

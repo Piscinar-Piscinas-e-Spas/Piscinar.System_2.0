@@ -44,6 +44,7 @@ $filtrosDashboard = [
     'data_inicial' => normalize_dashboard_date($_GET['dash_data_inicial'] ?? ''),
     'data_final' => normalize_dashboard_date($_GET['dash_data_final'] ?? ''),
     'nome_cliente' => trim((string) ($_GET['dash_nome_cliente'] ?? '')),
+    'nome_produto' => trim((string) ($_GET['dash_nome_produto'] ?? '')),
     'condicao_pagamento' => trim((string) ($_GET['dash_condicao_pagamento'] ?? '')),
     'valor_minimo' => trim((string) ($_GET['dash_valor_minimo'] ?? '')),
     'valor_maximo' => trim((string) ($_GET['dash_valor_maximo'] ?? '')),
@@ -53,6 +54,7 @@ $filtrosLista = [
     'data_inicial' => normalize_dashboard_date($_GET['lista_data_inicial'] ?? ''),
     'data_final' => normalize_dashboard_date($_GET['lista_data_final'] ?? ''),
     'nome_cliente' => trim((string) ($_GET['lista_nome_cliente'] ?? '')),
+    'nome_produto' => trim((string) ($_GET['lista_nome_produto'] ?? '')),
     'condicao_pagamento' => trim((string) ($_GET['lista_condicao_pagamento'] ?? '')),
     'valor_minimo' => trim((string) ($_GET['lista_valor_minimo'] ?? '')),
     'valor_maximo' => trim((string) ($_GET['lista_valor_maximo'] ?? '')),
@@ -126,6 +128,11 @@ include '../includes/header.php';
                             </div>
 
                             <div class="col-md-3">
+                                <label for="dash_nome_produto" class="form-label">Produto</label>
+                                <input type="text" id="dash_nome_produto" name="dash_nome_produto" class="form-control" placeholder="Digite o produto" value="<?= htmlspecialchars($filtrosDashboard['nome_produto']) ?>">
+                            </div>
+
+                            <div class="col-md-3">
                                 <label for="dash_valor_minimo" class="form-label">Valor mínimo</label>
                                 <input type="number" step="0.01" min="0" id="dash_valor_minimo" name="dash_valor_minimo" class="form-control" value="<?= htmlspecialchars($filtrosDashboard['valor_minimo']) ?>">
                             </div>
@@ -143,6 +150,7 @@ include '../includes/header.php';
                                     'lista_data_inicial' => $filtrosLista['data_inicial'],
                                     'lista_data_final' => $filtrosLista['data_final'],
                                     'lista_nome_cliente' => $filtrosLista['nome_cliente'],
+                                    'lista_nome_produto' => $filtrosLista['nome_produto'],
                                     'lista_condicao_pagamento' => $filtrosLista['condicao_pagamento'],
                                     'lista_valor_minimo' => $filtrosLista['valor_minimo'],
                                     'lista_valor_maximo' => $filtrosLista['valor_maximo'],
@@ -248,6 +256,11 @@ include '../includes/header.php';
                             </div>
 
                             <div class="col-md-3">
+                                <label for="lista_nome_produto" class="form-label">Produto</label>
+                                <input type="text" id="lista_nome_produto" name="lista_nome_produto" class="form-control" placeholder="Digite o produto" value="<?= htmlspecialchars($filtrosLista['nome_produto']) ?>">
+                            </div>
+
+                            <div class="col-md-3">
                                 <label for="lista_valor_minimo" class="form-label">Valor mínimo</label>
                                 <input type="number" step="0.01" min="0" id="lista_valor_minimo" name="lista_valor_minimo" class="form-control" value="<?= htmlspecialchars($filtrosLista['valor_minimo']) ?>">
                             </div>
@@ -265,6 +278,7 @@ include '../includes/header.php';
                                     'dash_data_inicial' => $filtrosDashboard['data_inicial'],
                                     'dash_data_final' => $filtrosDashboard['data_final'],
                                     'dash_nome_cliente' => $filtrosDashboard['nome_cliente'],
+                                    'dash_nome_produto' => $filtrosDashboard['nome_produto'],
                                     'dash_condicao_pagamento' => $filtrosDashboard['condicao_pagamento'],
                                     'dash_valor_minimo' => $filtrosDashboard['valor_minimo'],
                                     'dash_valor_maximo' => $filtrosDashboard['valor_maximo'],
