@@ -9,6 +9,9 @@ $mesSelecionado = max(1, min(12, (int) ($_GET['mes'] ?? $today->format('n'))));
 $anoSelecionado = max(2000, (int) ($_GET['ano'] ?? $today->format('Y')));
 $origemSelecionada = (string) ($_GET['origem'] ?? 'todas');
 $statusSelecionado = (string) ($_GET['status'] ?? 'todas');
+$tipoPagamentoSelecionado = trim((string) ($_GET['tipo_pagamento'] ?? ''));
+$vencimentoSelecionado = trim((string) ($_GET['vencimento'] ?? ''));
+$contraparteSelecionada = trim((string) ($_GET['contraparte'] ?? ''));
 
 $allowedOrigins = ['todas', 'vendas', 'servicos', 'compras'];
 $allowedStatus = ['todas', 'abertas', 'pagas'];
@@ -21,6 +24,13 @@ if (!in_array($statusSelecionado, $allowedStatus, true)) {
     $statusSelecionado = 'todas';
 }
 
+if ($vencimentoSelecionado !== '') {
+    $vencimento = DateTimeImmutable::createFromFormat('Y-m-d', $vencimentoSelecionado);
+    if (!$vencimento || $vencimento->format('Y-m-d') !== $vencimentoSelecionado) {
+        $vencimentoSelecionado = '';
+    }
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $source = (string) ($_POST['origem'] ?? '');
     $parcelaId = (int) ($_POST['parcela_id'] ?? 0);
@@ -30,6 +40,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $anoSelecionado = max(2000, (int) ($_POST['filtro_ano'] ?? $anoSelecionado));
     $origemSelecionada = (string) ($_POST['filtro_origem'] ?? $origemSelecionada);
     $statusSelecionado = (string) ($_POST['filtro_status'] ?? $statusSelecionado);
+    $tipoPagamentoSelecionado = trim((string) ($_POST['filtro_tipo_pagamento'] ?? $tipoPagamentoSelecionado));
+    $vencimentoSelecionado = trim((string) ($_POST['filtro_vencimento'] ?? $vencimentoSelecionado));
+    $contraparteSelecionada = trim((string) ($_POST['filtro_contraparte'] ?? $contraparteSelecionada));
 
     if (!in_array($origemSelecionada, $allowedOrigins, true)) {
         $origemSelecionada = 'todas';
@@ -37,6 +50,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if (!in_array($statusSelecionado, $allowedStatus, true)) {
         $statusSelecionado = 'todas';
+    }
+
+    if ($vencimentoSelecionado !== '') {
+        $vencimento = DateTimeImmutable::createFromFormat('Y-m-d', $vencimentoSelecionado);
+        if (!$vencimento || $vencimento->format('Y-m-d') !== $vencimentoSelecionado) {
+            $vencimentoSelecionado = '';
+        }
     }
 
     try {
@@ -63,6 +83,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         'ano' => $anoSelecionado,
         'origem' => $origemSelecionada,
         'status' => $statusSelecionado,
+        'tipo_pagamento' => $tipoPagamentoSelecionado,
+        'vencimento' => $vencimentoSelecionado,
+        'contraparte' => $contraparteSelecionada,
         'resultado' => $status,
     ];
 
@@ -79,12 +102,16 @@ $filtros = [
     'ano' => $anoSelecionado,
     'origem' => $origemSelecionada,
     'status' => $statusSelecionado,
+    'tipo_pagamento' => $tipoPagamentoSelecionado,
+    'vencimento' => $vencimentoSelecionado,
+    'contraparte' => $contraparteSelecionada,
 ];
 
 $linhas = $financeiroRepository->getFluxoCaixaRows($filtros);
 $resumo = $financeiroRepository->summarizeFluxoCaixa($linhas);
 $anosDisponiveis = $financeiroRepository->getAvailableFluxoYears();
 $sourceLabels = $financeiroRepository->getSourceLabels();
+$tiposPagamento = $financeiroRepository->getFluxoPaymentTypes();
 
 if (empty($anosDisponiveis)) {
     $anosDisponiveis = [$anoSelecionado];
@@ -185,6 +212,23 @@ include '../includes/header.php';
                         <option value="abertas" <?= $statusSelecionado === 'abertas' ? 'selected' : '' ?>>Em aberto</option>
                         <option value="pagas" <?= $statusSelecionado === 'pagas' ? 'selected' : '' ?>>Pagas</option>
                     </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="fluxo-tipo-pagamento" class="form-label">Tipo de pagamento</label>
+                    <select id="fluxo-tipo-pagamento" name="tipo_pagamento" class="form-select">
+                        <option value="" <?= $tipoPagamentoSelecionado === '' ? 'selected' : '' ?>>Todos</option>
+                        <?php foreach ($tiposPagamento as $tipoPagamento): ?>
+                            <option value="<?= htmlspecialchars($tipoPagamento, ENT_QUOTES, 'UTF-8') ?>" <?= $tipoPagamentoSelecionado === $tipoPagamento ? 'selected' : '' ?>><?= htmlspecialchars($tipoPagamento, ENT_QUOTES, 'UTF-8') ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label for="fluxo-vencimento" class="form-label">Data de vencimento</label>
+                    <input type="date" id="fluxo-vencimento" name="vencimento" class="form-control" value="<?= htmlspecialchars($vencimentoSelecionado, ENT_QUOTES, 'UTF-8') ?>">
+                </div>
+                <div class="col-md-6">
+                    <label for="fluxo-contraparte" class="form-label">Contraparte</label>
+                    <input type="text" id="fluxo-contraparte" name="contraparte" class="form-control" value="<?= htmlspecialchars($contraparteSelecionada, ENT_QUOTES, 'UTF-8') ?>" placeholder="Cliente ou fornecedor">
                 </div>
                 <div class="col-12 d-flex gap-2">
                     <button type="submit" class="btn btn-primary">
@@ -290,6 +334,9 @@ include '../includes/header.php';
                                         <input type="hidden" name="filtro_ano" value="<?= $anoSelecionado ?>">
                                         <input type="hidden" name="filtro_origem" value="<?= htmlspecialchars($origemSelecionada, ENT_QUOTES, 'UTF-8') ?>">
                                         <input type="hidden" name="filtro_status" value="<?= htmlspecialchars($statusSelecionado, ENT_QUOTES, 'UTF-8') ?>">
+                                        <input type="hidden" name="filtro_tipo_pagamento" value="<?= htmlspecialchars($tipoPagamentoSelecionado, ENT_QUOTES, 'UTF-8') ?>">
+                                        <input type="hidden" name="filtro_vencimento" value="<?= htmlspecialchars($vencimentoSelecionado, ENT_QUOTES, 'UTF-8') ?>">
+                                        <input type="hidden" name="filtro_contraparte" value="<?= htmlspecialchars($contraparteSelecionada, ENT_QUOTES, 'UTF-8') ?>">
                                         <input type="date" name="data_pagamento" class="form-control form-control-sm" value="<?= htmlspecialchars((string) ($linha['data_pagamento'] ?? $today->format('Y-m-d')), ENT_QUOTES, 'UTF-8') ?>">
                                         <div class="d-flex gap-2">
                                             <button type="submit" name="acao" value="baixar" class="btn btn-sm btn-success">Baixar</button>

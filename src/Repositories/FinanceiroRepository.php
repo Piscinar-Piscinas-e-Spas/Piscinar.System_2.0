@@ -153,6 +153,9 @@ class FinanceiroRepository
         $year = max(2000, (int) ($filters['ano'] ?? date('Y')));
         $sourceFilter = (string) ($filters['origem'] ?? 'todas');
         $statusFilter = (string) ($filters['status'] ?? 'todas');
+        $paymentTypeFilter = trim((string) ($filters['tipo_pagamento'] ?? ''));
+        $dueDateFilter = trim((string) ($filters['vencimento'] ?? ''));
+        $counterpartyFilter = trim((string) ($filters['contraparte'] ?? ''));
 
         $queries = [];
         $params = [
@@ -212,6 +215,21 @@ class FinanceiroRepository
             $sql .= ' AND fluxo.data_pagamento IS NOT NULL';
         } elseif ($statusFilter === 'abertas') {
             $sql .= ' AND fluxo.data_pagamento IS NULL';
+        }
+
+        if ($paymentTypeFilter !== '') {
+            $sql .= ' AND fluxo.tipo_pagamento = :tipo_pagamento';
+            $params[':tipo_pagamento'] = $paymentTypeFilter;
+        }
+
+        if ($dueDateFilter !== '') {
+            $sql .= ' AND fluxo.vencimento = :vencimento';
+            $params[':vencimento'] = $dueDateFilter;
+        }
+
+        if ($counterpartyFilter !== '') {
+            $sql .= ' AND fluxo.contraparte LIKE :contraparte';
+            $params[':contraparte'] = '%' . $counterpartyFilter . '%';
         }
 
         $sql .= ' ORDER BY fluxo.vencimento ASC, fluxo.origem ASC, fluxo.documento_id ASC, fluxo.numero_parcela ASC';
@@ -303,6 +321,31 @@ class FinanceiroRepository
             'servicos' => 'Servicos',
             'compras' => 'Compras',
         ];
+    }
+
+    public function getFluxoPaymentTypes(): array
+    {
+        $queries = [];
+
+        foreach ($this->sources as $config) {
+            $queries[] = sprintf(
+                'SELECT DISTINCT CONVERT(TRIM(%s) USING utf8mb4) COLLATE utf8mb4_unicode_ci AS tipo_pagamento FROM %s WHERE %s IS NOT NULL AND TRIM(%s) <> ""',
+                $config['type_column'],
+                $config['table'],
+                $config['type_column'],
+                $config['type_column']
+            );
+        }
+
+        if (empty($queries)) {
+            return [];
+        }
+
+        $sql = 'SELECT DISTINCT tipo_pagamento FROM (' . implode(' UNION ALL ', $queries) . ') tipos ORDER BY tipo_pagamento ASC';
+        $stmt = $this->pdo->query($sql);
+        $rows = $stmt ? $stmt->fetchAll(PDO::FETCH_ASSOC) : [];
+
+        return array_values(array_filter(array_map(static fn (array $row): string => (string) ($row['tipo_pagamento'] ?? ''), $rows)));
     }
 
     private function sumByMonthAndYear(string $sourceKey, int $month, int $year, ?string $paidUntil = null): float
