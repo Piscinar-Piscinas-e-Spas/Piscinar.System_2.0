@@ -15,6 +15,11 @@
   const indicatorBox = document.getElementById('financialIndicatorBox');
   const indicatorValue = document.getElementById('financialIndicatorValue');
   const sourceInputs = document.querySelectorAll('.financial-source-input');
+  const sourceMultipliers = payload.sourceMultipliers || {
+    vendas: 1,
+    servicos: 1,
+    compras: -1
+  };
   const easterTargets = [
     document.getElementById('financialSummarySecret'),
     document.getElementById('financialCashButton')
@@ -64,6 +69,7 @@
 
     selectedSources.forEach((sourceKey) => {
       const sourceRows = payload.seriesBySource[sourceKey] || {};
+      const multiplier = Number(sourceMultipliers[sourceKey] || 1);
       Object.entries(sourceRows).forEach(([yearKey, monthMap]) => {
         const year = Number(yearKey);
         if (!Number.isFinite(year) || year <= 0) {
@@ -79,7 +85,7 @@
             return;
           }
 
-          matrix[year][month] = Number(matrix[year][month] || 0) + Number(amountValue || 0);
+          matrix[year][month] = Number(matrix[year][month] || 0) + (Number(amountValue || 0) * multiplier);
         });
       });
     });
@@ -127,7 +133,7 @@
         monthAverage
       });
 
-      if (monthAverage > 0) {
+      if (monthAverage !== 0) {
         promotionCandidates.push({
           month,
           label: payload.monthLabels[month - 1],
@@ -149,6 +155,7 @@
       yearTotals,
       heatMin: heatValues.length ? Math.min(...heatValues) : 0,
       heatMax: heatValues.length ? Math.max(...heatValues) : 0,
+      heatScaleValues: heatValues.slice().sort((a, b) => a - b),
       currentMonthTotal: Number((matrix[payload.currentYear] || {})[payload.currentMonth] || 0),
       expectedValue,
       chartValues: rows.map((row) => row.monthAverage),
@@ -157,18 +164,48 @@
     };
   };
 
-  const heatColor = (value, min, max) => {
+  const getPercentileValue = (sortedValues, percentile) => {
+    if (!sortedValues.length) {
+      return 0;
+    }
+
+    const position = Math.max(0, Math.min(sortedValues.length - 1, (sortedValues.length - 1) * percentile));
+    const lowerIndex = Math.floor(position);
+    const upperIndex = Math.ceil(position);
+
+    if (lowerIndex === upperIndex) {
+      return sortedValues[lowerIndex];
+    }
+
+    const weight = position - lowerIndex;
+    return sortedValues[lowerIndex] + ((sortedValues[upperIndex] - sortedValues[lowerIndex]) * weight);
+  };
+
+  const heatColor = (value, min, max, scaleValues = []) => {
     // A cor do heatmap vai de vermelho ate verde conforme o valor relativo
     // daquele mes dentro da serie carregada.
     if (value === null || value === undefined) {
       return '';
     }
 
-    if (max <= min) {
+    let localMin = min;
+    let localMax = max;
+
+    if (scaleValues.length >= 5) {
+      localMin = getPercentileValue(scaleValues, 0.1);
+      localMax = getPercentileValue(scaleValues, 0.9);
+    }
+
+    if (localMax <= localMin) {
+      localMin = min;
+      localMax = max;
+    }
+
+    if (localMax <= localMin) {
       return 'rgba(68, 187, 68, 0.22)';
     }
 
-    const ratio = Math.max(0, Math.min(1, (value - min) / (max - min)));
+    const ratio = Math.max(0, Math.min(1, (value - localMin) / (localMax - localMin)));
     const start = { r: 255, g: 68, b: 68 };
     const mid = { r: 255, g: 165, b: 0 };
     const end = { r: 68, g: 187, b: 68 };
@@ -242,7 +279,7 @@
           td.innerHTML = '&nbsp;';
         } else {
           td.textContent = formatCurrency(cell.value);
-          td.style.backgroundColor = heatColor(cell.value, analysis.heatMin, analysis.heatMax);
+          td.style.backgroundColor = heatColor(cell.value, analysis.heatMin, analysis.heatMax, analysis.heatScaleValues);
         }
         tr.appendChild(td);
       });

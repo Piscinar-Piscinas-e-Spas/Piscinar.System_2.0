@@ -6,6 +6,12 @@ use DateTimeImmutable;
 
 class FinancialDashboardService
 {
+    private const SOURCE_MULTIPLIERS = [
+        'vendas' => 1.0,
+        'servicos' => 1.0,
+        'compras' => -1.0,
+    ];
+
     public static function monthNames(): array
     {
         return [
@@ -58,6 +64,8 @@ class FinancialDashboardService
         $matrix = [];
 
         foreach ($selectedSources as $sourceKey) {
+            $multiplier = self::SOURCE_MULTIPLIERS[$sourceKey] ?? 1.0;
+
             foreach (($seriesBySource[$sourceKey] ?? []) as $year => $months) {
                 $year = (int) $year;
                 if ($year <= 0) {
@@ -73,7 +81,7 @@ class FinancialDashboardService
                         continue;
                     }
 
-                    $matrix[$year][$month] = (float) ($matrix[$year][$month] ?? 0) + (float) $amount;
+                    $matrix[$year][$month] = (float) ($matrix[$year][$month] ?? 0) + ((float) $amount * $multiplier);
                 }
             }
         }
@@ -123,7 +131,7 @@ class FinancialDashboardService
 
             $monthAverage = empty($historicalAverageBase) ? 0.0 : array_sum($historicalAverageBase) / count($historicalAverageBase);
 
-            if ($monthAverage > 0) {
+            if ($monthAverage !== 0.0) {
                 $promotionCandidates[] = [
                     'month' => $month,
                     'label' => $monthNames[$month],

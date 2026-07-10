@@ -60,6 +60,11 @@ $monthShortNames = \App\Services\FinancialDashboardService::shortMonthNames();
 $currentMonthLabel = ($monthNames[(int) $today->format('n')] ?? 'Mes') . '/' . $today->format('Y');
 $financialPayload = [
     'seriesBySource' => $seriesBySource,
+    'sourceMultipliers' => [
+        'vendas' => 1,
+        'servicos' => 1,
+        'compras' => -1,
+    ],
     'currentYear' => (int) $defaultAnalysis['current_year'],
     'currentMonth' => (int) $defaultAnalysis['current_month'],
     'currentDay' => (int) $defaultAnalysis['current_day'],
@@ -120,7 +125,7 @@ include 'includes/header.php';
                         <div>
                             <div class="financial-summary-kicker">Resumo Financeiro</div>
                             <h4 class="mb-1">Historico consolidado e acompanhamento de <?= htmlspecialchars($currentMonthLabel, ENT_QUOTES, 'UTF-8') ?></h4>
-                            <p class="text-muted mb-0">A leitura inicial abre em vendas e permite acrescentar servicos e compras no somatorio conforme o historico for ficando mais completo.</p>
+                            <p class="text-muted mb-0">A leitura inicial abre em vendas e permite acrescentar servicos ao resultado; compras entram como reducao do total consolidado.</p>
                         </div>
                         <a href="<?= htmlspecialchars(app_url('financeiro/fluxo_caixa.php'), ENT_QUOTES, 'UTF-8') ?>" class="btn btn-outline-primary" id="financialCashButton">
                             <i class="fas fa-wallet me-1"></i>Fluxo de caixa
@@ -193,7 +198,7 @@ include 'includes/header.php';
                             <div class="financial-side-stack">
                                 <div class="card"><div class="card-body"><div class="small text-uppercase text-muted">Media Mes/Ano</div><h5 class="mb-3">Tendencia mensal</h5><div class="financial-chart-wrapper"><canvas id="financialAverageChart"></canvas></div></div></div>
                                 <div class="card"><div class="card-body"><div class="small text-uppercase text-muted">Acompanhamento do mes</div><h5 class="mb-3"><?= htmlspecialchars((string) ($monthNames[(int) $defaultAnalysis['current_month']] ?? 'Mes atual'), ENT_QUOTES, 'UTF-8') ?></h5><div class="financial-month-status"><div><span class="financial-month-label">Realizado no mes</span><strong id="financialCurrentMonthTotal"><?= htmlspecialchars(\App\Services\FinancialDashboardService::formatMoney((float) $defaultAnalysis['current_month_total']), ENT_QUOTES, 'UTF-8') ?></strong></div><div><span class="financial-month-label">Valor esperado ate hoje</span><strong id="financialExpectedValue"><?= htmlspecialchars(\App\Services\FinancialDashboardService::formatMoney((float) $defaultAnalysis['expected_value']), ENT_QUOTES, 'UTF-8') ?></strong></div></div><div class="financial-indicator-box <?= (float) $defaultAnalysis['indicator'] > 0 ? 'financial-indicator-positive' : ((float) $defaultAnalysis['indicator'] < 0 ? 'financial-indicator-negative' : 'financial-indicator-neutral') ?>" id="financialIndicatorBox"><span class="financial-month-label">Valor indicador</span><strong id="financialIndicatorValue"><?= htmlspecialchars(\App\Services\FinancialDashboardService::formatMoney((float) $defaultAnalysis['indicator']), ENT_QUOTES, 'UTF-8') ?></strong></div></div></div>
-                                <div class="card"><div class="card-body"><div class="small text-uppercase text-muted">Meses para promocoes</div><h5 class="mb-3">Sazonalidade sugerida</h5><div class="promotion-grid"><div><div class="promotion-title text-danger">Menores vendas</div><div id="financialLowestMonths"><?php foreach ($defaultAnalysis['lowest_months'] as $month): ?><div class="promotion-pill promotion-pill-low"><?= htmlspecialchars((string) $month['label'], ENT_QUOTES, 'UTF-8') ?></div><?php endforeach; ?></div></div><div><div class="promotion-title text-success">Maiores vendas</div><div id="financialHighestMonths"><?php foreach ($defaultAnalysis['highest_months'] as $month): ?><div class="promotion-pill promotion-pill-high"><?= htmlspecialchars((string) $month['label'], ENT_QUOTES, 'UTF-8') ?></div><?php endforeach; ?></div></div></div></div></div>
+                                <div class="card"><div class="card-body"><div class="small text-uppercase text-muted">Meses para promocoes</div><h5 class="mb-3">Sazonalidade sugerida</h5><div class="promotion-grid"><div><div class="promotion-title text-danger">Menores resultados</div><div id="financialLowestMonths"><?php foreach ($defaultAnalysis['lowest_months'] as $month): ?><div class="promotion-pill promotion-pill-low"><?= htmlspecialchars((string) $month['label'], ENT_QUOTES, 'UTF-8') ?></div><?php endforeach; ?></div></div><div><div class="promotion-title text-success">Maiores resultados</div><div id="financialHighestMonths"><?php foreach ($defaultAnalysis['highest_months'] as $month): ?><div class="promotion-pill promotion-pill-high"><?= htmlspecialchars((string) $month['label'], ENT_QUOTES, 'UTF-8') ?></div><?php endforeach; ?></div></div></div></div></div>
                             </div>
                         </div>
                     </div>
