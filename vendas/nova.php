@@ -13,6 +13,19 @@ $vendedorLogadoNome = auth_user_display_name();
 $vendaIdEdicao = (int) ($_GET['id'] ?? $_GET['id_venda'] ?? $_GET['venda_id'] ?? 0);
 $vendaEdicaoPayload = null;
 
+function vendas_formatar_cliente_sugestao(array $cliente): string
+{
+    $partes = [
+        trim((string) ($cliente['nome_cliente'] ?? '')),
+        trim((string) ($cliente['telefone_contato'] ?? '')),
+        trim((string) ($cliente['cpf_cnpj'] ?? '')),
+    ];
+
+    return implode(' | ', array_filter($partes, static function ($parte) {
+        return $parte !== '';
+    }));
+}
+
 if ($vendaIdEdicao > 0) {
     action_firewall_require_grant('venda', 'edit', $vendaIdEdicao, app_url('vendas/listar.php?status=firewall'));
 
@@ -99,7 +112,7 @@ include '../includes/header.php';
                                 <input type="text" class="form-control" id="clienteNome" list="clientesSugestoes" placeholder="Digite para buscar ou preencher manualmente...">
                                 <datalist id="clientesSugestoes">
                                     <?php foreach ($clientes as $cliente): ?>
-                                        <option value="<?= htmlspecialchars($cliente['nome_cliente']) ?>"></option>
+                                        <option value="<?= htmlspecialchars(vendas_formatar_cliente_sugestao($cliente)) ?>"></option>
                                     <?php endforeach; ?>
                                 </datalist>
                             </div>
@@ -624,15 +637,33 @@ document.addEventListener('blur', function(e) {
             .toLowerCase();
     }
 
+    function formatarClienteParaSugestao(cliente) {
+        return [
+            String(cliente?.nome_cliente || '').trim(),
+            String(cliente?.telefone_contato || '').trim(),
+            formatarCpfCnpj(cliente?.cpf_cnpj || '').trim()
+        ].filter(Boolean).join(' | ');
+    }
+
+    function normalizarClienteParaBusca(cliente) {
+        return [
+            cliente?.nome_cliente || '',
+            cliente?.telefone_contato || '',
+            cliente?.cpf_cnpj || '',
+            formatarCpfCnpj(cliente?.cpf_cnpj || ''),
+            formatarClienteParaSugestao(cliente)
+        ].map(normalizarNomeBusca).join(' ');
+    }
+
     function filtrarSugestoesClientes(valorDigitado) {
         const termo = normalizarNomeBusca(valorDigitado);
         const filtrados = clientesData.filter((cliente) => {
             if (!termo) return true;
-            return normalizarNomeBusca(cliente.nome_cliente || '').includes(termo);
+            return normalizarClienteParaBusca(cliente).includes(termo);
         });
 
         clientesSugestoes.innerHTML = filtrados
-            .map((cliente) => `<option value="${escapeHtmlAttr(cliente.nome_cliente)}" data-id="${Number(cliente.id_cliente) || ''}"></option>`)
+            .map((cliente) => `<option value="${escapeHtmlAttr(formatarClienteParaSugestao(cliente))}" data-id="${Number(cliente.id_cliente) || ''}"></option>`)
             .join('');
     }
 

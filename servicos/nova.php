@@ -13,6 +13,19 @@ $vendedorLogadoNome = auth_user_display_name();
 $servicoIdEdicao = (int) ($_GET['id'] ?? $_GET['id_servico'] ?? $_GET['servico_id'] ?? 0);
 $servicoEdicaoPayload = null;
 
+function servicos_formatar_cliente_sugestao(array $cliente): string
+{
+    $partes = [
+        trim((string) ($cliente['nome_cliente'] ?? '')),
+        trim((string) ($cliente['telefone_contato'] ?? '')),
+        trim((string) ($cliente['cpf_cnpj'] ?? '')),
+    ];
+
+    return implode(' | ', array_filter($partes, static function ($parte) {
+        return $parte !== '';
+    }));
+}
+
 if ($servicoIdEdicao > 0) {
     action_firewall_require_grant('servico', 'edit', $servicoIdEdicao, app_url('servicos/listar.php?status=firewall'));
 
@@ -139,7 +152,7 @@ include '../includes/header.php';
                                 <input type="text" class="form-control" id="clienteNome" list="clientesSugestoes" placeholder="Digite para buscar ou preencher manualmente...">
                                 <datalist id="clientesSugestoes">
                                     <?php foreach ($clientes as $cliente): ?>
-                                        <option value="<?= htmlspecialchars($cliente['nome_cliente']) ?>"></option>
+                                        <option value="<?= htmlspecialchars(servicos_formatar_cliente_sugestao($cliente)) ?>"></option>
                                     <?php endforeach; ?>
                                 </datalist>
                             </div>
@@ -716,15 +729,81 @@ function sincronizarMicroservicoFrete() {
 }
 
 function renderClientesSugestao(filtro='') {
-  const termo = filtro.trim().toLowerCase();
-  clientesSugestoes.innerHTML = clientesData.filter(c => !termo || (c.nome_cliente || '').toLowerCase().includes(termo))
-    .map(c => `<option value="${String(c.nome_cliente || '').replace(/"/g, '&quot;')}"></option>`).join('');
+  const termo = normalizarTextoBusca(filtro);
+  clientesSugestoes.innerHTML = clientesData.filter(c => !termo || normalizarClienteParaBusca(c).includes(termo))
+    .map(c => `<option value="${escapeHtmlAttr(formatarClienteParaSugestao(c))}" data-id="${Number(c.id_cliente) || ''}"></option>`).join('');
 }
 
-function preencherCliente(nome) {
-  const c = clientesData.find(x => (x.nome_cliente || '').trim().toLowerCase() === (nome || '').trim().toLowerCase());
+function escapeHtmlAttr(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/"/g, '&quot;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+}
+
+function normalizarTextoBusca(value) {
+  return String(value || '')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .trim()
+    .toLowerCase();
+}
+
+function formatarDocumentoCliente(value) {
+  const digits = String(value || '').replace(/\D+/g, '').slice(0, 14);
+  if (!digits) return String(value || '').trim();
+  if (digits.length <= 11) {
+    return digits
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d)/, '$1.$2')
+      .replace(/(\d{3})(\d{1,2})$/, '$1-$2');
+  }
+  return digits
+    .replace(/^(\d{2})(\d)/, '$1.$2')
+    .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+    .replace(/\.(\d{3})(\d)/, '.$1/$2')
+    .replace(/(\d{4})(\d)/, '$1-$2');
+}
+
+function formatarClienteParaSugestao(cliente) {
+  return [
+    String(cliente?.nome_cliente || '').trim(),
+    String(cliente?.telefone_contato || '').trim(),
+    formatarDocumentoCliente(cliente?.cpf_cnpj || '').trim()
+  ].filter(Boolean).join(' | ');
+}
+
+function normalizarClienteParaBusca(cliente) {
+  return [
+    cliente?.nome_cliente || '',
+    cliente?.telefone_contato || '',
+    cliente?.cpf_cnpj || '',
+    formatarDocumentoCliente(cliente?.cpf_cnpj || ''),
+    formatarClienteParaSugestao(cliente)
+  ].map(normalizarTextoBusca).join(' ');
+}
+
+function obterClientePorInput(valor) {
+  const valorNormalizado = normalizarTextoBusca(valor);
+  if (!valorNormalizado) return null;
+
+  const opcao = Array.from(clientesSugestoes.options)
+    .find((item) => normalizarTextoBusca(item.value || '') === valorNormalizado);
+  if (opcao && opcao.dataset.id) {
+    const id = Number(opcao.dataset.id);
+    const clientePorId = clientesData.find((item) => Number(item.id_cliente) === id);
+    if (clientePorId) return clientePorId;
+  }
+
+  return clientesData.find(x => normalizarTextoBusca(x.nome_cliente || '') === valorNormalizado) || null;
+}
+
+function preencherCliente(valor) {
+  const c = obterClientePorInput(valor);
   if (!c) { clienteSelecionadoId = null; return; }
   clienteSelecionadoId = Number(c.id_cliente) || null;
+  document.getElementById('clienteNome').value = c.nome_cliente || '';
   document.getElementById('clienteTelefone').value = c.telefone_contato || '';
   document.getElementById('clienteCpfCnpj').value = c.cpf_cnpj || '';
   document.getElementById('clienteEmail').value = c.email_contato || '';
