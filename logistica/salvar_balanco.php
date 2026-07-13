@@ -27,7 +27,7 @@ if (is_array($itens)) {
             continue;
         }
 
-        $updates[$produtoId] = max(0, (int) $quantidade);
+        $updates[$produtoId] = (int) $quantidade;
     }
 }
 

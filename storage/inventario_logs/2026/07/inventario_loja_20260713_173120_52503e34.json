@@ -1,0 +1,87 @@
+{
+    "identificador": "inventario_loja_20260713_173120_52503e34.json",
+    "usuario": {
+        "id": 9,
+        "nome": "Rodrigo Carioca"
+    },
+    "data_hora": "2026-07-13 17:31:20",
+    "local": "loja",
+    "coluna_afetada": "qtdLoja",
+    "filtros": {
+        "busca": "RETORNO",
+        "grupo": "",
+        "pagina": 1,
+        "por_pagina": 25
+    },
+    "resumo": {
+        "total_itens": 7,
+        "itens_alterados": 2,
+        "soma_diferencas_positivas": 7,
+        "soma_diferencas_negativas": -10
+    },
+    "itens": [
+        {
+            "id_produto": 391,
+            "produto_nome": "ANEL DE FIXAÇÃO DISPOSITIVO RETORNO/ASPIRAÇÃO/LADRAO - SIBRAPE",
+            "saldo_anterior": 36,
+            "saldo_informado": 36,
+            "diferenca": 0,
+            "coluna_afetada": "qtdLoja",
+            "local_inventario": "Loja"
+        },
+        {
+            "id_produto": 32,
+            "produto_nome": "BOLINHA DO RETORNO",
+            "saldo_anterior": 10,
+            "saldo_informado": 10,
+            "diferenca": 0,
+            "coluna_afetada": "qtdLoja",
+            "local_inventario": "Loja"
+        },
+        {
+            "id_produto": 399,
+            "produto_nome": "DISPOSITIVO DE RETORNO ESFERA 316 INOX - PREMIUM - MASTERLED",
+            "saldo_anterior": 15,
+            "saldo_informado": 15,
+            "diferenca": 0,
+            "coluna_afetada": "qtdLoja",
+            "local_inventario": "Loja"
+        },
+        {
+            "id_produto": 135,
+            "produto_nome": "DISPOSITIVO RETORNO - VINIL",
+            "saldo_anterior": -3,
+            "saldo_informado": -3,
+            "diferenca": 0,
+            "coluna_afetada": "qtdLoja",
+            "local_inventario": "Loja"
+        },
+        {
+            "id_produto": 136,
+            "produto_nome": "DISPOSITIVO RETORNO INOX - PRATIC 304",
+            "saldo_anterior": 17,
+            "saldo_informado": 24,
+            "diferenca": 7,
+            "coluna_afetada": "qtdLoja",
+            "local_inventario": "Loja"
+        },
+        {
+            "id_produto": 414,
+            "produto_nome": "DISPOSITIVO RETORNO INOX - PRATIC 316",
+            "saldo_anterior": 20,
+            "saldo_informado": 10,
+            "diferenca": -10,
+            "coluna_afetada": "qtdLoja",
+            "local_inventario": "Loja"
+        },
+        {
+            "id_produto": 406,
+            "produto_nome": "TAMPA DE DISPOSITIVO RETORNO - SIBRAPE - PREMIUM",
+            "saldo_anterior": 0,
+            "saldo_informado": 0,
+            "diferenca": 0,
+            "coluna_afetada": "qtdLoja",
+            "local_inventario": "Loja"
+        }
+    ]
+}

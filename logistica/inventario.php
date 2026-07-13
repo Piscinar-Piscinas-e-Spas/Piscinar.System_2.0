@@ -175,7 +175,6 @@ include '../includes/header.php';
                                     <td class="text-center">
                                         <input
                                             type="number"
-                                            min="0"
                                             step="1"
                                             class="form-control text-center inventory-physical-input"
                                             name="itens[<?= (int) $produto['id'] ?>]"
