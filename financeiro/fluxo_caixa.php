@@ -337,13 +337,12 @@ include '../includes/header.php';
                                         <input type="hidden" name="filtro_tipo_pagamento" value="<?= htmlspecialchars($tipoPagamentoSelecionado, ENT_QUOTES, 'UTF-8') ?>">
                                         <input type="hidden" name="filtro_vencimento" value="<?= htmlspecialchars($vencimentoSelecionado, ENT_QUOTES, 'UTF-8') ?>">
                                         <input type="hidden" name="filtro_contraparte" value="<?= htmlspecialchars($contraparteSelecionada, ENT_QUOTES, 'UTF-8') ?>">
-                                        <input type="date" name="data_pagamento" class="form-control form-control-sm" value="<?= htmlspecialchars((string) ($linha['data_pagamento'] ?? $today->format('Y-m-d')), ENT_QUOTES, 'UTF-8') ?>">
-                                        <div class="d-flex gap-2">
+                                        <?php if ($isPaid): ?>
+                                            <button type="submit" name="acao" value="reabrir" class="btn btn-sm btn-outline-secondary">Reabrir</button>
+                                        <?php else: ?>
+                                            <input type="date" name="data_pagamento" class="form-control form-control-sm" value="<?= htmlspecialchars((string) ($linha['data_pagamento'] ?? $today->format('Y-m-d')), ENT_QUOTES, 'UTF-8') ?>">
                                             <button type="submit" name="acao" value="baixar" class="btn btn-sm btn-success">Baixar</button>
-                                            <?php if ($isPaid): ?>
-                                                <button type="submit" name="acao" value="reabrir" class="btn btn-sm btn-outline-secondary">Reabrir</button>
-                                            <?php endif; ?>
-                                        </div>
+                                        <?php endif; ?>
                                     </form>
                                 </td>
                             </tr>
