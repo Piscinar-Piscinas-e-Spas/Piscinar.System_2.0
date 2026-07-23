@@ -55,6 +55,10 @@
     }
 
     function parseDecimal(value) {
+        if (window.PiscinarMasks && typeof window.PiscinarMasks.parseDecimal === 'function') {
+            return window.PiscinarMasks.parseDecimal(value);
+        }
+
         const text = String(value == null ? '' : value).trim();
         if (!text) {
             return 0;
@@ -80,6 +84,18 @@
             minimumFractionDigits: decimals,
             maximumFractionDigits: decimals
         });
+    }
+
+    function bindMoneyInputs(root) {
+        if (window.PiscinarMasks && typeof window.PiscinarMasks.bindMoneyInputs === 'function') {
+            window.PiscinarMasks.bindMoneyInputs(root || document);
+        }
+    }
+
+    function highlightValue(element, type = 'info') {
+        if (window.PiscinarMasks && typeof window.PiscinarMasks.flashElement === 'function') {
+            window.PiscinarMasks.flashElement(element, type);
+        }
     }
 
     function getFirstWord(value) {
@@ -149,6 +165,8 @@
         const totais = getTotais();
         subtotalItensLabel.textContent = formatMoney(totais.subtotalItens);
         totalNotaLabel.textContent = formatMoney(totais.totalNota);
+        highlightValue(subtotalItensLabel, 'info');
+        highlightValue(totalNotaLabel, 'success');
     }
 
     function renderItens() {
@@ -191,7 +209,7 @@
             row.innerHTML = `
                 <td>${index + 1}</td>
                 <td><input type="date" class="form-control form-control-sm" data-parcela-field="vencimento" data-parcela-index="${index}" value="${escapeAttribute(parcela.vencimento)}"></td>
-                <td><input type="text" class="form-control form-control-sm" data-parcela-field="valor" data-parcela-index="${index}" value="${escapeAttribute(formatDecimalInput(parcela.valor, 2))}"></td>
+                <td><input type="text" class="form-control form-control-sm" data-money-input data-parcela-field="valor" data-parcela-index="${index}" value="${escapeAttribute(formatDecimalInput(parcela.valor, 2))}"></td>
                 <td>
                     <select class="form-select form-select-sm" data-parcela-field="tipo_pagamento" data-parcela-index="${index}">
                         ${['Boleto', 'PIX', 'Transferencia', 'Dinheiro', 'Cartao'].map((tipo) => `<option value="${tipo}" ${parcela.tipo_pagamento === tipo ? 'selected' : ''}>${tipo}</option>`).join('')}
@@ -201,6 +219,7 @@
             `;
             parcelasTableBody.appendChild(row);
         });
+        bindMoneyInputs(parcelasTableBody);
     }
 
     function addItem() {
@@ -538,7 +557,10 @@
     });
 
     [valorFrete, valorDesconto, valorOutrasDespesas].forEach((field) => {
-        field.addEventListener('input', updateSummary);
+        field.addEventListener('input', () => {
+            highlightValue(field, field === valorDesconto ? 'success' : 'info');
+            updateSummary();
+        });
     });
 
     condicaoPagamento.addEventListener('change', () => {
@@ -566,6 +588,7 @@
 
         if (field === 'valor') {
             state.parcelas[index].valor = parseDecimal(event.target.value);
+            highlightValue(event.target, 'success');
             return;
         }
 
@@ -606,4 +629,5 @@
     updateSummary();
     refreshFornecedorDatalist();
     refreshProdutoDatalist();
+    bindMoneyInputs(document);
 })();

@@ -206,7 +206,7 @@ include '../includes/header.php';
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label" for="produtoValorUnitario">Vlr. unitário</label>
-                                <input type="text" class="form-control" id="produtoValorUnitario" value="0,00">
+                                <input type="text" class="form-control" id="produtoValorUnitario" value="0,00" data-money-input>
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label" for="produtoOrigemEstoque">Origem estoque</label>
@@ -241,7 +241,7 @@ include '../includes/header.php';
                                 </div>
                                 <div class="col-md-3">
                                     <label class="form-label" for="microValor">Vlr. unitário</label>
-                                    <input type="text" id="microValor" class="form-control" value="0,00">
+                                    <input type="text" id="microValor" class="form-control" value="0,00" data-money-input>
                                 </div>
                                 <div class="col-md-2 d-grid">
                                     <button type="button" class="btn btn-warning" id="btnAdicionarMicro"><i class="fas fa-plus me-1"></i>Micro</button>
@@ -276,7 +276,7 @@ include '../includes/header.php';
                             <div class="row g-2 align-items-end">
                                 <div class="col-md-6">
                                     <label class="form-label" for="freteTotalInput">Frete total</label>
-                                    <input type="text" inputmode="decimal" class="form-control" id="freteTotalInput" value="0,00">
+                                    <input type="text" inputmode="decimal" class="form-control" id="freteTotalInput" value="0,00" data-money-input>
                                     <div class="form-check mt-2">
                                         <input class="form-check-input" type="checkbox" id="freteComoMicroservicoCheck">
                                         <label class="form-check-label" for="freteComoMicroservicoCheck">
@@ -297,7 +297,7 @@ include '../includes/header.php';
                             <div class="row g-2 align-items-end">
                                 <div class="col-md-4">
                                     <label class="form-label" for="descontoTotalInput">Desconto total (R$)</label>
-                                    <input type="text" inputmode="decimal" class="form-control form-control-sm" id="descontoTotalInput" value="0,00">
+                                    <input type="text" inputmode="decimal" class="form-control form-control-sm" id="descontoTotalInput" value="0,00" data-money-input>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label" for="descontoPercentInput">ou Desconto (%)</label>
@@ -410,6 +410,7 @@ include '../includes/header.php';
     </div>
 </div>
 
+<script src="../assets/js/br_input_masks.js"></script>
 <script src="../assets/js/composicao_comercial.js"></script>
 <script>
 const hojeSP = '<?= $hojeSaoPaulo ?>';
@@ -434,7 +435,17 @@ let sincronizandoComposicao = false;
 let ultimaOrigemDesconto = 'valor';
 
 const moeda = (v) => Number(v || 0).toLocaleString('pt-BR', { style:'currency', currency:'BRL' });
+const dinheiroInput = (v) => Number(v || 0).toLocaleString('pt-BR', {
+  minimumFractionDigits: 2,
+  maximumFractionDigits: 2
+});
 const valorNum = window.ComposicaoComercial.valorNum;
+
+function destacarValor(el, tipo = 'info') {
+  if (window.PiscinarMasks && typeof window.PiscinarMasks.flashElement === 'function') {
+    window.PiscinarMasks.flashElement(el, tipo);
+  }
+}
 
 let clienteSelecionadoId = null;
 let produtoSelecionadoId = null;
@@ -899,9 +910,9 @@ function renderTabelas({ skipComposicaoSync = false } = {}) {
         </select>
       </td>
       <td><input class="form-control form-control-sm quantidade-adaptativa" data-tipo="produto" data-campo="quantidade" data-idx="${idx}" value="${i.quantidade}"></td>
-      <td><input class="form-control form-control-sm" data-tipo="produto" data-campo="valor_unitario" data-idx="${idx}" value="${Number(i.valor_unitario).toFixed(2).replace('.', ',')}"></td>
-      <td><input class="form-control form-control-sm" data-tipo="produto" data-campo="desconto_valor" data-idx="${idx}" value="${Number(i.desconto_valor).toFixed(2).replace('.', ',')}"></td>
-      <td><input class="form-control form-control-sm" data-tipo="produto" data-campo="frete_valor" data-idx="${idx}" value="${Number(i.frete_valor).toFixed(2).replace('.', ',')}"></td>
+      <td><input class="form-control form-control-sm" data-money-input data-tipo="produto" data-campo="valor_unitario" data-idx="${idx}" value="${dinheiroInput(i.valor_unitario)}"></td>
+      <td><input class="form-control form-control-sm" data-money-input data-tipo="produto" data-campo="desconto_valor" data-idx="${idx}" value="${dinheiroInput(i.desconto_valor)}"></td>
+      <td><input class="form-control form-control-sm" data-money-input data-tipo="produto" data-campo="frete_valor" data-idx="${idx}" value="${dinheiroInput(i.frete_valor)}"></td>
       <td>${moeda(i.total)}</td>
       <td><button type="button" class="btn btn-sm btn-outline-danger" data-remover="produto" data-idx="${idx}"><i class="fas fa-trash"></i></button></td>
     </tr>`);
@@ -912,8 +923,8 @@ function renderTabelas({ skipComposicaoSync = false } = {}) {
     b2.insertAdjacentHTML('beforeend', `<tr>
       <td>${idx+1}</td><td>${i.descricao}</td>
       <td><input class="form-control form-control-sm" data-tipo="micro" data-campo="quantidade" data-idx="${idx}" value="${i.quantidade}" ${linhaFrete ? 'readonly' : ''}></td>
-      <td><input class="form-control form-control-sm" data-tipo="micro" data-campo="valor_unitario" data-idx="${idx}" value="${Number(i.valor_unitario).toFixed(2).replace('.', ',')}" ${linhaFrete ? 'readonly' : ''}></td>
-      <td><input class="form-control form-control-sm" data-tipo="micro" data-campo="desconto_valor" data-idx="${idx}" value="${Number(i.desconto_valor).toFixed(2).replace('.', ',')}" ${linhaFrete ? 'readonly' : ''}></td>
+      <td><input class="form-control form-control-sm" data-money-input data-tipo="micro" data-campo="valor_unitario" data-idx="${idx}" value="${dinheiroInput(i.valor_unitario)}" ${linhaFrete ? 'readonly' : ''}></td>
+      <td><input class="form-control form-control-sm" data-money-input data-tipo="micro" data-campo="desconto_valor" data-idx="${idx}" value="${dinheiroInput(i.desconto_valor)}" ${linhaFrete ? 'readonly' : ''}></td>
       <td>${moeda(i.total)}</td>
       <td>${linhaFrete ? '<span class="badge bg-secondary">Automático</span>' : `<button type="button" class="btn btn-sm btn-outline-danger" data-remover="micro" data-idx="${idx}"><i class="fas fa-trash"></i></button>`}</td>
     </tr>`);
@@ -921,6 +932,9 @@ function renderTabelas({ skipComposicaoSync = false } = {}) {
 
   if (!skipComposicaoSync) {
     syncComposicaoFromState();
+  }
+  if (window.PiscinarMasks && typeof window.PiscinarMasks.bindMoneyInputs === 'function') {
+    window.PiscinarMasks.bindMoneyInputs(document);
   }
 }
 
@@ -1034,7 +1048,7 @@ function preencherProdutoSelecionado(produto) {
 
   produtoSelecionadoId = Number(produto.id) || null;
   produtoBusca.value = formatarProdutoParaSugestao(produto);
-  produtoValorUnitario.value = Number(produto.preco1 || 0).toFixed(2).replace('.', ',');
+  produtoValorUnitario.value = dinheiroInput(produto.preco1 || 0);
 }
 
 function atualizarStep(input) {
@@ -1190,6 +1204,7 @@ document.getElementById('btnZerarDescontos').addEventListener('click', () => {
 descontoTotalInput.addEventListener('input', (event) => {
   event.stopImmediatePropagation();
   ultimaOrigemDesconto = 'valor';
+  destacarValor(event.target, 'success');
   aplicarDescontoRateadoServico(valorNum(event.target.value));
 }, true);
 
@@ -1216,6 +1231,7 @@ document.getElementById('freteManualCheck').addEventListener('change', () => {
 });
 
 document.getElementById('freteTotalInput').addEventListener('input', () => {
+  destacarValor(document.getElementById('freteTotalInput'), 'info');
   if (document.getElementById('freteComoMicroservicoCheck').checked) {
     renderTabelas();
     return;
@@ -1311,15 +1327,22 @@ document.getElementById('btnAdicionarMicro').addEventListener('click', () => {
     } else {
       state[tipo][idx][campo] = valorNum(el.value);
     }
-    renderTabelas();
+    if (campo === 'origem_estoque') {
+      renderTabelas();
+      return;
+    }
+    destacarValor(el, campo === 'desconto_valor' ? 'success' : 'info');
+    syncComposicaoFromState();
   });
   document.querySelector(sel).addEventListener('change', (e) => {
     const el = e.target;
-    if (el.dataset.campo !== 'origem_estoque') return;
+    if (!['origem_estoque', 'valor_unitario', 'desconto_valor', 'frete_valor', 'quantidade'].includes(el.dataset.campo || '')) return;
     const idx = Number(el.dataset.idx); if (!Number.isInteger(idx)) return;
     const tipo = el.dataset.tipo === 'micro' ? 'microservicos' : 'produtos';
     if (!state[tipo][idx]) return;
-    state[tipo][idx].origem_estoque = String(el.value || '');
+    if (el.dataset.campo === 'origem_estoque') {
+      state[tipo][idx].origem_estoque = String(el.value || '');
+    }
     renderTabelas();
   });
   document.querySelector(sel).addEventListener('click', (e) => {

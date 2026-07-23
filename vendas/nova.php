@@ -167,7 +167,7 @@ include '../includes/header.php';
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label" for="produtoValorUnitario">Vlr. unitário</label>
-                                <input type="text" inputmode="decimal" class="form-control" id="produtoValorUnitario" value="0,00">
+                                <input type="text" inputmode="decimal" class="form-control" id="produtoValorUnitario" value="0,00" data-money-input>
                             </div>
                             <div class="col-md-2">
                                 <label class="form-label" for="produtoOrigemEstoque">Origem estoque</label>
@@ -216,7 +216,7 @@ include '../includes/header.php';
                             <div class="row g-2 align-items-end">
                                 <div class="col-md-6">
                                     <label class="form-label" for="freteTotalInput">Frete total</label>
-                                    <input type="text" inputmode="decimal" class="form-control" id="freteTotalInput" value="0,00">
+                                    <input type="text" inputmode="decimal" class="form-control" id="freteTotalInput" value="0,00" data-money-input>
                                 </div>
                                 <div class="col-md-6 form-check mt-4 ps-5">
                                     <input class="form-check-input" type="checkbox" id="freteManualCheck">
@@ -231,7 +231,7 @@ include '../includes/header.php';
                             <div class="row g-2 align-items-end">
                                 <div class="col-md-4">
                                     <label class="form-label" for="descontoTotalInput">Desconto total (R$)</label>
-                                    <input type="text" inputmode="decimal" class="form-control" id="descontoTotalInput" value="0,00">
+                                    <input type="text" inputmode="decimal" class="form-control" id="descontoTotalInput" value="0,00" data-money-input>
                                 </div>
                                 <div class="col-md-4">
                                     <label class="form-label" for="descontoPercentInput">ou Desconto (%)</label>
@@ -350,8 +350,8 @@ include '../includes/header.php';
     </div>
 </div>
 
-<script src="../assets/js/composicao_comercial.js"></script>
 <script src="<?= app_url('assets/js/br_input_masks.js'); ?>"></script>
+<script src="../assets/js/composicao_comercial.js"></script>
 <script>
     const hojeSP = '<?= $hojeSaoPaulo ?>';
     const csrfToken = '<?= htmlspecialchars(csrf_token(), ENT_QUOTES, 'UTF-8') ?>';
@@ -424,6 +424,13 @@ include '../includes/header.php';
 
     function aplicarMascaraCpfCnpj() {
         clienteCpfCnpj.value = formatarCpfCnpj(clienteCpfCnpj.value);
+    }
+
+    function formatarDecimalInput(valor) {
+        return Number(valor || 0).toLocaleString('pt-BR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
     }
 
     const composicao = window.ComposicaoComercial.init({
@@ -757,7 +764,7 @@ document.addEventListener('blur', function(e) {
 
         produtoSelecionadoId = Number(produto.id) || null;
         produtoBusca.value = formatarProdutoParaSugestao(produto);
-        produtoValorUnitario.value = Number(produto.preco1 || 0).toFixed(2).replace('.', ',');
+        produtoValorUnitario.value = formatarDecimalInput(produto.preco1 || 0);
     }
 
     function normalizarTextoComparacao(valor) {

@@ -2,6 +2,10 @@
     'use strict';
 
     function valorNum(v) {
+        if (global.PiscinarMasks && typeof global.PiscinarMasks.parseDecimal === 'function') {
+            return global.PiscinarMasks.parseDecimal(v);
+        }
+
         if (typeof v === 'number') return Number.isFinite(v) ? v : 0;
         const texto = String(v ?? '').trim();
         const normalizado = texto.includes(',')
@@ -13,6 +17,25 @@
 
     function moeda(valor) {
         return Number(valor || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    function decimalInput(valor) {
+        return Number(valor || 0).toLocaleString('pt-BR', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
+    }
+
+    function bindCamposMonetarios(scope) {
+        if (global.PiscinarMasks && typeof global.PiscinarMasks.bindMoneyInputs === 'function') {
+            global.PiscinarMasks.bindMoneyInputs(scope);
+        }
+    }
+
+    function destacar(elemento, tipo) {
+        if (global.PiscinarMasks && typeof global.PiscinarMasks.flashElement === 'function') {
+            global.PiscinarMasks.flashElement(elemento, tipo);
+        }
     }
 
     function renderizarOpcoesOrigemEstoque(valorAtual) {
@@ -174,18 +197,19 @@
                         </select>
                     </td>
                     <td><input type="number" min="1" step="1" class="form-control form-control-sm item-qtd quantidade-adaptativa" data-tipo="produto" data-index="${index}" value="${item.quantidade}" aria-label="Quantidade do item ${index + 1}"></td>
-                    <td><input type="text" inputmode="decimal" class="form-control form-control-sm item-unit" data-tipo="produto" data-index="${index}" value="${item.valorUnitario.toFixed(2).replace('.', ',')}" aria-label="Valor unitario do item ${index + 1}"></td>
+                    <td><input type="text" inputmode="decimal" class="form-control form-control-sm item-unit" data-money-input data-tipo="produto" data-index="${index}" value="${decimalInput(item.valorUnitario)}" aria-label="Valor unitario do item ${index + 1}"></td>
                     <td>${moeda(item.subtotal)}</td>
-                    <td><input type="text" inputmode="decimal" class="form-control form-control-sm item-desc" data-tipo="produto" data-index="${index}" value="${item.desconto.toFixed(2).replace('.', ',')}" aria-label="Desconto do item ${index + 1}"></td>
+                    <td><input type="text" inputmode="decimal" class="form-control form-control-sm item-desc" data-money-input data-tipo="produto" data-index="${index}" value="${decimalInput(item.desconto)}" aria-label="Desconto do item ${index + 1}"></td>
                     <td>${moeda(item.unitComDesconto)}</td>
                     <td>${moeda(item.totalComDesconto)}</td>
-                    <td><input type="text" inputmode="decimal" class="form-control form-control-sm item-frete" data-tipo="produto" data-index="${index}" value="${item.freteItem.toFixed(2).replace('.', ',')}" aria-label="Frete do item ${index + 1}"></td>
+                    <td><input type="text" inputmode="decimal" class="form-control form-control-sm item-frete" data-money-input data-tipo="produto" data-index="${index}" value="${decimalInput(item.freteItem)}" aria-label="Frete do item ${index + 1}"></td>
                     <td>${moeda(item.total)}</td>
                     <td><button type="button" class="btn btn-sm btn-outline-danger item-remove" data-tipo="produto" data-index="${index}" aria-label="Remover item ${index + 1}"><i class="fas fa-trash"></i></button></td>
                 `;
                 dom.itensBody.appendChild(tr);  
             });
 
+            bindCamposMonetarios(dom.itensBody);
             atualizarResumo();
         }
 
@@ -262,7 +286,7 @@
                 tr.innerHTML = `
                     <td>${index + 1}</td>
                     <td><input type="date" class="form-control form-control-sm parcela-venc" data-index="${index}" value="${parcela.vencimento}" ${condicao === 'vista' ? 'readonly' : ''} aria-label="Vencimento da parcela ${index + 1}"></td>
-                    <td><input type="text" inputmode="decimal" class="form-control form-control-sm parcela-valor" data-index="${index}" value="${valorNum(parcela.valor).toFixed(2).replace('.', ',')}" aria-label="Valor da parcela ${index + 1}"></td>
+                    <td><input type="text" inputmode="decimal" class="form-control form-control-sm parcela-valor" data-money-input data-index="${index}" value="${decimalInput(parcela.valor)}" aria-label="Valor da parcela ${index + 1}"></td>
                     <td><input type="text" inputmode="decimal" class="form-control form-control-sm parcela-percentual" data-index="${index}" value="${formatarPercentual(percentual)}" ${condicao === 'vista' ? 'readonly' : ''} style="width: 4.4em; min-width: 4.4em; font-size: 0.78rem;" aria-label="Percentual da parcela ${index + 1}"></td>
                     <td><select class="form-select form-select-sm parcela-tipo" data-index="${index}" aria-label="Tipo de pagamento da parcela ${index + 1}">${tipoOptions}</select></td>
                     <td>${index + 1}</td>
@@ -275,6 +299,7 @@
             if (dom.qtdParcelas) {
                 dom.qtdParcelas.value = qtdTotal;
             }
+            bindCamposMonetarios(dom.parcelasBody);
         }
 
         function montarParcelas(qtd) {
@@ -425,14 +450,15 @@
             dom.totalDescontos.textContent = moeda(totais.desconto_total);
             dom.totalFrete.textContent = moeda(totais.frete_total);
             dom.totalGeral.textContent = moeda(totais.total_geral);
+            [dom.subtotalProdutos, dom.totalDescontos, dom.totalFrete, dom.totalGeral].forEach((elemento) => destacar(elemento, 'info'));
 
             if (!state.flags.descontoTotalEditando) {
-                dom.descontoTotalInput.value = totais.desconto_total.toFixed(2).replace('.', ',');
+                dom.descontoTotalInput.value = decimalInput(totais.desconto_total);
             }
 
             if (!state.flags.descontoPercentControlando) {
                 const perc = totais.subtotal_produtos > 0 ? (totais.desconto_total / totais.subtotal_produtos) * 100 : 0;
-                dom.descontoPercentInput.value = perc.toFixed(2).replace('.', ',');
+                dom.descontoPercentInput.value = decimalInput(perc);
             }
 
             recalcularParcelas();
@@ -453,14 +479,17 @@
             }
             if (target.classList.contains('item-unit')) {
                 itens[idx].valorUnitario = Math.max(0, valorNum(target.value));
+                destacar(target, 'success');
                 return true;
             }
             if (target.classList.contains('item-desc')) {
                 itens[idx].desconto = Math.max(0, valorNum(target.value));
+                destacar(target, 'success');
                 return true;
             }
             if (target.classList.contains('item-frete')) {
                 itens[idx].freteItem = Math.max(0, valorNum(target.value));
+                destacar(target, 'info');
                 return true;
             }
             if (target.classList.contains('item-stock-origin')) {
@@ -513,6 +542,7 @@
             dom.freteTotalInput.addEventListener('focus', () => { state.flags.freteTotalEditando = true; });
             dom.freteTotalInput.addEventListener('blur', () => { state.flags.freteTotalEditando = false; atualizarResumo(); });
             dom.freteTotalInput.addEventListener('input', (event) => {
+                destacar(dom.freteTotalInput, 'info');
                 if (dom.freteManualCheck.checked && state.itens_produto.length && dom.itensBody) {
                     ratearFreteProdutos(Math.max(0, valorNum(event.target.value)));
                     return;
@@ -525,6 +555,7 @@
             dom.descontoTotalInput.addEventListener('input', (event) => {
                 const valor = Math.max(0, valorNum(event.target.value));
                 if (!state.itens_produto.length) return;
+                destacar(dom.descontoTotalInput, 'success');
                 ratearDescontoProdutos(valor);
             });
 
@@ -534,6 +565,7 @@
                 const subtotal = state.itens_produto.reduce((acc, item) => acc + (item.quantidade * item.valorUnitario), 0);
                 const descontoTotal = subtotal * (perc / 100);
                 if (state.itens_produto.length) {
+                    destacar(dom.descontoPercentInput, 'success');
                     ratearDescontoProdutos(descontoTotal);
                 }
                 state.flags.descontoPercentControlando = false;
@@ -639,9 +671,15 @@
             });
 
             dom.parcelasBody.addEventListener('focusin', (event) => {
-                if (!event.target.classList.contains('parcela-percentual')) return;
-                event.target.value = valorNum(event.target.value).toFixed(2).replace('.', ',');
-                event.target.select();
+                if (event.target.classList.contains('parcela-percentual')) {
+                    event.target.value = decimalInput(event.target.value);
+                    event.target.select();
+                    return;
+                }
+
+                if (event.target.classList.contains('parcela-valor') && global.PiscinarMasks) {
+                    global.PiscinarMasks.selectOnFocus(event.target);
+                }
             });
 
             dom.parcelasBody.addEventListener('focusout', (event) => {
@@ -719,6 +757,7 @@
         }
 
         bindEvents();
+        bindCamposMonetarios(document);
         montarParcelas(1);
         dom.condicaoPagamento.dispatchEvent(new Event('change'));
         renderItens();
